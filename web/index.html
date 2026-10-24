@@ -20,9 +20,12 @@
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="description" content="Photo-first personal money tracker.">
 
-  <!-- iOS meta tags & icons -->
+  <!-- iOS: "Add to Home Screen" opens full screen (no Safari bars). An opaque
+       status bar keeps the app below the clock, since Flutter's viewport
+       doesn't expose safe-area insets. -->
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="theme-color" content="#101614">
   <meta name="apple-mobile-web-app-title" content="Money">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
@@ -32,6 +35,10 @@
 
   <title>Money Tracker</title>
   <link rel="manifest" href="manifest.json">
+  <!-- Matches the app's dark background around the home indicator. -->
+  <style>
+    html, body { background-color: #101614; }
+  </style>
 </head>
 <body>
   <!--
