@@ -8,8 +8,8 @@ import '../../../../app/navigation.dart';
 import '../../../../core/formatting/formatters.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../l10n/app_localizations.dart';
-import '../../data/mock_data.dart';
 import '../../domain/ledger.dart';
+import '../../domain/ledger_repository.dart';
 import '../../domain/models.dart';
 import '../../providers/transactions_provider.dart';
 import '../category_presentation.dart';
@@ -48,7 +48,7 @@ class _AddEditTransactionScreenState
   static const _uuid = Uuid();
 
   late TransactionType _type;
-  CategoryCode? _category;
+  Category? _category;
   late String _accountId;
   late String _sourceAccountId;
   late String _destinationAccountId;
@@ -71,9 +71,18 @@ class _AddEditTransactionScreenState
     final now = ref.read(clockProvider)();
     _type = e?.type ?? TransactionType.expense;
     _category = e?.category ?? _defaultCategory(_type);
-    _accountId = e?.accountId ?? cashAccountId;
-    _sourceAccountId = e?.sourceAccountId ?? bankAccountId;
-    _destinationAccountId = e?.destinationAccountId ?? cashAccountId;
+    // Defaults: spend from cash, transfer from bank to cash.
+    final accounts = ref.read(accountsProvider);
+    String? firstOf(AccountType type) =>
+        accounts.where((a) => a.type == type).firstOrNull?.id;
+    final fallback = accounts.firstOrNull?.id ?? '';
+    _accountId = e?.accountId ?? firstOf(AccountType.cash) ?? fallback;
+    _sourceAccountId =
+        e?.sourceAccountId ?? firstOf(AccountType.bank) ?? fallback;
+    _destinationAccountId =
+        e?.destinationAccountId ??
+        accounts.where((a) => a.id != _sourceAccountId).firstOrNull?.id ??
+        fallback;
     final day = widget.initialDate;
     _occurredAt =
         e?.occurredAt ??
@@ -89,10 +98,8 @@ class _AddEditTransactionScreenState
     _initialSnapshot = _snapshot(e?.amountMinor, photo: e?.photo);
   }
 
-  static CategoryCode? _defaultCategory(TransactionType type) =>
-      type == TransactionType.transfer
-      ? null
-      : CategoryCode.forType(type).first;
+  static Category? _defaultCategory(TransactionType type) =>
+      type == TransactionType.transfer ? null : Category.systemFor(type).first;
 
   int? get _amountMinor => _amount.evaluate();
 
@@ -119,7 +126,23 @@ class _AddEditTransactionScreenState
     category: _category,
     sourceAccountId: _sourceAccountId,
     destinationAccountId: _destinationAccountId,
+    availableMinor: _availableBalance(),
   );
+
+  /// Balance of the account money leaves, ignoring this transaction's saved
+  /// version so an edit isn't counted twice. Null for income.
+  int? _availableBalance() {
+    if (_type == TransactionType.income) return null;
+    final id = _type == TransactionType.transfer
+        ? _sourceAccountId
+        : _accountId;
+    final account = ref.read(accountByIdProvider)[id];
+    if (account == null) return null;
+    final others = ref
+        .read(transactionsProvider)
+        .where((t) => t.id != widget.existing?.id);
+    return accountBalance(account, others);
+  }
 
   void _changeType(TransactionType type) {
     if (type == _type || _isEditing) return;
@@ -153,7 +176,8 @@ class _AddEditTransactionScreenState
 
   Future<void> _pickCategory() async {
     final l10n = AppLocalizations.of(context);
-    final picked = await showModalBottomSheet<CategoryCode>(
+    final options = ref.read(selectableCategoriesProvider(_type));
+    final picked = await showModalBottomSheet<Category>(
       context: context,
       showDragHandle: true,
       builder: (context) => SafeArea(
@@ -181,13 +205,22 @@ class _AddEditTransactionScreenState
                 crossAxisSpacing: AppSpacing.sm,
                 childAspectRatio: 0.82,
                 children: [
-                  for (final c in CategoryCode.forType(_type))
+                  for (final c in options)
                     _CategoryOption(
                       category: c,
                       selected: c == _category,
                       onTap: () => Navigator.of(context).pop(c),
                     ),
                 ],
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              TextButton.icon(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  openCategories(this.context, type: _type);
+                },
+                icon: const Icon(Icons.tune_rounded),
+                label: Text(l10n.manageCategories),
               ),
             ],
           ),
@@ -362,12 +395,18 @@ class _AddEditTransactionScreenState
       note: note.isEmpty ? null : note,
       photo: isTransfer ? null : _photo,
     );
-    final notifier = ref.read(transactionsProvider.notifier);
-    if (_isEditing) {
-      notifier.update(transaction);
-    } else {
-      notifier.add(transaction);
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = AppLocalizations.of(context);
+    try {
+      await ref.read(ledgerProvider.notifier).save(transaction);
+    } on LedgerException {
+      // Keep everything the user entered so they can retry.
+      if (!mounted) return;
+      setState(() => _saving = false);
+      messenger.showSnackBar(SnackBar(content: Text(l10n.saveFailed)));
+      return;
     }
+    if (!mounted) return;
     _close(
       _isEditing ? TransactionFormResult.updated : TransactionFormResult.added,
     );
@@ -396,7 +435,14 @@ class _AddEditTransactionScreenState
       ),
     );
     if (confirmed != true || !mounted) return;
-    ref.read(transactionsProvider.notifier).delete(widget.existing!.id);
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      await ref.read(ledgerProvider.notifier).delete(widget.existing!);
+    } on LedgerException {
+      messenger.showSnackBar(SnackBar(content: Text(l10n.deleteFailed)));
+      return;
+    }
+    if (!mounted) return;
     _close(TransactionFormResult.deleted);
   }
 
@@ -553,12 +599,16 @@ class _AddEditTransactionScreenState
                       ],
               ),
             ),
-            if (errors.sameAccount || errors.categoryMissing)
+            if (errors.sameAccount ||
+                errors.categoryMissing ||
+                errors.insufficientBalance)
               Padding(
                 padding: const EdgeInsets.only(top: AppSpacing.xs),
                 child: Text(
                   errors.sameAccount
                       ? l10n.errorSameAccount
+                      : errors.insufficientBalance
+                      ? l10n.errorInsufficientBalance
                       : l10n.errorCategoryRequired,
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.error,
@@ -1095,7 +1145,7 @@ class _TypeToggle extends StatelessWidget {
 }
 
 class _CategoryOption extends StatelessWidget {
-  final CategoryCode category;
+  final Category category;
   final bool selected;
   final VoidCallback onTap;
 

@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/formatting/formatters.dart';
 import '../core/theme/app_theme.dart';
+import '../features/auth/presentation/sign_in_screen.dart';
+import '../features/auth/providers/auth_provider.dart';
 import '../features/settings/providers/settings_provider.dart';
 import '../l10n/app_localizations.dart';
 import 'app_shell.dart';
@@ -25,7 +27,9 @@ class MoneyTrackerApp extends ConsumerWidget {
         hidden: ref.watch(hideAmountsProvider),
         child: child!,
       ),
-      home: const AppShell(),
+      home: ref.watch(currentUserIdProvider) == null
+          ? const SignInScreen()
+          : const AppShell(),
     );
   }
 }

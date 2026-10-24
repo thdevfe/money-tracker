@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../app/navigation.dart';
 import '../../../core/formatting/formatters.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/widgets/empty_state_view.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../transactions/domain/models.dart';
 import '../../transactions/presentation/category_presentation.dart';
 import '../../transactions/providers/transactions_provider.dart';
 
-/// Read-only account list for the prototype; balances are derived from the
-/// in-memory transactions.
+/// Cash wallets and bank accounts with derived balances, grouped by type.
 class AccountsScreen extends ConsumerWidget {
   const AccountsScreen({super.key});
 
@@ -21,45 +23,32 @@ class AccountsScreen extends ConsumerWidget {
     final accounts = ref.watch(accountsProvider);
     final balances = ref.watch(accountBalancesProvider);
 
-    return Scaffold(
-      appBar: AppBar(title: Text(l10n.navAccounts)),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(
-          AppSpacing.lg,
-          AppSpacing.lg,
-          AppSpacing.lg,
-          AppSpacing.navClearance,
-        ),
+    Widget group(AccountType type) {
+      final items = accounts.where((a) => a.type == type).toList();
+      if (items.isEmpty) return const SizedBox.shrink();
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(AppSpacing.lg),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    l10n.accountsTotalLabel,
-                    style: theme.textTheme.labelMedium?.copyWith(
-                      color: colors.textSecondary,
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.xs),
-                  Text(
-                    fmt.money(ref.watch(totalBalanceProvider)),
-                    style: theme.textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ],
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.xs,
+              AppSpacing.lg,
+              AppSpacing.xs,
+              AppSpacing.sm,
+            ),
+            child: Text(
+              type.label(l10n),
+              style: theme.textTheme.labelLarge?.copyWith(
+                color: colors.textSecondary,
+                fontWeight: FontWeight.w700,
               ),
             ),
           ),
-          const SizedBox(height: AppSpacing.md),
           Card(
             clipBehavior: Clip.antiAlias,
             child: Column(
               children: [
-                for (final a in accounts)
+                for (final a in items)
                   ListTile(
                     minTileHeight: 64,
                     leading: CircleAvatar(
@@ -71,27 +60,85 @@ class AccountsScreen extends ConsumerWidget {
                       a.name,
                       style: const TextStyle(fontWeight: FontWeight.w600),
                     ),
-                    subtitle: Text(a.type.label(l10n)),
                     trailing: Text(
                       fmt.money(balances[a.id] ?? 0),
                       style: theme.textTheme.titleSmall?.copyWith(
                         fontWeight: FontWeight.w700,
                       ),
                     ),
+                    onTap: () => openAccountDetail(context, a.id),
                   ),
               ],
             ),
           ),
-          const SizedBox(height: AppSpacing.lg),
-          Text(
-            l10n.accountsLaterNote,
-            textAlign: TextAlign.center,
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: colors.textSecondary,
-            ),
+        ],
+      );
+    }
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(l10n.navAccounts),
+        actions: [
+          IconButton(
+            tooltip: l10n.addAccount,
+            icon: const Icon(Icons.add_rounded),
+            onPressed: () => openAccountForm(context),
           ),
         ],
       ),
+      body: accounts.isEmpty
+          ? Center(
+              child: EmptyStateView(
+                icon: Icons.account_balance_wallet_outlined,
+                title: l10n.noAccountsTitle,
+                message: l10n.noAccountsMessage,
+                actionLabel: l10n.addAccount,
+                onAction: () => openAccountForm(context),
+              ),
+            )
+          : ListView(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.lg,
+                AppSpacing.lg,
+                AppSpacing.lg,
+                AppSpacing.navClearance,
+              ),
+              children: [
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(AppSpacing.lg),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          l10n.accountsTotalLabel,
+                          style: theme.textTheme.labelMedium?.copyWith(
+                            color: colors.textSecondary,
+                          ),
+                        ),
+                        const SizedBox(height: AppSpacing.xs),
+                        Text(
+                          fmt.money(ref.watch(totalBalanceProvider)),
+                          style: theme.textTheme.headlineSmall?.copyWith(
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                group(AccountType.cash),
+                group(AccountType.bank),
+                const SizedBox(height: AppSpacing.lg),
+                Center(
+                  child: FilledButton.tonalIcon(
+                    onPressed: () => openAccountForm(context),
+                    icon: const Icon(Icons.add_rounded),
+                    label: Text(l10n.addAccount),
+                  ),
+                ),
+              ],
+            ),
     );
   }
 }

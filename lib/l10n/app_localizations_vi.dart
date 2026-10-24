@@ -561,4 +561,203 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get chooseCategory => 'Chọn danh mục';
+
+  @override
+  String get signInTitle => 'Đăng nhập';
+
+  @override
+  String get signUpTitle => 'Tạo tài khoản';
+
+  @override
+  String get signInSubtitle =>
+      'Dữ liệu được lưu vào tài khoản của bạn và chỉ bạn xem được.';
+
+  @override
+  String get emailLabel => 'Email';
+
+  @override
+  String get passwordLabel => 'Mật khẩu';
+
+  @override
+  String get signInAction => 'Đăng nhập';
+
+  @override
+  String get signUpAction => 'Tạo tài khoản';
+
+  @override
+  String get switchToSignUp => 'Chưa có tài khoản? Tạo mới';
+
+  @override
+  String get switchToSignIn => 'Đã có tài khoản? Đăng nhập';
+
+  @override
+  String get errorEmailInvalid => 'Nhập email hợp lệ';
+
+  @override
+  String get errorPasswordShort => 'Dùng ít nhất 6 ký tự';
+
+  @override
+  String get authInvalidCredentials => 'Sai email hoặc mật khẩu';
+
+  @override
+  String get authEmailNotConfirmed =>
+      'Hãy xác nhận email trước, rồi đăng nhập.';
+
+  @override
+  String get authUserExists => 'Email này đã có tài khoản. Hãy đăng nhập.';
+
+  @override
+  String get authWeakPassword => 'Hãy chọn mật khẩu mạnh hơn';
+
+  @override
+  String get authNetwork =>
+      'Không kết nối được máy chủ. Kiểm tra mạng của bạn.';
+
+  @override
+  String get authUnknown => 'Đã có lỗi. Hãy thử lại.';
+
+  @override
+  String get confirmEmailSent =>
+      'Hãy mở email để xác nhận tài khoản, rồi đăng nhập.';
+
+  @override
+  String get signOut => 'Đăng xuất';
+
+  @override
+  String signedInAs(String email) {
+    return 'Đang đăng nhập: $email';
+  }
+
+  @override
+  String get loadErrorTitle => 'Không tải được dữ liệu';
+
+  @override
+  String get loadErrorMessage => 'Kiểm tra kết nối mạng rồi thử lại.';
+
+  @override
+  String get retry => 'Thử lại';
+
+  @override
+  String get saveFailed =>
+      'Không lưu được. Thông tin vẫn được giữ, hãy thử lại.';
+
+  @override
+  String get deleteFailed => 'Không xóa được. Hãy thử lại.';
+
+  @override
+  String get errorInsufficientBalance => 'Tài khoản không đủ tiền';
+
+  @override
+  String get noAccountsTitle => 'Chưa có tài khoản tiền';
+
+  @override
+  String get dataCloudNote =>
+      'Dữ liệu được lưu trên tài khoản Supabase của bạn. Chỉ bạn xem được.';
+
+  @override
+  String get showPassword => 'Hiện mật khẩu';
+
+  @override
+  String get hidePassword => 'Ẩn mật khẩu';
+
+  @override
+  String get manageCategories => 'Quản lý danh mục';
+
+  @override
+  String get categoriesTitle => 'Danh mục';
+
+  @override
+  String get builtInBadge => 'Mặc định';
+
+  @override
+  String get archivedSection => 'Đã lưu trữ';
+
+  @override
+  String get addCategory => 'Thêm danh mục';
+
+  @override
+  String get editCategory => 'Sửa danh mục';
+
+  @override
+  String get categoryNameLabel => 'Tên danh mục';
+
+  @override
+  String get iconLabel => 'Biểu tượng';
+
+  @override
+  String get colorLabel => 'Màu';
+
+  @override
+  String get archiveAction => 'Lưu trữ';
+
+  @override
+  String get restoreAction => 'Khôi phục';
+
+  @override
+  String get categoryInUseMessage =>
+      'Danh mục đang được dùng nên không thể xóa. Hãy lưu trữ để ẩn khỏi giao dịch mới.';
+
+  @override
+  String get deleteCategoryTitle => 'Xóa danh mục này?';
+
+  @override
+  String get builtInReadOnly => 'Không thể sửa danh mục mặc định.';
+
+  @override
+  String get errorNameRequired => 'Nhập tên';
+
+  @override
+  String get errorNameTooLong => 'Tên quá dài';
+
+  @override
+  String get errorNameDuplicate => 'Tên này đã được dùng';
+
+  @override
+  String get addAccount => 'Thêm tài khoản';
+
+  @override
+  String get editAccount => 'Sửa tài khoản';
+
+  @override
+  String get accountNameLabel => 'Tên tài khoản';
+
+  @override
+  String get accountNameHint => 'VD: Ví tiền mặt';
+
+  @override
+  String get accountTypeLabel => 'Loại';
+
+  @override
+  String get openingBalanceLabel => 'Số dư ban đầu';
+
+  @override
+  String get openingBalanceHelp =>
+      'Số tiền đang có sẵn. Không tính là thu nhập.';
+
+  @override
+  String get openingBalanceLocked =>
+      'Không thể sửa số dư ban đầu khi tài khoản đã có giao dịch.';
+
+  @override
+  String get deleteAccountTitle => 'Xóa tài khoản này?';
+
+  @override
+  String get accountInUseMessage =>
+      'Tài khoản đang có giao dịch nên không thể xóa. Hãy xóa các giao dịch đó trước.';
+
+  @override
+  String get currentBalanceLabel => 'Số dư hiện tại';
+
+  @override
+  String get recentTransactions => 'Giao dịch gần đây';
+
+  @override
+  String get noAccountsMessage =>
+      'Hãy tạo ví hoặc tài khoản ngân hàng để bắt đầu ghi chép.';
+
+  @override
+  String get savedMessage => 'Đã lưu';
+
+  @override
+  String get noTransactionsYet => 'Chưa có giao dịch';
 }

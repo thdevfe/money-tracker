@@ -1,4 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../features/accounts/presentation/account_detail_screen.dart';
+import '../features/accounts/presentation/account_form_screen.dart';
+import '../features/categories/presentation/categories_screen.dart';
+import '../features/transactions/providers/transactions_provider.dart';
 
 import '../features/transactions/domain/models.dart';
 import '../features/transactions/presentation/daily_transactions_screen.dart';
@@ -12,8 +18,11 @@ enum TransactionFormResult { added, updated, deleted }
 /// Opens Add Transaction. When [date] is given the form defaults to that day
 /// at the current time.
 /// Step 1 is the capture screen (camera, library or skip), step 2 the entry
-/// screen.
+/// screen. Without any account, the account form opens first.
 Future<void> openAddTransaction(BuildContext context, {DateTime? date}) async {
+  if (ProviderScope.containerOf(context).read(accountsProvider).isEmpty) {
+    return openAccountForm(context);
+  }
   final capture = await Navigator.of(context).push<CaptureResult>(
     MaterialPageRoute(
       builder: (_) => const CapturePhotoScreen(),
@@ -58,4 +67,30 @@ Future<void> _openForm(BuildContext context, Widget screen) async {
         }),
       ),
     );
+}
+
+Future<void> openAccountForm(BuildContext context, {Account? existing}) {
+  return Navigator.of(context).push(
+    MaterialPageRoute(
+      builder: (_) => AccountFormScreen(existing: existing),
+      fullscreenDialog: true,
+    ),
+  );
+}
+
+Future<void> openAccountDetail(BuildContext context, String accountId) {
+  return Navigator.of(context).push(
+    MaterialPageRoute(
+      builder: (_) => AccountDetailScreen(accountId: accountId),
+    ),
+  );
+}
+
+Future<void> openCategories(
+  BuildContext context, {
+  TransactionType type = TransactionType.expense,
+}) {
+  return Navigator.of(context).push(
+    MaterialPageRoute(builder: (_) => CategoriesScreen(initialType: type)),
+  );
 }

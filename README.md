@@ -4,19 +4,41 @@ Personal income/expense tracker built with Flutter, iOS first. Its main
 feature is a **monthly photo calendar**: each day shows small thumbnails of
 that day's transaction photos and the day's spending total.
 
-> **Status: UI prototype milestone.** All data is deterministic mock data held
-> in memory and resets on restart. There is no database, backend, sign-in or
-> sync yet. See `APP_PLAN.md` / `UI_MOCKUP_SPEC.md` for the full plan.
+> **Status:** saves data to **Supabase** (sign-in, database, private photo
+> storage) and is hosted as a web app on **Netlify**. Without Supabase
+> settings it runs in **demo mode** with sample data in memory.
+
+## Backend setup (once)
+
+1. Create a free project at supabase.com (region: Southeast Asia).
+2. In the dashboard, open **SQL Editor › New query**, paste
+   `supabase/migrations/0001_init.sql` and click **Run**. This creates the
+   tables, row-level security (each user sees only their own data), a default
+   cash wallet for new users, and the private `transaction-photos` bucket.
+3. Copy `config/supabase.example.json` to `config/supabase.json` and fill in
+   the **Project URL** and the **publishable** key from
+   *Project Settings › API Keys*. Never use the secret/service_role key in the
+   app. `config/supabase.json` is git-ignored.
+4. *Authentication › URL Configuration*: set **Site URL** to the Netlify URL so
+   sign-up confirmation emails link back to the app.
 
 ## Run
 
 ```bash
 flutter pub get
-flutter run            # pick an iOS simulator
-flutter run -d chrome  # quick web preview (camera/library picking differs)
+flutter run --dart-define-from-file=config/supabase.json   # with Supabase
+flutter run                                                # demo mode
 ```
 
-iOS builds need the Xcode license accepted once: `sudo xcodebuild -license`.
+## Deploy the web app (Netlify)
+
+```bash
+flutter build web --release --dart-define-from-file=config/supabase.json
+```
+
+Then upload `build/web` to Netlify (drag-and-drop on the site's *Deploys* page,
+or `netlify deploy --prod`). Users open the link in Safari and choose
+**Share › Add to Home Screen**.
 
 ## Test and analyze
 
@@ -85,10 +107,10 @@ assets/mock_photos/  original sample images made for this project
   the default, and its calendar weeks start on Monday.
 - `clockProvider` can be overridden in tests so the mock data is deterministic.
 
-## Known limitations (prototype)
+## Known limitations
 
-- No persistence. Picked photos point to the picker's temp file and are not copied
-  into app storage.
-- No overdraft or balance checks, and the transaction type can't be changed while editing.
-- Accounts and categories can't be created or edited, and Reports is a placeholder.
+- Needs an internet connection (no offline mode yet).
+- The transaction type can't be changed while editing.
+- Accounts and categories can't be created or edited yet (new users get one
+  cash wallet). Report clusters and map are placeholders.
 - Theme and language choices are not saved between launches.

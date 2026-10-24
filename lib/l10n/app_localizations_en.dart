@@ -587,4 +587,201 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get chooseCategory => 'Choose category';
+
+  @override
+  String get signInTitle => 'Sign in';
+
+  @override
+  String get signUpTitle => 'Create account';
+
+  @override
+  String get signInSubtitle =>
+      'Your data is saved to your account and private to you.';
+
+  @override
+  String get emailLabel => 'Email';
+
+  @override
+  String get passwordLabel => 'Password';
+
+  @override
+  String get signInAction => 'Sign in';
+
+  @override
+  String get signUpAction => 'Create account';
+
+  @override
+  String get switchToSignUp => 'No account yet? Create one';
+
+  @override
+  String get switchToSignIn => 'Already have an account? Sign in';
+
+  @override
+  String get errorEmailInvalid => 'Enter a valid email';
+
+  @override
+  String get errorPasswordShort => 'Use at least 6 characters';
+
+  @override
+  String get authInvalidCredentials => 'Wrong email or password';
+
+  @override
+  String get authEmailNotConfirmed => 'Confirm your email first, then sign in.';
+
+  @override
+  String get authUserExists =>
+      'This email already has an account. Sign in instead.';
+
+  @override
+  String get authWeakPassword => 'Choose a stronger password';
+
+  @override
+  String get authNetwork => 'Can\'t reach the server. Check your connection.';
+
+  @override
+  String get authUnknown => 'Something went wrong. Try again.';
+
+  @override
+  String get confirmEmailSent =>
+      'Check your email to confirm your account, then sign in.';
+
+  @override
+  String get signOut => 'Sign out';
+
+  @override
+  String signedInAs(String email) {
+    return 'Signed in as $email';
+  }
+
+  @override
+  String get loadErrorTitle => 'Couldn\'t load your data';
+
+  @override
+  String get loadErrorMessage => 'Check your connection and try again.';
+
+  @override
+  String get retry => 'Try again';
+
+  @override
+  String get saveFailed => 'Couldn\'t save. Your entry is kept; try again.';
+
+  @override
+  String get deleteFailed => 'Couldn\'t delete. Try again.';
+
+  @override
+  String get errorInsufficientBalance => 'Not enough money in this account';
+
+  @override
+  String get noAccountsTitle => 'No accounts yet';
+
+  @override
+  String get dataCloudNote =>
+      'Your data is stored in your Supabase account. Only you can see it.';
+
+  @override
+  String get showPassword => 'Show password';
+
+  @override
+  String get hidePassword => 'Hide password';
+
+  @override
+  String get manageCategories => 'Manage categories';
+
+  @override
+  String get categoriesTitle => 'Categories';
+
+  @override
+  String get builtInBadge => 'Built-in';
+
+  @override
+  String get archivedSection => 'Archived';
+
+  @override
+  String get addCategory => 'Add category';
+
+  @override
+  String get editCategory => 'Edit category';
+
+  @override
+  String get categoryNameLabel => 'Category name';
+
+  @override
+  String get iconLabel => 'Icon';
+
+  @override
+  String get colorLabel => 'Color';
+
+  @override
+  String get archiveAction => 'Archive';
+
+  @override
+  String get restoreAction => 'Restore';
+
+  @override
+  String get categoryInUseMessage =>
+      'Transactions use this category, so it can\'t be deleted. Archive it to hide it from new transactions.';
+
+  @override
+  String get deleteCategoryTitle => 'Delete this category?';
+
+  @override
+  String get builtInReadOnly => 'Built-in categories can\'t be changed.';
+
+  @override
+  String get errorNameRequired => 'Enter a name';
+
+  @override
+  String get errorNameTooLong => 'This name is too long';
+
+  @override
+  String get errorNameDuplicate => 'This name is already used';
+
+  @override
+  String get addAccount => 'Add account';
+
+  @override
+  String get editAccount => 'Edit account';
+
+  @override
+  String get accountNameLabel => 'Account name';
+
+  @override
+  String get accountNameHint => 'e.g. Cash wallet';
+
+  @override
+  String get accountTypeLabel => 'Type';
+
+  @override
+  String get openingBalanceLabel => 'Opening balance';
+
+  @override
+  String get openingBalanceHelp =>
+      'Money already in this account. It isn\'t counted as income.';
+
+  @override
+  String get openingBalanceLocked =>
+      'The opening balance can\'t change once the account has transactions.';
+
+  @override
+  String get deleteAccountTitle => 'Delete this account?';
+
+  @override
+  String get accountInUseMessage =>
+      'This account has transactions, so it can\'t be deleted. Delete those transactions first.';
+
+  @override
+  String get currentBalanceLabel => 'Current balance';
+
+  @override
+  String get recentTransactions => 'Recent transactions';
+
+  @override
+  String get noAccountsMessage =>
+      'Create a wallet or bank account to start recording money.';
+
+  @override
+  String get savedMessage => 'Saved';
+
+  @override
+  String get noTransactionsYet => 'No transactions yet';
 }

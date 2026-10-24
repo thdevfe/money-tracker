@@ -1,0 +1,11 @@
+# Netlify serves the prebuilt web app (Netlify's build image has no Flutter):
+#   flutter build web --release --dart-define-from-file=config/supabase.json
+# then deploy build/web (drag-and-drop, or `netlify deploy --prod`).
+[build]
+  publish = "build/web"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"

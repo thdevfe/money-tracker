@@ -24,11 +24,12 @@ class CaptureResult {
   const CaptureResult(this.photo);
 }
 
-/// Wraps a picked or captured file. For this prototype the path stays where
-/// the picker/camera left it and is not copied into app storage.
-TransactionPhoto pickedPhoto(String path) => PickedTransactionPhoto(
-  path,
-  kIsWeb ? NetworkImage(path) as ImageProvider : FileImage(File(path)),
+/// Wraps a picked or captured file until it is uploaded on save.
+TransactionPhoto pickedPhoto(XFile file) => PickedTransactionPhoto(
+  file,
+  kIsWeb
+      ? NetworkImage(file.path) as ImageProvider
+      : FileImage(File(file.path)),
 );
 
 /// Opens the photo library. Returns null when cancelled or unavailable.
@@ -41,7 +42,7 @@ Future<TransactionPhoto?> pickFromLibrary(BuildContext context) async {
       maxWidth: 1600,
       imageQuality: 85,
     );
-    return file == null ? null : pickedPhoto(file.path);
+    return file == null ? null : pickedPhoto(file);
   } on PlatformException {
     messenger.showSnackBar(SnackBar(content: Text(l10n.photoPickError)));
     return null;
@@ -150,7 +151,7 @@ class _CapturePhotoScreenState extends ConsumerState<CapturePhotoScreen>
     try {
       final file = await controller.takePicture();
       if (!mounted) return;
-      Navigator.of(context).pop(CaptureResult(pickedPhoto(file.path)));
+      Navigator.of(context).pop(CaptureResult(pickedPhoto(file)));
     } on CameraException {
       if (mounted) setState(() => _busy = false);
     }

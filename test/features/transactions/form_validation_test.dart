@@ -11,7 +11,7 @@ void main() {
     TransactionFormErrors validate({
       TransactionType type = TransactionType.expense,
       int? amount = 1000,
-      CategoryCode? category = CategoryCode.food,
+      Category? category = const Category.system(CategoryCode.food),
       String? from = 'bank',
       String? to = 'cash',
     }) {
@@ -44,6 +44,27 @@ void main() {
         validate(type: TransactionType.transfer, category: null).isValid,
         isTrue,
       );
+    });
+
+    test('blocks spending more than the account holds', () {
+      TransactionFormErrors check(TransactionType type, int available) =>
+          validateTransactionForm(
+            type: type,
+            amountMinor: 50000,
+            category: Category.system(
+              type == TransactionType.income
+                  ? CategoryCode.salary
+                  : CategoryCode.food,
+            ),
+            sourceAccountId: 'bank',
+            destinationAccountId: 'cash',
+            availableMinor: available,
+          );
+      expect(check(TransactionType.expense, 40000).insufficientBalance, isTrue);
+      expect(check(TransactionType.expense, 50000).isValid, isTrue);
+      expect(check(TransactionType.transfer, 0).insufficientBalance, isTrue);
+      // Income never needs available money.
+      expect(check(TransactionType.income, 0).isValid, isTrue);
     });
 
     test('rejects a transfer to the same account', () {

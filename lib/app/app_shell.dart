@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/theme/app_theme.dart';
+import '../core/widgets/empty_state_view.dart';
 import '../features/accounts/presentation/accounts_screen.dart';
 import '../features/reports/presentation/reports_screen.dart';
 import '../features/settings/presentation/settings_screen.dart';
@@ -37,16 +38,25 @@ class _AppShellState extends ConsumerState<AppShell> {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBody: true,
-      body: IndexedStack(
-        index: _index,
-        children: [
-          HomeScreen(onOpenProfile: () => setState(() => _index = _profileTab)),
-          const ReportsScreen(),
-          const TransactionsScreen(),
-          const AccountsScreen(),
-          const SettingsScreen(),
-        ],
-      ),
+      body: switch (ref.watch(ledgerProvider.select((s) => s.status))) {
+        LedgerStatus.loading when ref.read(transactionsProvider).isEmpty =>
+          const Center(child: CircularProgressIndicator()),
+        LedgerStatus.error => _LoadError(
+          onRetry: () => ref.read(ledgerProvider.notifier).load(),
+        ),
+        _ => IndexedStack(
+          index: _index,
+          children: [
+            HomeScreen(
+              onOpenProfile: () => setState(() => _index = _profileTab),
+            ),
+            const ReportsScreen(),
+            const TransactionsScreen(),
+            const AccountsScreen(),
+            const SettingsScreen(),
+          ],
+        ),
+      },
       bottomNavigationBar: AppBottomNav(
         currentIndex: _index,
         onSelected: (i) => setState(() => _index = i),
@@ -195,6 +205,26 @@ class AppBottomNav extends StatelessWidget {
               ),
             ),
         ],
+      ),
+    );
+  }
+}
+
+class _LoadError extends StatelessWidget {
+  final VoidCallback onRetry;
+
+  const _LoadError({required this.onRetry});
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return Center(
+      child: EmptyStateView(
+        icon: Icons.cloud_off_rounded,
+        title: l10n.loadErrorTitle,
+        message: l10n.loadErrorMessage,
+        actionLabel: l10n.retry,
+        onAction: onRetry,
       ),
     );
   }

@@ -1,4 +1,8 @@
 import 'package:expense_tracker/app/app.dart';
+import 'package:expense_tracker/features/auth/providers/auth_provider.dart';
+import 'package:expense_tracker/features/transactions/data/in_memory_ledger_repository.dart';
+import 'package:expense_tracker/features/transactions/data/mock_data.dart';
+import 'package:expense_tracker/features/transactions/domain/ledger_repository.dart';
 import 'package:expense_tracker/features/transactions/domain/models.dart';
 import 'package:expense_tracker/features/transactions/presentation/form/capture_photo_screen.dart';
 import 'package:expense_tracker/features/transactions/presentation/home/widgets/photo_calendar_day_cell.dart';
@@ -9,7 +13,10 @@ import 'package:flutter_test/flutter_test.dart';
 
 final _now = DateTime(2026, 10, 24, 20, 30);
 
-Future<ProviderContainer> pumpApp(WidgetTester tester) async {
+Future<ProviderContainer> pumpApp(
+  WidgetTester tester, {
+  List<Override> overrides = const [],
+}) async {
   tester.view.physicalSize = const Size(390 * 3, 844 * 3);
   tester.view.devicePixelRatio = 3;
   addTearDown(tester.view.reset);
@@ -18,6 +25,7 @@ Future<ProviderContainer> pumpApp(WidgetTester tester) async {
     overrides: [
       clockProvider.overrideWithValue(() => _now),
       cameraListProvider.overrideWithValue(() async => const []),
+      ...overrides,
     ],
   );
   addTearDown(container.dispose);
@@ -119,7 +127,7 @@ void main() {
     final added = items.firstWhere((t) => t.amountMinor == 120000);
     expect(added.photo, isNull);
     // The first category is preselected for quick entry.
-    expect(added.category, CategoryCode.food);
+    expect(added.category, const Category.system(CategoryCode.food));
     // Defaults to the day selected on Home.
     expect(added.occurredAt.day, 24);
   });
@@ -310,4 +318,72 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Ghi chú (không bắt buộc)'), findsOneWidget);
   });
+
+  testWidgets('Spending more than the wallet holds is blocked', (tester) async {
+    final container = await pumpApp(tester);
+    final before = container.read(transactionsProvider).length;
+
+    await openAddForm(tester);
+    // Far more than the demo cash wallet holds.
+    await typeKeys(tester, ['9', '9', '000', '000']);
+    await tapDone(tester);
+
+    expect(find.text('Tài khoản không đủ tiền'), findsOneWidget);
+    expect(container.read(transactionsProvider).length, before);
+  });
+
+  testWidgets('A failed save keeps the form open with the entry', (
+    tester,
+  ) async {
+    final container = await pumpApp(
+      tester,
+      overrides: [
+        ledgerRepositoryProvider.overrideWith(
+          (ref) => _FailingSaveRepository(ref.watch(clockProvider)()),
+        ),
+      ],
+    );
+    final before = container.read(transactionsProvider).length;
+
+    await openAddForm(tester);
+    await typeKeys(tester, ['1', '2', '000']);
+    await tapDone(tester);
+
+    expect(
+      find.text('Không lưu được. Thông tin vẫn được giữ, hãy thử lại.'),
+      findsOneWidget,
+    );
+    expect(find.text('12.000'), findsOneWidget);
+    expect(container.read(transactionsProvider).length, before);
+  });
+
+  testWidgets('Signed-out users see the sign-in screen', (tester) async {
+    await pumpApp(
+      tester,
+      overrides: [currentUserIdProvider.overrideWith((ref) => _SignedOut())],
+    );
+
+    expect(find.text('Đăng nhập'), findsWidgets);
+    expect(find.byType(PhotoCalendarDayCell), findsNothing);
+  });
+}
+
+class _FailingSaveRepository extends InMemoryLedgerRepository {
+  _FailingSaveRepository(DateTime anchor)
+    : super(
+        accounts: mockAccounts,
+        transactions: buildMockTransactions(anchor),
+      );
+
+  @override
+  Future<MoneyTransaction> saveTransaction(
+    MoneyTransaction transaction, {
+    MoneyTransaction? previous,
+  }) async => throw const LedgerException('offline');
+}
+
+class _SignedOut extends CurrentUserNotifier {
+  _SignedOut() : super(null) {
+    state = null;
+  }
 }

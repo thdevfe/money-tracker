@@ -113,7 +113,7 @@ void main() {
       type: type,
       amountMinor: amount,
       occurredAt: DateTime(2026, 10, 1),
-      category: c,
+      category: Category.system(c),
     );
     final result = expenseByCategory([
       e('1', CategoryCode.food, 100),
@@ -121,7 +121,7 @@ void main() {
       e('3', CategoryCode.food, 50),
       e('4', CategoryCode.salary, 9999, TransactionType.income),
     ]);
-    expect(result.map((r) => r.category), [
+    expect(result.map((r) => r.category.code), [
       CategoryCode.transport,
       CategoryCode.food,
     ]);

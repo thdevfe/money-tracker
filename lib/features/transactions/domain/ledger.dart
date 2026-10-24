@@ -96,18 +96,18 @@ bool involvesAccount(MoneyTransaction t, String accountId) =>
     t.destinationAccountId == accountId;
 
 class CategoryTotal {
-  final CategoryCode category;
+  final Category category;
   final int amountMinor;
   final int count;
 
   const CategoryTotal(this.category, this.amountMinor, this.count);
 }
 
-/// Expense totals per category, largest first. Income and transfers are
-/// excluded.
+/// Expense totals per category, largest first (ties by id). Income and
+/// transfers are excluded.
 List<CategoryTotal> expenseByCategory(Iterable<MoneyTransaction> transactions) {
-  final amounts = <CategoryCode, int>{};
-  final counts = <CategoryCode, int>{};
+  final amounts = <Category, int>{};
+  final counts = <Category, int>{};
   for (final t in transactions) {
     final category = t.category;
     if (t.type != TransactionType.expense || category == null) continue;
@@ -119,7 +119,7 @@ List<CategoryTotal> expenseByCategory(Iterable<MoneyTransaction> transactions) {
       CategoryTotal(e.key, e.value, counts[e.key]!),
   ]..sort((a, b) {
     final byAmount = b.amountMinor.compareTo(a.amountMinor);
-    return byAmount != 0 ? byAmount : a.category.index - b.category.index;
+    return byAmount != 0 ? byAmount : a.category.id.compareTo(b.category.id);
   });
 }
 

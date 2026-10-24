@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/app_theme.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../app/navigation.dart';
+import '../../auth/providers/auth_provider.dart';
 import '../providers/settings_provider.dart';
 
 class SettingsScreen extends ConsumerWidget {
@@ -15,6 +17,8 @@ class SettingsScreen extends ConsumerWidget {
     final colors = AppColors.of(context);
     final themeMode = ref.watch(themeModeProvider);
     final locale = ref.watch(localeProvider);
+    final auth = ref.watch(authServiceProvider);
+    ref.watch(currentUserIdProvider);
 
     Widget section(String title, Widget child) => Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.xl),
@@ -105,6 +109,17 @@ class SettingsScreen extends ConsumerWidget {
             ),
           ),
           section(
+            l10n.categoriesTitle,
+            Card(
+              child: ListTile(
+                leading: const Icon(Icons.category_outlined),
+                title: Text(l10n.manageCategories),
+                trailing: const Icon(Icons.chevron_right_rounded),
+                onTap: () => openCategories(context),
+              ),
+            ),
+          ),
+          section(
             l10n.settingsCurrency,
             Card(
               child: ListTile(
@@ -116,12 +131,43 @@ class SettingsScreen extends ConsumerWidget {
           section(
             l10n.settingsData,
             Card(
-              child: ListTile(
-                leading: const Icon(Icons.phone_iphone_rounded),
-                title: Text(
-                  l10n.dataPrototypeNote,
-                  style: theme.textTheme.bodyMedium,
-                ),
+              child: Column(
+                children: [
+                  ListTile(
+                    leading: Icon(
+                      auth == null
+                          ? Icons.phone_iphone_rounded
+                          : Icons.cloud_done_outlined,
+                    ),
+                    title: Text(
+                      auth == null
+                          ? l10n.dataPrototypeNote
+                          : l10n.dataCloudNote,
+                      style: theme.textTheme.bodyMedium,
+                    ),
+                  ),
+                  if (auth != null) ...[
+                    const Divider(height: 1),
+                    ListTile(
+                      leading: const Icon(Icons.person_outline_rounded),
+                      title: Text(
+                        l10n.signedInAs(auth.currentEmail ?? ''),
+                        style: theme.textTheme.bodyMedium,
+                      ),
+                    ),
+                    ListTile(
+                      leading: Icon(
+                        Icons.logout_rounded,
+                        color: theme.colorScheme.error,
+                      ),
+                      title: Text(
+                        l10n.signOut,
+                        style: TextStyle(color: theme.colorScheme.error),
+                      ),
+                      onTap: auth.signOut,
+                    ),
+                  ],
+                ],
               ),
             ),
           ),

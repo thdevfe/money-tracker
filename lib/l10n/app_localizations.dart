@@ -1123,6 +1123,378 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Choose category'**
   String get chooseCategory;
+
+  /// No description provided for @signInTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in'**
+  String get signInTitle;
+
+  /// No description provided for @signUpTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create account'**
+  String get signUpTitle;
+
+  /// No description provided for @signInSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your data is saved to your account and private to you.'**
+  String get signInSubtitle;
+
+  /// No description provided for @emailLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get emailLabel;
+
+  /// No description provided for @passwordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get passwordLabel;
+
+  /// No description provided for @signInAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in'**
+  String get signInAction;
+
+  /// No description provided for @signUpAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Create account'**
+  String get signUpAction;
+
+  /// No description provided for @switchToSignUp.
+  ///
+  /// In en, this message translates to:
+  /// **'No account yet? Create one'**
+  String get switchToSignUp;
+
+  /// No description provided for @switchToSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Already have an account? Sign in'**
+  String get switchToSignIn;
+
+  /// No description provided for @errorEmailInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid email'**
+  String get errorEmailInvalid;
+
+  /// No description provided for @errorPasswordShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Use at least 6 characters'**
+  String get errorPasswordShort;
+
+  /// No description provided for @authInvalidCredentials.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrong email or password'**
+  String get authInvalidCredentials;
+
+  /// No description provided for @authEmailNotConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm your email first, then sign in.'**
+  String get authEmailNotConfirmed;
+
+  /// No description provided for @authUserExists.
+  ///
+  /// In en, this message translates to:
+  /// **'This email already has an account. Sign in instead.'**
+  String get authUserExists;
+
+  /// No description provided for @authWeakPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a stronger password'**
+  String get authWeakPassword;
+
+  /// No description provided for @authNetwork.
+  ///
+  /// In en, this message translates to:
+  /// **'Can\'t reach the server. Check your connection.'**
+  String get authNetwork;
+
+  /// No description provided for @authUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong. Try again.'**
+  String get authUnknown;
+
+  /// No description provided for @confirmEmailSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Check your email to confirm your account, then sign in.'**
+  String get confirmEmailSent;
+
+  /// No description provided for @signOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out'**
+  String get signOut;
+
+  /// No description provided for @signedInAs.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed in as {email}'**
+  String signedInAs(String email);
+
+  /// No description provided for @loadErrorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load your data'**
+  String get loadErrorTitle;
+
+  /// No description provided for @loadErrorMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Check your connection and try again.'**
+  String get loadErrorMessage;
+
+  /// No description provided for @retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get retry;
+
+  /// No description provided for @saveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t save. Your entry is kept; try again.'**
+  String get saveFailed;
+
+  /// No description provided for @deleteFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t delete. Try again.'**
+  String get deleteFailed;
+
+  /// No description provided for @errorInsufficientBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Not enough money in this account'**
+  String get errorInsufficientBalance;
+
+  /// No description provided for @noAccountsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No accounts yet'**
+  String get noAccountsTitle;
+
+  /// No description provided for @dataCloudNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Your data is stored in your Supabase account. Only you can see it.'**
+  String get dataCloudNote;
+
+  /// No description provided for @showPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Show password'**
+  String get showPassword;
+
+  /// No description provided for @hidePassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide password'**
+  String get hidePassword;
+
+  /// No description provided for @manageCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage categories'**
+  String get manageCategories;
+
+  /// No description provided for @categoriesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Categories'**
+  String get categoriesTitle;
+
+  /// No description provided for @builtInBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Built-in'**
+  String get builtInBadge;
+
+  /// No description provided for @archivedSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Archived'**
+  String get archivedSection;
+
+  /// No description provided for @addCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Add category'**
+  String get addCategory;
+
+  /// No description provided for @editCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit category'**
+  String get editCategory;
+
+  /// No description provided for @categoryNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Category name'**
+  String get categoryNameLabel;
+
+  /// No description provided for @iconLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Icon'**
+  String get iconLabel;
+
+  /// No description provided for @colorLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Color'**
+  String get colorLabel;
+
+  /// No description provided for @archiveAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Archive'**
+  String get archiveAction;
+
+  /// No description provided for @restoreAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore'**
+  String get restoreAction;
+
+  /// No description provided for @categoryInUseMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Transactions use this category, so it can\'t be deleted. Archive it to hide it from new transactions.'**
+  String get categoryInUseMessage;
+
+  /// No description provided for @deleteCategoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this category?'**
+  String get deleteCategoryTitle;
+
+  /// No description provided for @builtInReadOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Built-in categories can\'t be changed.'**
+  String get builtInReadOnly;
+
+  /// No description provided for @errorNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a name'**
+  String get errorNameRequired;
+
+  /// No description provided for @errorNameTooLong.
+  ///
+  /// In en, this message translates to:
+  /// **'This name is too long'**
+  String get errorNameTooLong;
+
+  /// No description provided for @errorNameDuplicate.
+  ///
+  /// In en, this message translates to:
+  /// **'This name is already used'**
+  String get errorNameDuplicate;
+
+  /// No description provided for @addAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Add account'**
+  String get addAccount;
+
+  /// No description provided for @editAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit account'**
+  String get editAccount;
+
+  /// No description provided for @accountNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Account name'**
+  String get accountNameLabel;
+
+  /// No description provided for @accountNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Cash wallet'**
+  String get accountNameHint;
+
+  /// No description provided for @accountTypeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get accountTypeLabel;
+
+  /// No description provided for @openingBalanceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening balance'**
+  String get openingBalanceLabel;
+
+  /// No description provided for @openingBalanceHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Money already in this account. It isn\'t counted as income.'**
+  String get openingBalanceHelp;
+
+  /// No description provided for @openingBalanceLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'The opening balance can\'t change once the account has transactions.'**
+  String get openingBalanceLocked;
+
+  /// No description provided for @deleteAccountTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this account?'**
+  String get deleteAccountTitle;
+
+  /// No description provided for @accountInUseMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This account has transactions, so it can\'t be deleted. Delete those transactions first.'**
+  String get accountInUseMessage;
+
+  /// No description provided for @currentBalanceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Current balance'**
+  String get currentBalanceLabel;
+
+  /// No description provided for @recentTransactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent transactions'**
+  String get recentTransactions;
+
+  /// No description provided for @noAccountsMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a wallet or bank account to start recording money.'**
+  String get noAccountsMessage;
+
+  /// No description provided for @savedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get savedMessage;
+
+  /// No description provided for @noTransactionsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No transactions yet'**
+  String get noTransactionsYet;
 }
 
 class _AppLocalizationsDelegate

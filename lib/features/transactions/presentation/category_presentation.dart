@@ -66,6 +66,65 @@ extension CategoryPresentation on CategoryCode {
   };
 }
 
+/// Icons a custom category can use, keyed for storage.
+const categoryIconChoices = <String, IconData>{
+  'restaurant': Icons.restaurant_rounded,
+  'coffee': Icons.local_cafe_rounded,
+  'groceries': Icons.local_grocery_store_rounded,
+  'car': Icons.directions_car_rounded,
+  'motorbike': Icons.two_wheeler_rounded,
+  'fuel': Icons.local_gas_station_rounded,
+  'shopping': Icons.shopping_bag_rounded,
+  'home': Icons.home_rounded,
+  'bolt': Icons.bolt_rounded,
+  'phone': Icons.smartphone_rounded,
+  'wifi': Icons.wifi_rounded,
+  'health': Icons.medical_services_rounded,
+  'fitness': Icons.fitness_center_rounded,
+  'pets': Icons.pets_rounded,
+  'child': Icons.child_care_rounded,
+  'school': Icons.school_rounded,
+  'book': Icons.menu_book_rounded,
+  'game': Icons.sports_esports_rounded,
+  'movie': Icons.movie_rounded,
+  'music': Icons.music_note_rounded,
+  'travel': Icons.flight_rounded,
+  'beauty': Icons.spa_rounded,
+  'gift': Icons.card_giftcard_rounded,
+  'heart': Icons.favorite_rounded,
+  'work': Icons.work_rounded,
+  'money': Icons.payments_rounded,
+  'savings': Icons.savings_rounded,
+  'chart': Icons.trending_up_rounded,
+  'star': Icons.star_rounded,
+  'other': Icons.more_horiz_rounded,
+};
+
+/// Colors a custom category can use, keyed for storage.
+const categoryColorChoices = <String, Color>{
+  'orange': Color(0xFFF08C3A),
+  'amber': Color(0xFFD99A1E),
+  'red': Color(0xFFE5484D),
+  'pink': Color(0xFFE5579A),
+  'purple': Color(0xFF8B5CF6),
+  'indigo': Color(0xFF5B6CF0),
+  'blue': Color(0xFF3B82F6),
+  'teal': Color(0xFF14B8A6),
+  'green': Color(0xFF16A36A),
+  'brown': Color(0xFF8D6E63),
+  'slate': Color(0xFF7C8796),
+};
+
+extension CategoryDisplay on Category {
+  IconData get icon =>
+      code?.icon ?? categoryIconChoices[iconKey] ?? Icons.category_rounded;
+
+  Color get tint =>
+      code?.tint ?? categoryColorChoices[colorKey] ?? const Color(0xFF7C8796);
+
+  String label(AppLocalizations l10n) => code?.label(l10n) ?? name ?? '';
+}
+
 extension TransactionTypePresentation on TransactionType {
   IconData get icon => switch (this) {
     TransactionType.expense => Icons.south_east_rounded,
