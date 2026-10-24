@@ -1,0 +1,860 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:intl/intl.dart' as intl;
+
+import 'app_localizations_en.dart';
+import 'app_localizations_vi.dart';
+
+// ignore_for_file: type=lint
+
+/// Callers can lookup localized strings with an instance of AppLocalizations
+/// returned by `AppLocalizations.of(context)`.
+///
+/// Applications need to include `AppLocalizations.delegate()` in their app's
+/// `localizationDelegates` list, and the locales they support in the app's
+/// `supportedLocales` list. For example:
+///
+/// ```dart
+/// import 'l10n/app_localizations.dart';
+///
+/// return MaterialApp(
+///   localizationsDelegates: AppLocalizations.localizationsDelegates,
+///   supportedLocales: AppLocalizations.supportedLocales,
+///   home: MyApplicationHome(),
+/// );
+/// ```
+///
+/// ## Update pubspec.yaml
+///
+/// Please make sure to update your pubspec.yaml to include the following
+/// packages:
+///
+/// ```yaml
+/// dependencies:
+///   # Internationalization support.
+///   flutter_localizations:
+///     sdk: flutter
+///   intl: any # Use the pinned version from flutter_localizations
+///
+///   # Rest of dependencies
+/// ```
+///
+/// ## iOS Applications
+///
+/// iOS applications define key application metadata, including supported
+/// locales, in an Info.plist file that is built into the application bundle.
+/// To configure the locales supported by your app, you’ll need to edit this
+/// file.
+///
+/// First, open your project’s ios/Runner.xcworkspace Xcode workspace file.
+/// Then, in the Project Navigator, open the Info.plist file under the Runner
+/// project’s Runner folder.
+///
+/// Next, select the Information Property List item, select Add Item from the
+/// Editor menu, then select Localizations from the pop-up menu.
+///
+/// Select and expand the newly-created Localizations item then, for each
+/// locale your application supports, add a new item and select the locale
+/// you wish to add from the pop-up menu in the Value field. This list should
+/// be consistent with the languages listed in the AppLocalizations.supportedLocales
+/// property.
+abstract class AppLocalizations {
+  AppLocalizations(String locale)
+    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+
+  final String localeName;
+
+  static AppLocalizations of(BuildContext context) {
+    return Localizations.of<AppLocalizations>(context, AppLocalizations)!;
+  }
+
+  static const LocalizationsDelegate<AppLocalizations> delegate =
+      _AppLocalizationsDelegate();
+
+  /// A list of this localizations delegate along with the default localizations
+  /// delegates.
+  ///
+  /// Returns a list of localizations delegates containing this delegate along with
+  /// GlobalMaterialLocalizations.delegate, GlobalCupertinoLocalizations.delegate,
+  /// and GlobalWidgetsLocalizations.delegate.
+  ///
+  /// Additional delegates can be added by appending to this list in
+  /// MaterialApp. This list does not have to be used at all if a custom list
+  /// of delegates is preferred or required.
+  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
+      <LocalizationsDelegate<dynamic>>[
+        delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ];
+
+  /// A list of this localizations delegate's supported locales.
+  static const List<Locale> supportedLocales = <Locale>[
+    Locale('en'),
+    Locale('vi'),
+  ];
+
+  /// No description provided for @appTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Money Tracker'**
+  String get appTitle;
+
+  /// No description provided for @navHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get navHome;
+
+  /// No description provided for @navTransactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Transactions'**
+  String get navTransactions;
+
+  /// No description provided for @navAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add transaction'**
+  String get navAdd;
+
+  /// No description provided for @navReports.
+  ///
+  /// In en, this message translates to:
+  /// **'Reports'**
+  String get navReports;
+
+  /// No description provided for @navAccounts.
+  ///
+  /// In en, this message translates to:
+  /// **'Accounts'**
+  String get navAccounts;
+
+  /// No description provided for @settingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settingsTitle;
+
+  /// No description provided for @previousMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous month'**
+  String get previousMonth;
+
+  /// No description provided for @nextMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Next month'**
+  String get nextMonth;
+
+  /// No description provided for @goToToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get goToToday;
+
+  /// No description provided for @today.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get today;
+
+  /// No description provided for @yesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday'**
+  String get yesterday;
+
+  /// No description provided for @summaryBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Total balance'**
+  String get summaryBalance;
+
+  /// No description provided for @summaryIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'Income'**
+  String get summaryIncome;
+
+  /// No description provided for @summaryExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Expenses'**
+  String get summaryExpense;
+
+  /// No description provided for @summaryMonthCaption.
+  ///
+  /// In en, this message translates to:
+  /// **'In {month}'**
+  String summaryMonthCaption(String month);
+
+  /// No description provided for @calendarLegendExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily spending'**
+  String get calendarLegendExpense;
+
+  /// No description provided for @calendarLegendIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'Income'**
+  String get calendarLegendIncome;
+
+  /// No description provided for @calendarDaySemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'{date}. {count, plural, =0{No transactions} =1{1 transaction} other{{count} transactions}}'**
+  String calendarDaySemantics(String date, int count);
+
+  /// No description provided for @calendarSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected'**
+  String get calendarSelected;
+
+  /// No description provided for @morePhotosSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 more photo} other{{count} more photos}}'**
+  String morePhotosSemantics(int count);
+
+  /// No description provided for @compactThousands.
+  ///
+  /// In en, this message translates to:
+  /// **'{value}k'**
+  String compactThousands(String value);
+
+  /// No description provided for @compactMillions.
+  ///
+  /// In en, this message translates to:
+  /// **'{value}M'**
+  String compactMillions(String value);
+
+  /// No description provided for @compactBillions.
+  ///
+  /// In en, this message translates to:
+  /// **'{value}B'**
+  String compactBillions(String value);
+
+  /// No description provided for @expenseAmountSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'Expenses {amount}'**
+  String expenseAmountSemantics(String amount);
+
+  /// No description provided for @incomeAmountSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'Income {amount}'**
+  String incomeAmountSemantics(String amount);
+
+  /// No description provided for @transferAmountSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfer {amount}'**
+  String transferAmountSemantics(String amount);
+
+  /// No description provided for @dayExpenseLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Spent'**
+  String get dayExpenseLabel;
+
+  /// No description provided for @dayIncomeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Received'**
+  String get dayIncomeLabel;
+
+  /// No description provided for @viewAll.
+  ///
+  /// In en, this message translates to:
+  /// **'View all'**
+  String get viewAll;
+
+  /// No description provided for @moreTransactions.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{+1 more transaction} other{+{count} more transactions}}'**
+  String moreTransactions(int count);
+
+  /// No description provided for @dayEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing recorded'**
+  String get dayEmptyTitle;
+
+  /// No description provided for @dayEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Add an expense or income for this day.'**
+  String get dayEmptyMessage;
+
+  /// No description provided for @monthEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No transactions this month'**
+  String get monthEmptyTitle;
+
+  /// No description provided for @monthEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap + to record an expense or income. Photos are optional.'**
+  String get monthEmptyMessage;
+
+  /// No description provided for @addTransaction.
+  ///
+  /// In en, this message translates to:
+  /// **'Add transaction'**
+  String get addTransaction;
+
+  /// No description provided for @filterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get filterAll;
+
+  /// No description provided for @typeExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense'**
+  String get typeExpense;
+
+  /// No description provided for @typeIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'Income'**
+  String get typeIncome;
+
+  /// No description provided for @typeTransfer.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfer'**
+  String get typeTransfer;
+
+  /// No description provided for @filterEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No matching transactions'**
+  String get filterEmptyTitle;
+
+  /// No description provided for @filterEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Try a different filter or search.'**
+  String get filterEmptyMessage;
+
+  /// No description provided for @showAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Show all'**
+  String get showAll;
+
+  /// No description provided for @transactionsEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No transactions yet'**
+  String get transactionsEmptyTitle;
+
+  /// No description provided for @transactionsEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Your expenses, income and transfers will appear here.'**
+  String get transactionsEmptyMessage;
+
+  /// No description provided for @search.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get search;
+
+  /// No description provided for @closeSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Close search'**
+  String get closeSearch;
+
+  /// No description provided for @searchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search notes or categories'**
+  String get searchHint;
+
+  /// No description provided for @transferRoute.
+  ///
+  /// In en, this message translates to:
+  /// **'{from} → {to}'**
+  String transferRoute(String from, String to);
+
+  /// No description provided for @addTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New transaction'**
+  String get addTitle;
+
+  /// No description provided for @editTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit transaction'**
+  String get editTitle;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// No description provided for @save.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get save;
+
+  /// No description provided for @amountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get amountLabel;
+
+  /// No description provided for @categoryLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get categoryLabel;
+
+  /// No description provided for @accountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get accountLabel;
+
+  /// No description provided for @fromAccountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'From account'**
+  String get fromAccountLabel;
+
+  /// No description provided for @toAccountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'To account'**
+  String get toAccountLabel;
+
+  /// No description provided for @dateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get dateLabel;
+
+  /// No description provided for @timeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get timeLabel;
+
+  /// No description provided for @noteLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Note (optional)'**
+  String get noteLabel;
+
+  /// No description provided for @noteHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Lunch with the team'**
+  String get noteHint;
+
+  /// No description provided for @photoLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo (optional)'**
+  String get photoLabel;
+
+  /// No description provided for @photoHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'You can save without a photo.'**
+  String get photoHelp;
+
+  /// No description provided for @photoCamera.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera'**
+  String get photoCamera;
+
+  /// No description provided for @photoLibrary.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo library'**
+  String get photoLibrary;
+
+  /// No description provided for @photoReplace.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace'**
+  String get photoReplace;
+
+  /// No description provided for @photoRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get photoRemove;
+
+  /// No description provided for @photoPreviewSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'Attached photo'**
+  String get photoPreviewSemantics;
+
+  /// No description provided for @photoPickError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t open photos. You can still save without one.'**
+  String get photoPickError;
+
+  /// No description provided for @typeLockedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The type can\'t be changed while editing.'**
+  String get typeLockedHint;
+
+  /// No description provided for @errorAmountRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter an amount'**
+  String get errorAmountRequired;
+
+  /// No description provided for @errorAmountPositive.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount must be greater than 0'**
+  String get errorAmountPositive;
+
+  /// No description provided for @errorAmountTooLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount is too large'**
+  String get errorAmountTooLarge;
+
+  /// No description provided for @errorCategoryRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a category'**
+  String get errorCategoryRequired;
+
+  /// No description provided for @errorSameAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose two different accounts'**
+  String get errorSameAccount;
+
+  /// No description provided for @savedAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction added'**
+  String get savedAdded;
+
+  /// No description provided for @savedUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Changes saved'**
+  String get savedUpdated;
+
+  /// No description provided for @deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction deleted'**
+  String get deleted;
+
+  /// No description provided for @delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
+
+  /// No description provided for @deleteConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this transaction?'**
+  String get deleteConfirmTitle;
+
+  /// No description provided for @deleteConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This can\'t be undone.'**
+  String get deleteConfirmMessage;
+
+  /// No description provided for @discardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard changes?'**
+  String get discardTitle;
+
+  /// No description provided for @discardMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Your unsaved changes will be lost.'**
+  String get discardMessage;
+
+  /// No description provided for @discard.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard'**
+  String get discard;
+
+  /// No description provided for @keepEditing.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep editing'**
+  String get keepEditing;
+
+  /// No description provided for @catFood.
+  ///
+  /// In en, this message translates to:
+  /// **'Food & Drinks'**
+  String get catFood;
+
+  /// No description provided for @catTransport.
+  ///
+  /// In en, this message translates to:
+  /// **'Transport'**
+  String get catTransport;
+
+  /// No description provided for @catShopping.
+  ///
+  /// In en, this message translates to:
+  /// **'Shopping'**
+  String get catShopping;
+
+  /// No description provided for @catBills.
+  ///
+  /// In en, this message translates to:
+  /// **'Bills & Utilities'**
+  String get catBills;
+
+  /// No description provided for @catHousing.
+  ///
+  /// In en, this message translates to:
+  /// **'Housing'**
+  String get catHousing;
+
+  /// No description provided for @catHealth.
+  ///
+  /// In en, this message translates to:
+  /// **'Health'**
+  String get catHealth;
+
+  /// No description provided for @catEntertainment.
+  ///
+  /// In en, this message translates to:
+  /// **'Entertainment'**
+  String get catEntertainment;
+
+  /// No description provided for @catEducation.
+  ///
+  /// In en, this message translates to:
+  /// **'Education'**
+  String get catEducation;
+
+  /// No description provided for @catTravel.
+  ///
+  /// In en, this message translates to:
+  /// **'Travel'**
+  String get catTravel;
+
+  /// No description provided for @catPersonalCare.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal care'**
+  String get catPersonalCare;
+
+  /// No description provided for @catOtherExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get catOtherExpense;
+
+  /// No description provided for @catSalary.
+  ///
+  /// In en, this message translates to:
+  /// **'Salary'**
+  String get catSalary;
+
+  /// No description provided for @catFreelance.
+  ///
+  /// In en, this message translates to:
+  /// **'Freelance'**
+  String get catFreelance;
+
+  /// No description provided for @catBusiness.
+  ///
+  /// In en, this message translates to:
+  /// **'Business'**
+  String get catBusiness;
+
+  /// No description provided for @catInvestment.
+  ///
+  /// In en, this message translates to:
+  /// **'Investment'**
+  String get catInvestment;
+
+  /// No description provided for @catGift.
+  ///
+  /// In en, this message translates to:
+  /// **'Gift'**
+  String get catGift;
+
+  /// No description provided for @catOtherIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'Other income'**
+  String get catOtherIncome;
+
+  /// No description provided for @accountTypeCash.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash'**
+  String get accountTypeCash;
+
+  /// No description provided for @accountTypeBank.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank account'**
+  String get accountTypeBank;
+
+  /// No description provided for @accountsTotalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Total balance of tracked accounts'**
+  String get accountsTotalLabel;
+
+  /// No description provided for @accountsLaterNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Creating and editing accounts comes in a later milestone.'**
+  String get accountsLaterNote;
+
+  /// No description provided for @reportsComingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reports are coming soon'**
+  String get reportsComingTitle;
+
+  /// No description provided for @reportsComingMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Spending by category will appear here in a later milestone.'**
+  String get reportsComingMessage;
+
+  /// No description provided for @settingsAppearance.
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance'**
+  String get settingsAppearance;
+
+  /// No description provided for @themeSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get themeSystem;
+
+  /// No description provided for @themeLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get themeLight;
+
+  /// No description provided for @themeDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get themeDark;
+
+  /// No description provided for @settingsLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get settingsLanguage;
+
+  /// No description provided for @languageSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get languageSystem;
+
+  /// No description provided for @languageVietnamese.
+  ///
+  /// In en, this message translates to:
+  /// **'Tiếng Việt'**
+  String get languageVietnamese;
+
+  /// No description provided for @languageEnglish.
+  ///
+  /// In en, this message translates to:
+  /// **'English'**
+  String get languageEnglish;
+
+  /// No description provided for @settingsCurrency.
+  ///
+  /// In en, this message translates to:
+  /// **'Currency'**
+  String get settingsCurrency;
+
+  /// No description provided for @currencyVnd.
+  ///
+  /// In en, this message translates to:
+  /// **'Vietnamese đồng (VND)'**
+  String get currencyVnd;
+
+  /// No description provided for @settingsData.
+  ///
+  /// In en, this message translates to:
+  /// **'Data'**
+  String get settingsData;
+
+  /// No description provided for @dataPrototypeNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Prototype: sample data lives in memory and resets when the app restarts. Nothing leaves this device.'**
+  String get dataPrototypeNote;
+}
+
+class _AppLocalizationsDelegate
+    extends LocalizationsDelegate<AppLocalizations> {
+  const _AppLocalizationsDelegate();
+
+  @override
+  Future<AppLocalizations> load(Locale locale) {
+    return SynchronousFuture<AppLocalizations>(lookupAppLocalizations(locale));
+  }
+
+  @override
+  bool isSupported(Locale locale) =>
+      <String>['en', 'vi'].contains(locale.languageCode);
+
+  @override
+  bool shouldReload(_AppLocalizationsDelegate old) => false;
+}
+
+AppLocalizations lookupAppLocalizations(Locale locale) {
+  // Lookup logic when only language code is specified.
+  switch (locale.languageCode) {
+    case 'en':
+      return AppLocalizationsEn();
+    case 'vi':
+      return AppLocalizationsVi();
+  }
+
+  throw FlutterError(
+    'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
+    'an issue with the localizations generation tool. Please file an issue '
+    'on GitHub with a reproducible sample app and the gen-l10n configuration '
+    'that was used.',
+  );
+}

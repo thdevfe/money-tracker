@@ -1,0 +1,207 @@
+{
+  "@@locale": "en",
+  "appTitle": "Money Tracker",
+  "navHome": "Home",
+  "navTransactions": "Transactions",
+  "navAdd": "Add transaction",
+  "navReports": "Reports",
+  "navAccounts": "Accounts",
+  "settingsTitle": "Settings",
+  "previousMonth": "Previous month",
+  "nextMonth": "Next month",
+  "goToToday": "Today",
+  "today": "Today",
+  "yesterday": "Yesterday",
+  "summaryBalance": "Total balance",
+  "summaryIncome": "Income",
+  "summaryExpense": "Expenses",
+  "summaryMonthCaption": "In {month}",
+  "@summaryMonthCaption": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "calendarLegendExpense": "Daily spending",
+  "calendarLegendIncome": "Income",
+  "calendarDaySemantics": "{date}. {count, plural, =0{No transactions} =1{1 transaction} other{{count} transactions}}",
+  "@calendarDaySemantics": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "calendarSelected": "Selected",
+  "morePhotosSemantics": "{count, plural, =1{1 more photo} other{{count} more photos}}",
+  "@morePhotosSemantics": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "compactThousands": "{value}k",
+  "@compactThousands": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "compactMillions": "{value}M",
+  "@compactMillions": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "compactBillions": "{value}B",
+  "@compactBillions": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "expenseAmountSemantics": "Expenses {amount}",
+  "@expenseAmountSemantics": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "incomeAmountSemantics": "Income {amount}",
+  "@incomeAmountSemantics": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "transferAmountSemantics": "Transfer {amount}",
+  "@transferAmountSemantics": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "dayExpenseLabel": "Spent",
+  "dayIncomeLabel": "Received",
+  "viewAll": "View all",
+  "moreTransactions": "{count, plural, =1{+1 more transaction} other{+{count} more transactions}}",
+  "@moreTransactions": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dayEmptyTitle": "Nothing recorded",
+  "dayEmptyMessage": "Add an expense or income for this day.",
+  "monthEmptyTitle": "No transactions this month",
+  "monthEmptyMessage": "Tap + to record an expense or income. Photos are optional.",
+  "addTransaction": "Add transaction",
+  "filterAll": "All",
+  "typeExpense": "Expense",
+  "typeIncome": "Income",
+  "typeTransfer": "Transfer",
+  "filterEmptyTitle": "No matching transactions",
+  "filterEmptyMessage": "Try a different filter or search.",
+  "showAll": "Show all",
+  "transactionsEmptyTitle": "No transactions yet",
+  "transactionsEmptyMessage": "Your expenses, income and transfers will appear here.",
+  "search": "Search",
+  "closeSearch": "Close search",
+  "searchHint": "Search notes or categories",
+  "transferRoute": "{from} → {to}",
+  "@transferRoute": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "addTitle": "New transaction",
+  "editTitle": "Edit transaction",
+  "cancel": "Cancel",
+  "save": "Save",
+  "amountLabel": "Amount",
+  "categoryLabel": "Category",
+  "accountLabel": "Account",
+  "fromAccountLabel": "From account",
+  "toAccountLabel": "To account",
+  "dateLabel": "Date",
+  "timeLabel": "Time",
+  "noteLabel": "Note (optional)",
+  "noteHint": "e.g. Lunch with the team",
+  "photoLabel": "Photo (optional)",
+  "photoHelp": "You can save without a photo.",
+  "photoCamera": "Camera",
+  "photoLibrary": "Photo library",
+  "photoReplace": "Replace",
+  "photoRemove": "Remove",
+  "photoPreviewSemantics": "Attached photo",
+  "photoPickError": "Couldn't open photos. You can still save without one.",
+  "typeLockedHint": "The type can't be changed while editing.",
+  "errorAmountRequired": "Enter an amount",
+  "errorAmountPositive": "Amount must be greater than 0",
+  "errorAmountTooLarge": "Amount is too large",
+  "errorCategoryRequired": "Choose a category",
+  "errorSameAccount": "Choose two different accounts",
+  "savedAdded": "Transaction added",
+  "savedUpdated": "Changes saved",
+  "deleted": "Transaction deleted",
+  "delete": "Delete",
+  "deleteConfirmTitle": "Delete this transaction?",
+  "deleteConfirmMessage": "This can't be undone.",
+  "discardTitle": "Discard changes?",
+  "discardMessage": "Your unsaved changes will be lost.",
+  "discard": "Discard",
+  "keepEditing": "Keep editing",
+  "catFood": "Food & Drinks",
+  "catTransport": "Transport",
+  "catShopping": "Shopping",
+  "catBills": "Bills & Utilities",
+  "catHousing": "Housing",
+  "catHealth": "Health",
+  "catEntertainment": "Entertainment",
+  "catEducation": "Education",
+  "catTravel": "Travel",
+  "catPersonalCare": "Personal care",
+  "catOtherExpense": "Other",
+  "catSalary": "Salary",
+  "catFreelance": "Freelance",
+  "catBusiness": "Business",
+  "catInvestment": "Investment",
+  "catGift": "Gift",
+  "catOtherIncome": "Other income",
+  "accountTypeCash": "Cash",
+  "accountTypeBank": "Bank account",
+  "accountsTotalLabel": "Total balance of tracked accounts",
+  "accountsLaterNote": "Creating and editing accounts comes in a later milestone.",
+  "reportsComingTitle": "Reports are coming soon",
+  "reportsComingMessage": "Spending by category will appear here in a later milestone.",
+  "settingsAppearance": "Appearance",
+  "themeSystem": "System",
+  "themeLight": "Light",
+  "themeDark": "Dark",
+  "settingsLanguage": "Language",
+  "languageSystem": "System",
+  "languageVietnamese": "Tiếng Việt",
+  "languageEnglish": "English",
+  "settingsCurrency": "Currency",
+  "currencyVnd": "Vietnamese đồng (VND)",
+  "settingsData": "Data",
+  "dataPrototypeNote": "Prototype: sample data lives in memory and resets when the app restarts. Nothing leaves this device."
+}
