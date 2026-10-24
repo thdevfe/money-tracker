@@ -1389,7 +1389,7 @@ Exit criteria:
 
 ### Phase 3 — Transaction entry and history
 
-**Status: mostly done in the UI milestone** (two-step add flow, edit/delete, type filters, search). Remaining: account/category/date-range filters and reset.
+**Status: done.** Two-step add flow, edit/delete, and history filters for type, time (any, this month, last month, custom range), account (including transfer sides) and category, combinable with search, plus reset and no-results states. Rows show the account. Pending: verify against the owner's Supabase project.
 
 Tasks:
 - Build add/edit transaction forms for income, expense, and transfer.
