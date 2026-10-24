@@ -180,8 +180,13 @@ class _AddEditTransactionScreenState
     final picked = await showModalBottomSheet<Category>(
       context: context,
       showDragHandle: true,
+      // Scrolls when custom categories make the grid taller than the sheet.
+      isScrollControlled: true,
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.sizeOf(context).height * 0.75,
+      ),
       builder: (context) => SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(
             AppSpacing.lg,
             0,
