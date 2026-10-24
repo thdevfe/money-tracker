@@ -106,35 +106,39 @@ class AppBottomNav extends StatelessWidget {
       (Icons.person_outline_rounded, Icons.person_rounded, l10n.navProfile),
     ];
 
+    // Floats clear of the screen edges. Home-screen web apps get no safe-area
+    // inset from Flutter, so the minimum keeps a visible gap there too.
     return SafeArea(
       top: false,
-      minimum: const EdgeInsets.only(bottom: AppSpacing.sm),
+      minimum: const EdgeInsets.only(bottom: AppSpacing.lg),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
         child: Row(
           children: [
             Expanded(child: _pill(items, scheme, colors)),
-            const SizedBox(width: AppSpacing.md),
+            const SizedBox(width: AppSpacing.sm),
+            // Same tile height and tab-button shape as the pill's items.
             Tooltip(
               message: l10n.navAdd,
               child: Semantics(
                 button: true,
                 label: l10n.navAdd,
                 excludeSemantics: true,
-                child: Material(
-                  color: scheme.primary,
-                  shape: const CircleBorder(),
-                  elevation: 3,
-                  child: InkWell(
-                    customBorder: const CircleBorder(),
-                    onTap: onAdd,
-                    child: SizedBox(
-                      width: 60,
-                      height: 60,
-                      child: Icon(
-                        Icons.add_rounded,
-                        size: 30,
-                        color: scheme.onPrimary,
+                child: Container(
+                  width: _barHeight,
+                  height: _barHeight,
+                  alignment: Alignment.center,
+                  decoration: _barDecoration(colors),
+                  child: Material(
+                    color: scheme.primary,
+                    shape: const StadiumBorder(),
+                    child: InkWell(
+                      customBorder: const StadiumBorder(),
+                      onTap: onAdd,
+                      child: SizedBox(
+                        width: _tabWidth,
+                        height: _tabHeight,
+                        child: Icon(Icons.add_rounded, color: scheme.onPrimary),
                       ),
                     ),
                   ),
@@ -147,26 +151,28 @@ class AppBottomNav extends StatelessWidget {
     );
   }
 
+  static const _barHeight = 60.0;
+  static const _tabWidth = 48.0;
+  static const _tabHeight = 40.0;
+
+  static BoxDecoration _barDecoration(AppColors colors) => BoxDecoration(
+    color: colors.elevatedSurface,
+    borderRadius: BorderRadius.circular(_barHeight / 2),
+    border: Border.all(color: colors.border),
+    boxShadow: const [
+      BoxShadow(color: Color(0x33000000), blurRadius: 16, offset: Offset(0, 6)),
+    ],
+  );
+
   Widget _pill(
     List<(IconData, IconData, String)> items,
     ColorScheme scheme,
     AppColors colors,
   ) {
     return Container(
-      height: 60,
+      height: _barHeight,
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
-      decoration: BoxDecoration(
-        color: colors.elevatedSurface,
-        borderRadius: BorderRadius.circular(30),
-        border: Border.all(color: colors.border),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x33000000),
-            blurRadius: 16,
-            offset: Offset(0, 6),
-          ),
-        ],
-      ),
+      decoration: _barDecoration(colors),
       child: Row(
         children: [
           for (var i = 0; i < items.length; i++)

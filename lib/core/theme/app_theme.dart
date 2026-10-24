@@ -10,7 +10,7 @@ class AppSpacing {
   static const double xxl = 24;
 
   /// Bottom padding for tab content so it clears the floating nav bar.
-  static const double navClearance = 120;
+  static const double navClearance = 128;
 }
 
 class AppRadii {
