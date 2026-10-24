@@ -1,39 +1,31 @@
 import 'package:flutter/material.dart';
 
 import '../../../../../core/formatting/formatters.dart';
-import '../../../../../core/theme/app_theme.dart';
 import '../../../../../l10n/app_localizations.dart';
 import '../../../domain/ledger.dart';
 import '../../../domain/models.dart';
+import '../../widgets/category_tile.dart';
 import '../../widgets/transaction_thumbnail.dart';
 
-/// Layout constants shared by [PhotoCalendarDayCell] and the calendar, which
-/// sizes each week row from them.
+/// Layout constants shared by [PhotoCalendarDayCell] and the calendar.
 class DayCellMetrics {
-  static const int maxThumbnails = 3;
+  static const int maxStacked = 2;
   static const double padding = 3;
   static const double border = 1.5;
-  static const double gap = 2;
-  static const double dayLabelHeight = 20;
-  static const double totalHeight = 14;
+  static const double dayLabelHeight = 22;
 
   static double thumbnailSize(double cellWidth) =>
-      ((cellWidth - (padding + border) * 2 - gap) / 2).clamp(14, 30);
+      (cellWidth * 0.62).clamp(22, 36);
 
-  /// Thumbnail slots (photos plus an optional "+N" tile) for a day.
-  static int slotsFor(int photoCount) =>
-      photoCount > maxThumbnails ? maxThumbnails + 1 : photoCount;
+  static double stackHeight(double cellWidth) => thumbnailSize(cellWidth) + 10;
 
-  static int rowsFor(int photoCount) => (slotsFor(photoCount) / 2).ceil();
-
-  static double cellHeight(double cellWidth, int thumbnailRows) {
-    final thumbs = thumbnailRows == 0
-        ? 0
-        : thumbnailRows * thumbnailSize(cellWidth) + (thumbnailRows - 1) * gap;
-    return (padding + border) * 2 + dayLabelHeight + thumbs + gap + totalHeight;
-  }
+  static double cellHeight(double cellWidth) =>
+      (padding + border) * 2 + stackHeight(cellWidth) + dayLabelHeight;
 }
 
+/// One calendar day: up to two of the day's transactions as a tilted stack
+/// (photos first, then category tiles), a "+N" badge for the rest, and the
+/// day number underneath. Days outside the month render empty.
 class PhotoCalendarDayCell extends StatelessWidget {
   final DateTime date;
 
@@ -43,7 +35,6 @@ class PhotoCalendarDayCell extends StatelessWidget {
   final bool isToday;
   final bool isSelected;
   final double width;
-  final double height;
   final VoidCallback onTap;
 
   const PhotoCalendarDayCell({
@@ -54,29 +45,31 @@ class PhotoCalendarDayCell extends StatelessWidget {
     required this.isToday,
     required this.isSelected,
     required this.width,
-    required this.height,
     required this.onTap,
   });
 
+  /// The transactions drawn in the stack: photos first, newest first.
+  static List<MoneyTransaction> stacked(List<MoneyTransaction> items) => [
+    ...items.where((t) => t.hasPhoto),
+    ...items.where((t) => !t.hasPhoto),
+  ].take(DayCellMetrics.maxStacked).toList();
+
   @override
   Widget build(BuildContext context) {
+    final height = DayCellMetrics.cellHeight(width);
+    if (!inMonth) return SizedBox(width: width, height: height);
+
     final l10n = AppLocalizations.of(context);
     final fmt = Formatters.of(context);
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    final colors = AppColors.of(context);
 
-    final visible = inMonth ? transactions : const <MoneyTransaction>[];
-    final totals = totalsOf(visible);
-    final photoCount = visible.where((t) => t.hasPhoto).length;
-    final thumbnails = dayThumbnails(visible);
-    final overflow = photoCount - thumbnails.length;
-    final hasTransferOnly =
-        visible.isNotEmpty &&
-        visible.every((t) => t.type == TransactionType.transfer);
+    final shown = stacked(transactions);
+    final extra = transactions.length - shown.length;
+    final totals = totalsOf(transactions);
 
     final semantics = StringBuffer(
-      l10n.calendarDaySemantics(fmt.fullDate(date), visible.length),
+      l10n.calendarDaySemantics(fmt.fullDate(date), transactions.length),
     );
     if (totals.expenseMinor > 0) {
       semantics.write(
@@ -89,15 +82,6 @@ class PhotoCalendarDayCell extends StatelessWidget {
       );
     }
 
-    final thumbSize = DayCellMetrics.thumbnailSize(width);
-    final dayText = Text(
-      '${date.day}',
-      style: theme.textTheme.labelMedium?.copyWith(
-        fontWeight: isToday || isSelected ? FontWeight.w700 : FontWeight.w500,
-        color: isToday ? scheme.onPrimary : scheme.onSurface,
-      ),
-    );
-
     return Semantics(
       button: true,
       selected: isSelected,
@@ -106,78 +90,59 @@ class PhotoCalendarDayCell extends StatelessWidget {
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: onTap,
-        child: Opacity(
-          opacity: inMonth ? 1 : 0.35,
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 150),
-            width: width,
-            height: height,
-            padding: const EdgeInsets.all(DayCellMetrics.padding),
-            decoration: BoxDecoration(
-              color: isSelected
-                  ? scheme.primary.withValues(alpha: 0.08)
-                  : Colors.transparent,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(
-                color: isSelected ? scheme.primary : Colors.transparent,
-                width: DayCellMetrics.border,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          width: width,
+          height: height,
+          padding: const EdgeInsets.all(DayCellMetrics.padding),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? scheme.primary.withValues(alpha: 0.10)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isSelected ? scheme.primary : Colors.transparent,
+              width: DayCellMetrics.border,
+            ),
+          ),
+          child: Column(
+            children: [
+              SizedBox(
+                height: DayCellMetrics.stackHeight(width),
+                child: shown.isEmpty
+                    ? null
+                    : _PhotoStack(
+                        items: shown,
+                        extra: extra,
+                        size: DayCellMetrics.thumbnailSize(width),
+                      ),
               ),
-            ),
-            child: Column(
-              children: [
-                SizedBox(
-                  height: DayCellMetrics.dayLabelHeight,
-                  child: Center(
-                    child: isToday
-                        ? Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6),
-                            height: 18,
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                              color: scheme.primary,
-                              borderRadius: BorderRadius.circular(9),
-                            ),
-                            child: dayText,
+              SizedBox(
+                height: DayCellMetrics.dayLabelHeight,
+                child: Center(
+                  child: Container(
+                    width: 22,
+                    height: 22,
+                    alignment: Alignment.center,
+                    decoration: isToday
+                        ? BoxDecoration(
+                            color: scheme.primary,
+                            shape: BoxShape.circle,
                           )
-                        : dayText,
+                        : null,
+                    child: Text(
+                      '${date.day}',
+                      style: theme.textTheme.labelMedium?.copyWith(
+                        fontWeight: isToday || isSelected
+                            ? FontWeight.w700
+                            : FontWeight.w500,
+                        color: isToday ? scheme.onPrimary : scheme.onSurface,
+                      ),
+                    ),
                   ),
                 ),
-                if (thumbnails.isNotEmpty)
-                  Wrap(
-                    alignment: WrapAlignment.center,
-                    spacing: DayCellMetrics.gap,
-                    runSpacing: DayCellMetrics.gap,
-                    children: [
-                      for (final photo in thumbnails)
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(
-                            AppRadii.thumbnail,
-                          ),
-                          child: PhotoImage(
-                            photo: photo,
-                            size: thumbSize,
-                            fallback: Container(
-                              width: thumbSize,
-                              height: thumbSize,
-                              color: colors.elevatedSurface,
-                            ),
-                          ),
-                        ),
-                      if (overflow > 0)
-                        _OverflowTile(count: overflow, size: thumbSize),
-                    ],
-                  ),
-                const Spacer(),
-                SizedBox(
-                  height: DayCellMetrics.totalHeight,
-                  child: _DayTotal(
-                    totals: totals,
-                    hasTransferOnly: hasTransferOnly,
-                    fmt: fmt,
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -185,78 +150,103 @@ class PhotoCalendarDayCell extends StatelessWidget {
   }
 }
 
-class _OverflowTile extends StatelessWidget {
-  final int count;
+class _PhotoStack extends StatelessWidget {
+  final List<MoneyTransaction> items;
+  final int extra;
   final double size;
 
-  const _OverflowTile({required this.count, required this.size});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Container(
-      width: size,
-      height: size,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: AppColors.of(context).elevatedSurface,
-        borderRadius: BorderRadius.circular(AppRadii.thumbnail),
-      ),
-      child: FittedBox(
-        fit: BoxFit.scaleDown,
-        child: Text(
-          '+$count',
-          style: theme.textTheme.labelSmall?.copyWith(
-            fontWeight: FontWeight.w700,
-            color: theme.colorScheme.onSurfaceVariant,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// Daily expense total ("−165k"). Income-only days show "+8tr" in the income
-/// color instead, so they are never mistaken for spending.
-class _DayTotal extends StatelessWidget {
-  final PeriodTotals totals;
-  final bool hasTransferOnly;
-  final Formatters fmt;
-
-  const _DayTotal({
-    required this.totals,
-    required this.hasTransferOnly,
-    required this.fmt,
+  const _PhotoStack({
+    required this.items,
+    required this.extra,
+    required this.size,
   });
 
   @override
   Widget build(BuildContext context) {
-    final colors = AppColors.of(context);
-    final style = Theme.of(context).textTheme.labelSmall?.copyWith(
-      fontSize: 10,
-      fontWeight: FontWeight.w700,
-      fontFeatures: const [FontFeature.tabularFigures()],
-    );
-    if (totals.expenseMinor > 0) {
-      return _fit(
-        fmt.compactSigned(TransactionType.expense, totals.expenseMinor),
-        style?.copyWith(color: colors.expense),
-      );
-    }
-    if (totals.incomeMinor > 0) {
-      return _fit(
-        fmt.compactSigned(TransactionType.income, totals.incomeMinor),
-        style?.copyWith(color: colors.income),
-      );
-    }
-    if (hasTransferOnly) {
-      return Icon(Icons.swap_horiz_rounded, size: 12, color: colors.transfer);
-    }
-    return const SizedBox.shrink();
-  }
+    const borderColor = Colors.white;
 
-  Widget _fit(String text, TextStyle? style) => FittedBox(
-    fit: BoxFit.scaleDown,
-    child: Text(text, maxLines: 1, style: style),
-  );
+    Widget card(MoneyTransaction t) {
+      final inner = size - DayCellMetrics.border * 2;
+      return Container(
+        width: size,
+        height: size,
+        padding: const EdgeInsets.all(DayCellMetrics.border),
+        decoration: BoxDecoration(
+          color: borderColor,
+          borderRadius: BorderRadius.circular(8),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x40000000),
+              blurRadius: 3,
+              offset: Offset(0, 1),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(6.5),
+          child: t.photo == null
+              ? CategoryTile(transaction: t, size: inner, radius: 0)
+              : PhotoImage(
+                  photo: t.photo!,
+                  size: inner,
+                  fallback: CategoryTile(
+                    transaction: t,
+                    size: inner,
+                    radius: 0,
+                  ),
+                ),
+        ),
+      );
+    }
+
+    final front = items.first;
+    final back = items.length > 1 ? items[1] : null;
+    return Stack(
+      clipBehavior: Clip.none,
+      alignment: Alignment.center,
+      children: [
+        if (back != null)
+          Transform.translate(
+            offset: const Offset(-4, -2),
+            child: Transform.rotate(angle: -0.16, child: card(back)),
+          ),
+        Transform.translate(
+          offset: back == null ? Offset.zero : const Offset(3, 3),
+          child: Transform.rotate(
+            angle: back == null ? 0 : 0.06,
+            child: card(front),
+          ),
+        ),
+        if (extra > 0)
+          Positioned(top: -2, right: -2, child: _ExtraBadge(count: extra)),
+      ],
+    );
+  }
+}
+
+class _ExtraBadge extends StatelessWidget {
+  final int count;
+
+  const _ExtraBadge({required this.count});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+      decoration: BoxDecoration(
+        color: const Color(0xFF17211D),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.white, width: 1),
+      ),
+      child: Text(
+        '+$count',
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 9,
+          fontWeight: FontWeight.w800,
+          height: 1.2,
+        ),
+      ),
+    );
+  }
 }

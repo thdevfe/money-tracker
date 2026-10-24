@@ -417,4 +417,113 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get dataPrototypeNote =>
       'Prototype: sample data lives in memory and resets when the app restarts. Nothing leaves this device.';
+
+  @override
+  String get greetingMorning => 'Good morning';
+
+  @override
+  String get greetingAfternoon => 'Good afternoon';
+
+  @override
+  String get greetingEvening => 'Good evening';
+
+  @override
+  String get defaultUserName => 'Friend';
+
+  @override
+  String spentToday(String amount) {
+    return 'Spent $amount today';
+  }
+
+  @override
+  String get viewDay => 'Day';
+
+  @override
+  String get viewMonth => 'Month';
+
+  @override
+  String get hideAmounts => 'Hide amounts';
+
+  @override
+  String get showAmounts => 'Show amounts';
+
+  @override
+  String get chooseMonth => 'Choose month';
+
+  @override
+  String get previousYear => 'Previous year';
+
+  @override
+  String get nextYear => 'Next year';
+
+  @override
+  String get previousDay => 'Previous day';
+
+  @override
+  String get nextDay => 'Next day';
+
+  @override
+  String get navProfile => 'Profile';
+
+  @override
+  String get profileName => 'Your name';
+
+  @override
+  String get openProfile => 'Open profile';
+
+  @override
+  String moreItemsSemantics(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count more transactions',
+      one: '1 more transaction',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get periodMonth => 'Month';
+
+  @override
+  String get periodYear => 'Year';
+
+  @override
+  String get periodAllTime => 'All time';
+
+  @override
+  String get allTimeTitle => 'All time';
+
+  @override
+  String get reportsBalance => 'Balance';
+
+  @override
+  String get savingsRate => 'Savings rate';
+
+  @override
+  String get tabCluster => 'Cluster';
+
+  @override
+  String get tabMap => 'Map';
+
+  @override
+  String get laterVersionTitle => 'Coming in a later version';
+
+  @override
+  String get laterVersionMessage =>
+      'This view is planned after the core features are done.';
+
+  @override
+  String get reportsNoExpenses => 'No expenses in this period';
+
+  @override
+  String categoryShareDetail(int count, String percent) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count transactions',
+      one: '1 transaction',
+    );
+    return '$_temp0 · $percent';
+  }
 }

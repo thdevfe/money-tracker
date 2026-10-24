@@ -88,3 +88,41 @@ List<TransactionPhoto> dayThumbnails(
       .take(max)
       .toList();
 }
+
+/// True when [t] uses [accountId] as its account, source or destination.
+bool involvesAccount(MoneyTransaction t, String accountId) =>
+    t.accountId == accountId ||
+    t.sourceAccountId == accountId ||
+    t.destinationAccountId == accountId;
+
+class CategoryTotal {
+  final CategoryCode category;
+  final int amountMinor;
+  final int count;
+
+  const CategoryTotal(this.category, this.amountMinor, this.count);
+}
+
+/// Expense totals per category, largest first. Income and transfers are
+/// excluded.
+List<CategoryTotal> expenseByCategory(Iterable<MoneyTransaction> transactions) {
+  final amounts = <CategoryCode, int>{};
+  final counts = <CategoryCode, int>{};
+  for (final t in transactions) {
+    final category = t.category;
+    if (t.type != TransactionType.expense || category == null) continue;
+    amounts[category] = (amounts[category] ?? 0) + t.amountMinor;
+    counts[category] = (counts[category] ?? 0) + 1;
+  }
+  return [
+    for (final e in amounts.entries)
+      CategoryTotal(e.key, e.value, counts[e.key]!),
+  ]..sort((a, b) {
+    final byAmount = b.amountMinor.compareTo(a.amountMinor);
+    return byAmount != 0 ? byAmount : a.category.index - b.category.index;
+  });
+}
+
+/// Share of income kept: (income - expense) / income, or null without income.
+double? savingsRate(PeriodTotals totals) =>
+    totals.incomeMinor == 0 ? null : totals.netMinor / totals.incomeMinor;

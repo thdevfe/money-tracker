@@ -24,6 +24,27 @@ extension CategoryPresentation on CategoryCode {
     CategoryCode.otherIncome => Icons.add_card_rounded,
   };
 
+  /// Tile color used where a transaction has no photo.
+  Color get tint => switch (this) {
+    CategoryCode.food => const Color(0xFFF08C3A),
+    CategoryCode.transport => const Color(0xFF3B82F6),
+    CategoryCode.shopping => const Color(0xFFE5579A),
+    CategoryCode.bills => const Color(0xFFD99A1E),
+    CategoryCode.housing => const Color(0xFF8D6E63),
+    CategoryCode.health => const Color(0xFFE5484D),
+    CategoryCode.entertainment => const Color(0xFF8B5CF6),
+    CategoryCode.education => const Color(0xFF5B6CF0),
+    CategoryCode.travel => const Color(0xFF14B8A6),
+    CategoryCode.personalCare => const Color(0xFFEC6FB0),
+    CategoryCode.otherExpense => const Color(0xFF7C8796),
+    CategoryCode.salary ||
+    CategoryCode.freelance ||
+    CategoryCode.business ||
+    CategoryCode.investment ||
+    CategoryCode.gift ||
+    CategoryCode.otherIncome => const Color(0xFF16A36A),
+  };
+
   String label(AppLocalizations l10n) => switch (this) {
     CategoryCode.food => l10n.catFood,
     CategoryCode.transport => l10n.catTransport,
@@ -80,4 +101,6 @@ extension TransactionDisplay on MoneyTransaction {
   }
 
   IconData get displayIcon => category?.icon ?? type.icon;
+
+  Color get displayTint => category?.tint ?? const Color(0xFF3984D6);
 }

@@ -101,4 +101,39 @@ void main() {
     final thumbs = dayThumbnails(list).cast<AssetTransactionPhoto>();
     expect(thumbs.map((p) => p.assetName), ['p/1.jpg', 'p/3.jpg', 'p/4.jpg']);
   });
+
+  test('expenseByCategory sums expenses only, largest first', () {
+    MoneyTransaction e(
+      String id,
+      CategoryCode c,
+      int amount, [
+      TransactionType type = TransactionType.expense,
+    ]) => MoneyTransaction(
+      id: id,
+      type: type,
+      amountMinor: amount,
+      occurredAt: DateTime(2026, 10, 1),
+      category: c,
+    );
+    final result = expenseByCategory([
+      e('1', CategoryCode.food, 100),
+      e('2', CategoryCode.transport, 300),
+      e('3', CategoryCode.food, 50),
+      e('4', CategoryCode.salary, 9999, TransactionType.income),
+    ]);
+    expect(result.map((r) => r.category), [
+      CategoryCode.transport,
+      CategoryCode.food,
+    ]);
+    expect(result.last.amountMinor, 150);
+    expect(result.last.count, 2);
+  });
+
+  test('savingsRate is null without income', () {
+    expect(savingsRate(const PeriodTotals()), isNull);
+    expect(
+      savingsRate(const PeriodTotals(incomeMinor: 1000, expenseMinor: 750)),
+      0.25,
+    );
+  });
 }

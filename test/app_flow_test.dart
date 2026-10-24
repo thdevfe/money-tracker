@@ -47,17 +47,17 @@ void main() {
     await pumpApp(tester);
 
     expect(find.text('Tháng 10 năm 2026'), findsOneWidget);
-    expect(find.text('Tổng số dư'), findsOneWidget);
-    expect(find.text('Thu nhập'), findsWidgets);
-    // Busy day 6 shows at most three thumbnails plus an overflow tile.
+    expect(find.text('Chào buổi tối'), findsOneWidget);
+    expect(find.textContaining('Hôm nay đã chi 365.000'), findsOneWidget);
+    // Busy day 6 stacks two items and badges the rest (7 transactions).
     expect(
-      find.descendant(of: dayCell(6), matching: find.textContaining('+')),
+      find.descendant(of: dayCell(6), matching: find.text('+5')),
       findsOneWidget,
     );
-    // Income-only day 1 shows income, not an expense total.
+    // Single-item days have no badge.
     expect(
-      find.descendant(of: dayCell(1), matching: find.text('+8tr')),
-      findsOneWidget,
+      find.descendant(of: dayCell(1), matching: find.textContaining('+')),
+      findsNothing,
     );
     // Selected day (today) preview.
     expect(find.text('Hôm nay'), findsOneWidget);
@@ -168,6 +168,9 @@ void main() {
   testWidgets('Editing opens the existing transaction', (tester) async {
     await pumpApp(tester);
 
+    // Scroll the day preview above the floating nav bar.
+    await tester.drag(find.byType(ListView).first, const Offset(0, -600));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Mua sắm').first);
     await tester.pumpAndSettle();
 
@@ -180,7 +183,7 @@ void main() {
   ) async {
     await pumpApp(tester);
 
-    await tester.tap(find.text('Giao dịch'));
+    await tester.tap(find.byTooltip('Giao dịch'));
     await tester.pumpAndSettle();
     final transferChip = find.widgetWithText(ChoiceChip, 'Chuyển khoản');
     await tester.ensureVisible(transferChip);
@@ -206,14 +209,57 @@ void main() {
   ) async {
     await pumpApp(tester);
 
-    await tester.tap(find.byTooltip('Cài đặt'));
+    await tester.tap(find.byTooltip('Hồ sơ'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('English'));
     await tester.pumpAndSettle();
-    await tester.pageBack();
+    await tester.tap(find.byTooltip('Home'));
     await tester.pumpAndSettle();
 
     expect(find.text('October 2026'), findsOneWidget);
-    expect(find.text('Total balance'), findsOneWidget);
+    expect(find.text('Good evening'), findsOneWidget);
+  });
+
+  testWidgets('Day view shows the selected day as a photo grid', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+
+    await tester.tap(find.text('Ngày'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(PhotoCalendarDayCell), findsNothing);
+    expect(find.text('Th 7, 24 thg 10'), findsOneWidget);
+    expect(find.textContaining('55.000'), findsWidgets);
+  });
+
+  testWidgets('Hide amounts masks money values', (tester) async {
+    await pumpApp(tester);
+
+    await tester.tap(find.byTooltip('Ẩn số tiền'));
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('365.000'), findsNothing);
+    expect(find.textContaining('•••••'), findsWidgets);
+  });
+
+  testWidgets('Reports shows totals, savings rate and categories', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+
+    await tester.tap(find.byTooltip('Báo cáo'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Tỷ lệ tiết kiệm'), findsOneWidget);
+    expect(find.text('Ăn uống'), findsOneWidget);
+
+    await tester.tap(find.text('Năm'));
+    await tester.pumpAndSettle();
+    expect(find.text('2026'), findsOneWidget);
+
+    await tester.tap(find.text('Cụm'));
+    await tester.pumpAndSettle();
+    expect(find.text('Sẽ có ở phiên bản sau'), findsOneWidget);
   });
 }

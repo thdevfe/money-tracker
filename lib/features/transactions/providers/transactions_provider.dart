@@ -52,6 +52,28 @@ final transactionsByDayProvider =
       return byDay;
     });
 
+/// Account chip selected on Home (`null` = all accounts).
+final homeAccountFilterProvider = StateProvider<String?>((ref) => null);
+
+enum HomeViewMode { day, month }
+
+final homeViewModeProvider = StateProvider<HomeViewMode>(
+  (ref) => HomeViewMode.month,
+);
+
+/// [transactionsByDayProvider] narrowed to the Home account filter.
+final homeTransactionsByDayProvider =
+    Provider<Map<DateTime, List<MoneyTransaction>>>((ref) {
+      final accountId = ref.watch(homeAccountFilterProvider);
+      final byDay = ref.watch(transactionsByDayProvider);
+      if (accountId == null) return byDay;
+      return {
+        for (final e in byDay.entries)
+          if (e.value.any((t) => involvesAccount(t, accountId)))
+            e.key: e.value.where((t) => involvesAccount(t, accountId)).toList(),
+      };
+    });
+
 final dayTransactionsProvider =
     Provider.family<List<MoneyTransaction>, DateTime>((ref, day) {
       return ref.watch(transactionsByDayProvider)[dateOnly(day)] ?? const [];

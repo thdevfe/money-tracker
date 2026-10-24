@@ -823,6 +823,186 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Prototype: sample data lives in memory and resets when the app restarts. Nothing leaves this device.'**
   String get dataPrototypeNote;
+
+  /// No description provided for @greetingMorning.
+  ///
+  /// In en, this message translates to:
+  /// **'Good morning'**
+  String get greetingMorning;
+
+  /// No description provided for @greetingAfternoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Good afternoon'**
+  String get greetingAfternoon;
+
+  /// No description provided for @greetingEvening.
+  ///
+  /// In en, this message translates to:
+  /// **'Good evening'**
+  String get greetingEvening;
+
+  /// No description provided for @defaultUserName.
+  ///
+  /// In en, this message translates to:
+  /// **'Friend'**
+  String get defaultUserName;
+
+  /// No description provided for @spentToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Spent {amount} today'**
+  String spentToday(String amount);
+
+  /// No description provided for @viewDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Day'**
+  String get viewDay;
+
+  /// No description provided for @viewMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Month'**
+  String get viewMonth;
+
+  /// No description provided for @hideAmounts.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide amounts'**
+  String get hideAmounts;
+
+  /// No description provided for @showAmounts.
+  ///
+  /// In en, this message translates to:
+  /// **'Show amounts'**
+  String get showAmounts;
+
+  /// No description provided for @chooseMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose month'**
+  String get chooseMonth;
+
+  /// No description provided for @previousYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous year'**
+  String get previousYear;
+
+  /// No description provided for @nextYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Next year'**
+  String get nextYear;
+
+  /// No description provided for @previousDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous day'**
+  String get previousDay;
+
+  /// No description provided for @nextDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Next day'**
+  String get nextDay;
+
+  /// No description provided for @navProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get navProfile;
+
+  /// No description provided for @profileName.
+  ///
+  /// In en, this message translates to:
+  /// **'Your name'**
+  String get profileName;
+
+  /// No description provided for @openProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Open profile'**
+  String get openProfile;
+
+  /// No description provided for @moreItemsSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 more transaction} other{{count} more transactions}}'**
+  String moreItemsSemantics(int count);
+
+  /// No description provided for @periodMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Month'**
+  String get periodMonth;
+
+  /// No description provided for @periodYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Year'**
+  String get periodYear;
+
+  /// No description provided for @periodAllTime.
+  ///
+  /// In en, this message translates to:
+  /// **'All time'**
+  String get periodAllTime;
+
+  /// No description provided for @allTimeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'All time'**
+  String get allTimeTitle;
+
+  /// No description provided for @reportsBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Balance'**
+  String get reportsBalance;
+
+  /// No description provided for @savingsRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Savings rate'**
+  String get savingsRate;
+
+  /// No description provided for @tabCluster.
+  ///
+  /// In en, this message translates to:
+  /// **'Cluster'**
+  String get tabCluster;
+
+  /// No description provided for @tabMap.
+  ///
+  /// In en, this message translates to:
+  /// **'Map'**
+  String get tabMap;
+
+  /// No description provided for @laterVersionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Coming in a later version'**
+  String get laterVersionTitle;
+
+  /// No description provided for @laterVersionMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This view is planned after the core features are done.'**
+  String get laterVersionMessage;
+
+  /// No description provided for @reportsNoExpenses.
+  ///
+  /// In en, this message translates to:
+  /// **'No expenses in this period'**
+  String get reportsNoExpenses;
+
+  /// No description provided for @categoryShareDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 transaction} other{{count} transactions}} · {percent}'**
+  String categoryShareDetail(int count, String percent);
 }
 
 class _AppLocalizationsDelegate

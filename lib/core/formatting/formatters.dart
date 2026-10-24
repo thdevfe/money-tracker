@@ -10,20 +10,27 @@ class Formatters {
   final String locale;
   final AppLocalizations l10n;
 
-  Formatters(this.locale, this.l10n);
+  /// When true, displayed amounts are masked (form input is unaffected).
+  final bool hideAmounts;
+
+  Formatters(this.locale, this.l10n, {this.hideAmounts = false});
 
   factory Formatters.of(BuildContext context) => Formatters(
     Localizations.localeOf(context).toLanguageTag(),
     AppLocalizations.of(context),
+    hideAmounts: AmountVisibility.hiddenOf(context),
   );
 
   static const _minus = '−';
+  static const _mask = '•••••';
 
-  String money(int minor) => NumberFormat.currency(
-    locale: locale,
-    symbol: '₫',
-    decimalDigits: 0,
-  ).format(minor);
+  String money(int minor) => hideAmounts
+      ? '$_mask ₫'
+      : NumberFormat.currency(
+          locale: locale,
+          symbol: '₫',
+          decimalDigits: 0,
+        ).format(minor);
 
   /// Expense amounts get a minus sign and income a plus sign, so the
   /// direction never depends on color alone.
@@ -35,6 +42,7 @@ class Formatters {
 
   /// Short form for calendar cells, e.g. "165k" or "8tr".
   String compact(int minor) {
+    if (hideAmounts) return _mask;
     final abs = minor.abs();
     final oneDecimal = NumberFormat('#,##0.#', locale);
     if (abs >= 1000000000) {
@@ -62,6 +70,13 @@ class Formatters {
   String monthYear(DateTime month) =>
       _capitalize(DateFormat.yMMMM(locale).format(month));
 
+  String monthShort(DateTime month) =>
+      _capitalize(DateFormat.MMM(locale).format(month));
+
+  /// Compact weekday + day + month, e.g. "Th 7, 24 thg 10".
+  String dayMonth(DateTime date) =>
+      _capitalize(DateFormat.MMMEd(locale).format(date));
+
   String fullDate(DateTime date) =>
       _capitalize(DateFormat.yMMMMEEEEd(locale).format(date));
 
@@ -82,4 +97,23 @@ class Formatters {
 
   static String _capitalize(String s) =>
       s.isEmpty ? s : s[0].toUpperCase() + s.substring(1);
+}
+
+/// Provides the "hide amounts" flag to [Formatters.of].
+class AmountVisibility extends InheritedWidget {
+  final bool hidden;
+
+  const AmountVisibility({
+    super.key,
+    required this.hidden,
+    required super.child,
+  });
+
+  static bool hiddenOf(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<AmountVisibility>()?.hidden ??
+      false;
+
+  @override
+  bool updateShouldNotify(AmountVisibility oldWidget) =>
+      hidden != oldWidget.hidden;
 }

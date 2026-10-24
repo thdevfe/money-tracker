@@ -203,5 +203,59 @@
   "settingsCurrency": "Currency",
   "currencyVnd": "Vietnamese đồng (VND)",
   "settingsData": "Data",
-  "dataPrototypeNote": "Prototype: sample data lives in memory and resets when the app restarts. Nothing leaves this device."
+  "dataPrototypeNote": "Prototype: sample data lives in memory and resets when the app restarts. Nothing leaves this device.",
+  "greetingMorning": "Good morning",
+  "greetingAfternoon": "Good afternoon",
+  "greetingEvening": "Good evening",
+  "defaultUserName": "Friend",
+  "spentToday": "Spent {amount} today",
+  "@spentToday": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "viewDay": "Day",
+  "viewMonth": "Month",
+  "hideAmounts": "Hide amounts",
+  "showAmounts": "Show amounts",
+  "chooseMonth": "Choose month",
+  "previousYear": "Previous year",
+  "nextYear": "Next year",
+  "previousDay": "Previous day",
+  "nextDay": "Next day",
+  "navProfile": "Profile",
+  "profileName": "Your name",
+  "openProfile": "Open profile",
+  "moreItemsSemantics": "{count, plural, =1{1 more transaction} other{{count} more transactions}}",
+  "@moreItemsSemantics": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "periodMonth": "Month",
+  "periodYear": "Year",
+  "periodAllTime": "All time",
+  "allTimeTitle": "All time",
+  "reportsBalance": "Balance",
+  "savingsRate": "Savings rate",
+  "tabCluster": "Cluster",
+  "tabMap": "Map",
+  "laterVersionTitle": "Coming in a later version",
+  "laterVersionMessage": "This view is planned after the core features are done.",
+  "reportsNoExpenses": "No expenses in this period",
+  "categoryShareDetail": "{count, plural, =1{1 transaction} other{{count} transactions}} · {percent}",
+  "@categoryShareDetail": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "percent": {
+        "type": "String"
+      }
+    }
+  }
 }

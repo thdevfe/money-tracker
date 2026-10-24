@@ -28,21 +28,32 @@ flutter test
 
 ## What's in the prototype
 
-- **Home**: month navigation (arrows or horizontal swipe), compact summary
-  (total tracked balance, month income, month expenses), seven-column photo
-  calendar (up to 3 thumbnails + `+N` overflow, daily expense total, income-only
-  days marked `+`), and a selected-day preview with "View all".
+The layout follows CapMoney's App Store screenshots (structure and interactions
+only). The name, green accent, icons, wording and sample photos are this
+project's own.
+
+- **Shell**: floating icon-only pill nav bar (Home, Reports, Transactions,
+  Accounts, Profile) and a floating + button on Home and Transactions. Dark
+  theme by default.
+- **Home**: time-of-day greeting with name and avatar, "Spent X today" pill,
+  Day/Month toggle with counts, hide-amounts (eye) button, account filter chips,
+  and a month bar (‹ month ⌄ ↺ ›) with a month picker.
+  - **Month view**: seven-column calendar where each day shows up to two items
+    as a tilted stack (photos first, then category tiles) with a "+N" badge and
+    the day number underneath. Selected-day preview with "View all" below it.
+  - **Day view**: three-column photo grid of the selected day with amounts on
+    each tile.
+- **Reports**: Month / Year / All time tabs, account chips, income and expense
+  cards, balance and savings rate, and a spending-by-category list. Cluster and
+  Map are placeholders.
 - **Daily transactions**: totals, All/Expense/Income/Transfer filter, rows that
-  open the edit form, and an empty state with an Add action.
-- **Add/Edit transaction**: Expense / Income / Transfer, amount with live digit
-  grouping and a numeric keyboard, category chips, account picker(s), date/time,
-  optional note, and an optional photo (camera/library, preview, replace, remove).
-  Validation covers the amount (> 0), the category, and transfers between two
-  different accounts. Delete needs confirmation, and leaving with unsaved changes asks first.
-- **Transactions**: grouped by day, newest first, type filters and text search.
-- **Reports**: placeholder. **Accounts**: read-only list with derived balances.
-- **Settings** (gear on Home): Light/Dark/System theme and Vietnamese/English/System
-  language, both in memory only.
+  open the edit form.
+- **Add/Edit transaction**: Expense / Income / Transfer, grouped amount input,
+  category chips, account picker(s), date/time, optional note and optional photo.
+  Validation, delete confirmation and an unsaved-changes prompt.
+- **Transactions**: grouped by day, type filters and text search.
+- **Accounts**: read-only list with derived balances.
+- **Profile**: name, theme and language (all in memory only).
 
 ## Architecture
 

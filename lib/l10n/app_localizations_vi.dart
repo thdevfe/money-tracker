@@ -403,4 +403,101 @@ class AppLocalizationsVi extends AppLocalizations {
   @override
   String get dataPrototypeNote =>
       'Bản thử nghiệm: dữ liệu mẫu chỉ nằm trong bộ nhớ và được đặt lại khi khởi động lại ứng dụng. Không có dữ liệu nào rời khỏi thiết bị.';
+
+  @override
+  String get greetingMorning => 'Chào buổi sáng';
+
+  @override
+  String get greetingAfternoon => 'Chào buổi chiều';
+
+  @override
+  String get greetingEvening => 'Chào buổi tối';
+
+  @override
+  String get defaultUserName => 'Bạn';
+
+  @override
+  String spentToday(String amount) {
+    return 'Hôm nay đã chi $amount';
+  }
+
+  @override
+  String get viewDay => 'Ngày';
+
+  @override
+  String get viewMonth => 'Tháng';
+
+  @override
+  String get hideAmounts => 'Ẩn số tiền';
+
+  @override
+  String get showAmounts => 'Hiện số tiền';
+
+  @override
+  String get chooseMonth => 'Chọn tháng';
+
+  @override
+  String get previousYear => 'Năm trước';
+
+  @override
+  String get nextYear => 'Năm sau';
+
+  @override
+  String get previousDay => 'Ngày trước';
+
+  @override
+  String get nextDay => 'Ngày sau';
+
+  @override
+  String get navProfile => 'Hồ sơ';
+
+  @override
+  String get profileName => 'Tên của bạn';
+
+  @override
+  String get openProfile => 'Mở hồ sơ';
+
+  @override
+  String moreItemsSemantics(int count) {
+    return 'Thêm $count giao dịch';
+  }
+
+  @override
+  String get periodMonth => 'Tháng';
+
+  @override
+  String get periodYear => 'Năm';
+
+  @override
+  String get periodAllTime => 'Tất cả';
+
+  @override
+  String get allTimeTitle => 'Toàn thời gian';
+
+  @override
+  String get reportsBalance => 'Còn lại';
+
+  @override
+  String get savingsRate => 'Tỷ lệ tiết kiệm';
+
+  @override
+  String get tabCluster => 'Cụm';
+
+  @override
+  String get tabMap => 'Bản đồ';
+
+  @override
+  String get laterVersionTitle => 'Sẽ có ở phiên bản sau';
+
+  @override
+  String get laterVersionMessage =>
+      'Chế độ xem này sẽ được làm sau khi hoàn thành các tính năng chính.';
+
+  @override
+  String get reportsNoExpenses => 'Không có khoản chi trong kỳ này';
+
+  @override
+  String categoryShareDetail(int count, String percent) {
+    return '$count giao dịch · $percent';
+  }
 }

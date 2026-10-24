@@ -35,10 +35,30 @@ class SettingsScreen extends ConsumerWidget {
     );
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.settingsTitle)),
+      appBar: AppBar(title: Text(l10n.navProfile)),
       body: ListView(
-        padding: const EdgeInsets.all(AppSpacing.lg),
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.lg,
+          AppSpacing.lg,
+          AppSpacing.lg,
+          AppSpacing.navClearance,
+        ),
         children: [
+          section(
+            l10n.profileName,
+            TextFormField(
+              initialValue: ref.read(profileNameProvider),
+              textCapitalization: TextCapitalization.words,
+              maxLength: 40,
+              decoration: InputDecoration(
+                hintText: l10n.defaultUserName,
+                counterText: '',
+                prefixIcon: const Icon(Icons.person_outline_rounded),
+              ),
+              onChanged: (v) =>
+                  ref.read(profileNameProvider.notifier).state = v,
+            ),
+          ),
           section(
             l10n.settingsAppearance,
             SegmentedButton<ThemeMode>(

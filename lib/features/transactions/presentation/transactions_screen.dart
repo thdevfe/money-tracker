@@ -177,7 +177,7 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                   ),
                 ],
                 const SliverToBoxAdapter(
-                  child: SizedBox(height: AppSpacing.xxl),
+                  child: SizedBox(height: AppSpacing.navClearance),
                 ),
               ],
             ),
