@@ -824,4 +824,62 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get customizeGrid => 'Customize calendar';
+
+  @override
+  String get gridShape => 'Shape';
+
+  @override
+  String get shapeRounded => 'Rounded';
+
+  @override
+  String get shapeCircle => 'Circle';
+
+  @override
+  String get shapeSquare => 'Square';
+
+  @override
+  String get gridDisplay => 'Display';
+
+  @override
+  String get displaySingle => 'Single';
+
+  @override
+  String get displayStacked => 'Stacked';
+
+  @override
+  String get displayFan => 'Fan';
+
+  @override
+  String get gridBorder => 'Border';
+
+  @override
+  String get borderAccent => 'Accent';
+
+  @override
+  String get borderNone => 'None';
+
+  @override
+  String get borderThin => 'Thin';
+
+  @override
+  String get borderColor => 'Border color';
+
+  @override
+  String get colorAuto => 'Auto';
+
+  @override
+  String get badgeSection => 'Badge';
+
+  @override
+  String get showCountBadge => 'Show count badge';
+
+  @override
+  String get monthStartDay => 'Month start day';
+
+  @override
+  String get monthStartDayHelp =>
+      'Each monthly period starts on this day, for example your payday (default: 1st).';
 }

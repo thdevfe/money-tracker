@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../../../../core/formatting/formatters.dart';
 import '../../../../../core/theme/app_theme.dart';
+import '../../../../settings/domain/calendar_grid_settings.dart';
+import '../../../../settings/presentation/grid_border_colors.dart';
 import '../../../domain/ledger.dart';
 import '../../../domain/models.dart';
 import 'photo_calendar_day_cell.dart';
@@ -15,6 +17,7 @@ class PhotoCalendar extends StatelessWidget {
   final Map<DateTime, List<MoneyTransaction>> transactionsByDay;
   final ValueChanged<DateTime> onDateSelected;
   final ValueChanged<int> onMonthOffset;
+  final CalendarGridSettings settings;
 
   const PhotoCalendar({
     super.key,
@@ -24,6 +27,7 @@ class PhotoCalendar extends StatelessWidget {
     required this.transactionsByDay,
     required this.onDateSelected,
     required this.onMonthOffset,
+    this.settings = const CalendarGridSettings(),
   });
 
   /// Monday-first for Vietnamese; otherwise follow the locale.
@@ -41,6 +45,7 @@ class PhotoCalendar extends StatelessWidget {
     final theme = Theme.of(context);
     final colors = AppColors.of(context);
     final days = monthGridDays(month, firstWeekday: firstWeekdayFor(context));
+    final borderColor = resolveGridBorderColor(settings, theme.colorScheme);
 
     return Container(
       decoration: BoxDecoration(
@@ -101,6 +106,8 @@ class PhotoCalendar extends StatelessWidget {
                             isToday: isSameDay(d, today),
                             isSelected: isSameDay(d, selectedDate),
                             width: cellWidth,
+                            settings: settings,
+                            borderColor: borderColor,
                             onTap: () => onDateSelected(d),
                           ),
                       ],

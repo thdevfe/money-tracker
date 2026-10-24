@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../../core/formatting/formatters.dart';
 import '../../../../../l10n/app_localizations.dart';
+import '../../../../settings/domain/calendar_grid_settings.dart';
 import '../../../domain/ledger.dart';
 import '../../../domain/models.dart';
 import '../../widgets/category_tile.dart';
@@ -9,7 +10,6 @@ import '../../widgets/transaction_thumbnail.dart';
 
 /// Layout constants shared by [PhotoCalendarDayCell] and the calendar.
 class DayCellMetrics {
-  static const int maxStacked = 2;
   static const double padding = 3;
   static const double border = 1.5;
   static const double dayLabelHeight = 22;
@@ -23,9 +23,10 @@ class DayCellMetrics {
       (padding + border) * 2 + stackHeight(cellWidth) + dayLabelHeight;
 }
 
-/// One calendar day: up to two of the day's transactions as a tilted stack
-/// (photos first, then category tiles), a "+N" badge for the rest, and the
-/// day number underneath. Days outside the month render empty.
+/// One calendar day: the day's transactions as a single tile, a tilted stack
+/// or a fan (photos first, then category tiles), styled by
+/// [CalendarGridSettings], an optional "+N" badge for the rest, and the day
+/// number underneath. Days outside the month render empty.
 class PhotoCalendarDayCell extends StatelessWidget {
   final DateTime date;
 
@@ -35,6 +36,10 @@ class PhotoCalendarDayCell extends StatelessWidget {
   final bool isToday;
   final bool isSelected;
   final double width;
+  final CalendarGridSettings settings;
+
+  /// Resolved tile border color ([CalendarGridSettings.borderColorKey]).
+  final Color borderColor;
   final VoidCallback onTap;
 
   const PhotoCalendarDayCell({
@@ -46,13 +51,24 @@ class PhotoCalendarDayCell extends StatelessWidget {
     required this.isSelected,
     required this.width,
     required this.onTap,
+    this.settings = const CalendarGridSettings(),
+    this.borderColor = Colors.white,
   });
 
-  /// The transactions drawn in the stack: photos first, newest first.
-  static List<MoneyTransaction> stacked(List<MoneyTransaction> items) => [
+  static int visibleCount(GridDisplay display) => switch (display) {
+    GridDisplay.single => 1,
+    GridDisplay.stacked => 2,
+    GridDisplay.fan => 3,
+  };
+
+  /// The transactions drawn in the cell: photos first, newest first.
+  static List<MoneyTransaction> stacked(
+    List<MoneyTransaction> items, {
+    GridDisplay display = GridDisplay.stacked,
+  }) => [
     ...items.where((t) => t.hasPhoto),
     ...items.where((t) => !t.hasPhoto),
-  ].take(DayCellMetrics.maxStacked).toList();
+  ].take(visibleCount(display)).toList();
 
   @override
   Widget build(BuildContext context) {
@@ -64,7 +80,7 @@ class PhotoCalendarDayCell extends StatelessWidget {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
 
-    final shown = stacked(transactions);
+    final shown = stacked(transactions, display: settings.display);
     final extra = transactions.length - shown.length;
     final totals = totalsOf(transactions);
 
@@ -113,8 +129,10 @@ class PhotoCalendarDayCell extends StatelessWidget {
                     ? null
                     : _PhotoStack(
                         items: shown,
-                        extra: extra,
+                        extra: settings.showBadge ? extra : 0,
                         size: DayCellMetrics.thumbnailSize(width),
+                        settings: settings,
+                        borderColor: borderColor,
                       ),
               ),
               SizedBox(
@@ -154,69 +172,86 @@ class _PhotoStack extends StatelessWidget {
   final List<MoneyTransaction> items;
   final int extra;
   final double size;
+  final CalendarGridSettings settings;
+  final Color borderColor;
 
   const _PhotoStack({
     required this.items,
     required this.extra,
     required this.size,
+    required this.settings,
+    required this.borderColor,
   });
+
+  double get _borderWidth => switch (settings.border) {
+    GridBorder.accent => 1.5,
+    GridBorder.thin => 0.75,
+    GridBorder.none => 0,
+  };
+
+  Widget _card(MoneyTransaction t) {
+    final border = _borderWidth;
+    final inner = size - border * 2;
+    final isCircle = settings.shape == GridShape.circle;
+    final radius = settings.shape == GridShape.square ? 2.0 : 8.0;
+    final tile = CategoryTile(transaction: t, size: inner, radius: 0);
+    final content = t.photo == null
+        ? tile
+        : PhotoImage(photo: t.photo!, size: inner, fallback: tile);
+    return Container(
+      width: size,
+      height: size,
+      padding: EdgeInsets.all(border),
+      decoration: BoxDecoration(
+        color: border == 0 ? Colors.transparent : borderColor,
+        shape: isCircle ? BoxShape.circle : BoxShape.rectangle,
+        borderRadius: isCircle ? null : BorderRadius.circular(radius),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x40000000),
+            blurRadius: 3,
+            offset: Offset(0, 1),
+          ),
+        ],
+      ),
+      child: isCircle
+          ? ClipOval(child: content)
+          : ClipRRect(
+              borderRadius: BorderRadius.circular(
+                (radius - border).clamp(0, radius),
+              ),
+              child: content,
+            ),
+    );
+  }
+
+  Widget _placed(MoneyTransaction t, Offset offset, double angle) =>
+      Transform.translate(
+        offset: offset,
+        child: Transform.rotate(angle: angle, child: _card(t)),
+      );
 
   @override
   Widget build(BuildContext context) {
-    const borderColor = Colors.white;
-
-    Widget card(MoneyTransaction t) {
-      final inner = size - DayCellMetrics.border * 2;
-      return Container(
-        width: size,
-        height: size,
-        padding: const EdgeInsets.all(DayCellMetrics.border),
-        decoration: BoxDecoration(
-          color: borderColor,
-          borderRadius: BorderRadius.circular(8),
-          boxShadow: const [
-            BoxShadow(
-              color: Color(0x40000000),
-              blurRadius: 3,
-              offset: Offset(0, 1),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(6.5),
-          child: t.photo == null
-              ? CategoryTile(transaction: t, size: inner, radius: 0)
-              : PhotoImage(
-                  photo: t.photo!,
-                  size: inner,
-                  fallback: CategoryTile(
-                    transaction: t,
-                    size: inner,
-                    radius: 0,
-                  ),
-                ),
-        ),
-      );
-    }
-
-    final front = items.first;
-    final back = items.length > 1 ? items[1] : null;
+    final layers = switch ((settings.display, items.length)) {
+      (_, 1) ||
+      (GridDisplay.single, _) => [_placed(items.first, Offset.zero, 0)],
+      (GridDisplay.fan, 3) => [
+        _placed(items[1], const Offset(-6, 1), -0.24),
+        _placed(items[2], const Offset(6, 1), 0.24),
+        _placed(items.first, const Offset(0, -1), 0),
+      ],
+      // Stacked, or a fan with only two items.
+      _ => [
+        _placed(items[1], const Offset(-4, -2), -0.16),
+        _placed(items.first, const Offset(3, 3), 0.06),
+      ],
+    };
     return Stack(
       clipBehavior: Clip.none,
       alignment: Alignment.center,
       children: [
-        if (back != null)
-          Transform.translate(
-            offset: const Offset(-4, -2),
-            child: Transform.rotate(angle: -0.16, child: card(back)),
-          ),
-        Transform.translate(
-          offset: back == null ? Offset.zero : const Offset(3, 3),
-          child: Transform.rotate(
-            angle: back == null ? 0 : 0.06,
-            child: card(front),
-          ),
-        ),
+        ...layers,
         if (extra > 0)
           Positioned(top: -2, right: -2, child: _ExtraBadge(count: extra)),
       ],

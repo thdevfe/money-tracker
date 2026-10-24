@@ -6,6 +6,7 @@ import '../../../../core/formatting/formatters.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/empty_state_view.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../settings/presentation/customize_grid_sheet.dart';
 import '../../../settings/providers/settings_provider.dart';
 import '../../domain/ledger.dart';
 import '../../providers/transactions_provider.dart';
@@ -90,15 +91,28 @@ class HomeScreen extends ConsumerWidget {
             padded(
               Row(
                 children: [
-                  _ViewToggle(
-                    mode: mode,
-                    dayCount: dayItems.length,
-                    monthCount: monthCount,
-                    onChanged: (m) =>
-                        ref.read(homeViewModeProvider.notifier).state = m,
+                  // Shrinks rather than overflowing with long labels.
+                  Flexible(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: _ViewToggle(
+                        mode: mode,
+                        dayCount: dayItems.length,
+                        monthCount: monthCount,
+                        onChanged: (m) =>
+                            ref.read(homeViewModeProvider.notifier).state = m,
+                      ),
+                    ),
                   ),
-                  const Spacer(),
+                  const SizedBox(width: AppSpacing.sm),
                   _HideAmountsButton(),
+                  const SizedBox(width: AppSpacing.xs),
+                  _HeaderIconButton(
+                    tooltip: l10n.customizeGrid,
+                    icon: Icons.auto_fix_high_rounded,
+                    onPressed: () => showCustomizeGridSheet(context),
+                  ),
                 ],
               ),
             ),
@@ -155,6 +169,7 @@ class HomeScreen extends ConsumerWidget {
                   transactionsByDay: byDay,
                   onMonthOffset: shiftMonth,
                   onDateSelected: (date) => selectDate(ref, date),
+                  settings: ref.watch(calendarGridSettingsProvider),
                 ),
               ),
               const SizedBox(height: AppSpacing.md),
@@ -424,17 +439,39 @@ class _HideAmountsButton extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final hidden = ref.watch(hideAmountsProvider);
+    return _HeaderIconButton(
+      tooltip: hidden ? l10n.showAmounts : l10n.hideAmounts,
+      icon: hidden ? Icons.visibility_off_rounded : Icons.visibility_rounded,
+      onPressed: () => ref.read(hideAmountsProvider.notifier).state = !hidden,
+    );
+  }
+}
+
+/// Round tonal icon button used in the Home header.
+class _HeaderIconButton extends StatelessWidget {
+  final String tooltip;
+  final IconData icon;
+  final VoidCallback onPressed;
+
+  const _HeaderIconButton({
+    required this.tooltip,
+    required this.icon,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     final colors = AppColors.of(context);
     return IconButton(
       style: IconButton.styleFrom(
         backgroundColor: colors.elevatedSurface,
         foregroundColor: colors.textSecondary,
+        fixedSize: const Size(44, 44),
+        minimumSize: const Size(44, 44),
       ),
-      tooltip: hidden ? l10n.showAmounts : l10n.hideAmounts,
-      icon: Icon(
-        hidden ? Icons.visibility_off_rounded : Icons.visibility_rounded,
-      ),
-      onPressed: () => ref.read(hideAmountsProvider.notifier).state = !hidden,
+      tooltip: tooltip,
+      icon: Icon(icon),
+      onPressed: onPressed,
     );
   }
 }

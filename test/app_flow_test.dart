@@ -1,5 +1,8 @@
 import 'package:expense_tracker/app/app.dart';
 import 'package:expense_tracker/features/auth/providers/auth_provider.dart';
+import 'package:expense_tracker/features/settings/domain/calendar_grid_settings.dart';
+import 'package:expense_tracker/features/settings/presentation/customize_grid_sheet.dart';
+import 'package:expense_tracker/features/settings/providers/settings_provider.dart';
 import 'package:expense_tracker/features/transactions/data/in_memory_ledger_repository.dart';
 import 'package:expense_tracker/features/transactions/data/mock_data.dart';
 import 'package:expense_tracker/features/transactions/domain/ledger_repository.dart';
@@ -510,6 +513,48 @@ void main() {
     await tester.pumpAndSettle();
     expect(container.read(transactionsQueryProvider).isFiltered, isFalse);
     expect(find.text('Cà phê'), findsWidgets);
+  });
+
+  testWidgets('Customize calendar changes the day tiles live', (tester) async {
+    final container = await pumpApp(tester);
+    Finder badgeOnDay6(String text) =>
+        find.descendant(of: dayCell(6), matching: find.text(text));
+    expect(badgeOnDay6('+5'), findsOneWidget); // stacked: 2 shown of 7
+
+    await tester.tap(find.byTooltip('Tùy chỉnh lịch'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Xòe quạt'));
+    await tester.pumpAndSettle();
+    expect(badgeOnDay6('+4'), findsOneWidget); // fan: 3 shown
+
+    await tester.tap(find.text('Một ảnh'));
+    await tester.pumpAndSettle();
+    expect(badgeOnDay6('+6'), findsOneWidget); // single: 1 shown
+
+    await tester.scrollUntilVisible(
+      find.text('Hiện số giao dịch thêm'),
+      200,
+      scrollable: find
+          .descendant(
+            of: find.byType(CustomizeGridSheet),
+            matching: find.byType(Scrollable),
+          )
+          .first,
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Hiện số giao dịch thêm'));
+    await tester.pumpAndSettle();
+    expect(
+      find.descendant(of: dayCell(6), matching: find.textContaining('+')),
+      findsNothing,
+    );
+
+    await tester.tap(find.text('Xong'));
+    await tester.pumpAndSettle();
+    final settings = container.read(calendarGridSettingsProvider);
+    expect(settings.display, GridDisplay.single);
+    expect(settings.showBadge, isFalse);
   });
 }
 

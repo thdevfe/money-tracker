@@ -794,4 +794,62 @@ class AppLocalizationsVi extends AppLocalizations {
   String resultCount(int count) {
     return '$count giao dịch';
   }
+
+  @override
+  String get customizeGrid => 'Tùy chỉnh lịch';
+
+  @override
+  String get gridShape => 'Hình dạng';
+
+  @override
+  String get shapeRounded => 'Bo góc';
+
+  @override
+  String get shapeCircle => 'Tròn';
+
+  @override
+  String get shapeSquare => 'Vuông';
+
+  @override
+  String get gridDisplay => 'Hiển thị';
+
+  @override
+  String get displaySingle => 'Một ảnh';
+
+  @override
+  String get displayStacked => 'Xếp chồng';
+
+  @override
+  String get displayFan => 'Xòe quạt';
+
+  @override
+  String get gridBorder => 'Viền';
+
+  @override
+  String get borderAccent => 'Nổi bật';
+
+  @override
+  String get borderNone => 'Không viền';
+
+  @override
+  String get borderThin => 'Mảnh';
+
+  @override
+  String get borderColor => 'Màu viền';
+
+  @override
+  String get colorAuto => 'Tự động';
+
+  @override
+  String get badgeSection => 'Huy hiệu';
+
+  @override
+  String get showCountBadge => 'Hiện số giao dịch thêm';
+
+  @override
+  String get monthStartDay => 'Ngày bắt đầu tháng';
+
+  @override
+  String get monthStartDayHelp =>
+      'Mỗi kỳ tháng bắt đầu từ ngày này, ví dụ ngày nhận lương (mặc định: ngày 1).';
 }

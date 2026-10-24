@@ -373,5 +373,24 @@
         "type": "int"
       }
     }
-  }
+  },
+  "customizeGrid": "Customize calendar",
+  "gridShape": "Shape",
+  "shapeRounded": "Rounded",
+  "shapeCircle": "Circle",
+  "shapeSquare": "Square",
+  "gridDisplay": "Display",
+  "displaySingle": "Single",
+  "displayStacked": "Stacked",
+  "displayFan": "Fan",
+  "gridBorder": "Border",
+  "borderAccent": "Accent",
+  "borderNone": "None",
+  "borderThin": "Thin",
+  "borderColor": "Border color",
+  "colorAuto": "Auto",
+  "badgeSection": "Badge",
+  "showCountBadge": "Show count badge",
+  "monthStartDay": "Month start day",
+  "monthStartDayHelp": "Each monthly period starts on this day, for example your payday (default: 1st)."
 }

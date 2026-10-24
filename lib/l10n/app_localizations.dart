@@ -1555,6 +1555,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =1{1 transaction} other{{count} transactions}}'**
   String resultCount(int count);
+
+  /// No description provided for @customizeGrid.
+  ///
+  /// In en, this message translates to:
+  /// **'Customize calendar'**
+  String get customizeGrid;
+
+  /// No description provided for @gridShape.
+  ///
+  /// In en, this message translates to:
+  /// **'Shape'**
+  String get gridShape;
+
+  /// No description provided for @shapeRounded.
+  ///
+  /// In en, this message translates to:
+  /// **'Rounded'**
+  String get shapeRounded;
+
+  /// No description provided for @shapeCircle.
+  ///
+  /// In en, this message translates to:
+  /// **'Circle'**
+  String get shapeCircle;
+
+  /// No description provided for @shapeSquare.
+  ///
+  /// In en, this message translates to:
+  /// **'Square'**
+  String get shapeSquare;
+
+  /// No description provided for @gridDisplay.
+  ///
+  /// In en, this message translates to:
+  /// **'Display'**
+  String get gridDisplay;
+
+  /// No description provided for @displaySingle.
+  ///
+  /// In en, this message translates to:
+  /// **'Single'**
+  String get displaySingle;
+
+  /// No description provided for @displayStacked.
+  ///
+  /// In en, this message translates to:
+  /// **'Stacked'**
+  String get displayStacked;
+
+  /// No description provided for @displayFan.
+  ///
+  /// In en, this message translates to:
+  /// **'Fan'**
+  String get displayFan;
+
+  /// No description provided for @gridBorder.
+  ///
+  /// In en, this message translates to:
+  /// **'Border'**
+  String get gridBorder;
+
+  /// No description provided for @borderAccent.
+  ///
+  /// In en, this message translates to:
+  /// **'Accent'**
+  String get borderAccent;
+
+  /// No description provided for @borderNone.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get borderNone;
+
+  /// No description provided for @borderThin.
+  ///
+  /// In en, this message translates to:
+  /// **'Thin'**
+  String get borderThin;
+
+  /// No description provided for @borderColor.
+  ///
+  /// In en, this message translates to:
+  /// **'Border color'**
+  String get borderColor;
+
+  /// No description provided for @colorAuto.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto'**
+  String get colorAuto;
+
+  /// No description provided for @badgeSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Badge'**
+  String get badgeSection;
+
+  /// No description provided for @showCountBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Show count badge'**
+  String get showCountBadge;
+
+  /// No description provided for @monthStartDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Month start day'**
+  String get monthStartDay;
+
+  /// No description provided for @monthStartDayHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Each monthly period starts on this day, for example your payday (default: 1st).'**
+  String get monthStartDayHelp;
 }
 
 class _AppLocalizationsDelegate
