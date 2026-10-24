@@ -232,5 +232,15 @@
   "recentTransactions": "Giao dịch gần đây",
   "noAccountsMessage": "Hãy tạo ví hoặc tài khoản ngân hàng để bắt đầu ghi chép.",
   "savedMessage": "Đã lưu",
-  "noTransactionsYet": "Chưa có giao dịch"
+  "noTransactionsYet": "Chưa có giao dịch",
+  "filterTime": "Thời gian",
+  "periodAnyTime": "Mọi lúc",
+  "periodThisMonth": "Tháng này",
+  "periodLastMonth": "Tháng trước",
+  "periodCustom": "Chọn khoảng ngày…",
+  "allAccounts": "Tất cả tài khoản",
+  "allCategories": "Tất cả danh mục",
+  "resetFilters": "Xóa bộ lọc",
+  "dateRange": "{start} – {end}",
+  "resultCount": "{count} giao dịch"
 }

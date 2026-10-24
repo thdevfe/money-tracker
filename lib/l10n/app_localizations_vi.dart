@@ -760,4 +760,38 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get noTransactionsYet => 'Chưa có giao dịch';
+
+  @override
+  String get filterTime => 'Thời gian';
+
+  @override
+  String get periodAnyTime => 'Mọi lúc';
+
+  @override
+  String get periodThisMonth => 'Tháng này';
+
+  @override
+  String get periodLastMonth => 'Tháng trước';
+
+  @override
+  String get periodCustom => 'Chọn khoảng ngày…';
+
+  @override
+  String get allAccounts => 'Tất cả tài khoản';
+
+  @override
+  String get allCategories => 'Tất cả danh mục';
+
+  @override
+  String get resetFilters => 'Xóa bộ lọc';
+
+  @override
+  String dateRange(String start, String end) {
+    return '$start – $end';
+  }
+
+  @override
+  String resultCount(int count) {
+    return '$count giao dịch';
+  }
 }

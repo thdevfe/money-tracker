@@ -784,4 +784,44 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noTransactionsYet => 'No transactions yet';
+
+  @override
+  String get filterTime => 'Time';
+
+  @override
+  String get periodAnyTime => 'Any time';
+
+  @override
+  String get periodThisMonth => 'This month';
+
+  @override
+  String get periodLastMonth => 'Last month';
+
+  @override
+  String get periodCustom => 'Choose dates…';
+
+  @override
+  String get allAccounts => 'All accounts';
+
+  @override
+  String get allCategories => 'All categories';
+
+  @override
+  String get resetFilters => 'Reset filters';
+
+  @override
+  String dateRange(String start, String end) {
+    return '$start – $end';
+  }
+
+  @override
+  String resultCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count transactions',
+      one: '1 transaction',
+    );
+    return '$_temp0';
+  }
 }

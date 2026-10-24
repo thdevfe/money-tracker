@@ -4,6 +4,7 @@ import 'package:expense_tracker/features/transactions/data/in_memory_ledger_repo
 import 'package:expense_tracker/features/transactions/data/mock_data.dart';
 import 'package:expense_tracker/features/transactions/domain/ledger_repository.dart';
 import 'package:expense_tracker/features/transactions/domain/models.dart';
+import 'package:expense_tracker/features/transactions/domain/transaction_query.dart';
 import 'package:expense_tracker/features/transactions/presentation/form/capture_photo_screen.dart';
 import 'package:expense_tracker/features/transactions/presentation/home/widgets/photo_calendar_day_cell.dart';
 import 'package:expense_tracker/features/transactions/providers/transactions_provider.dart';
@@ -448,6 +449,60 @@ void main() {
       ),
       findsOneWidget,
     );
+  });
+
+  testWidgets('History filters combine and reset', (tester) async {
+    final container = await pumpApp(tester);
+
+    await tester.tap(find.byTooltip('Giao dịch'));
+    await tester.pumpAndSettle();
+
+    // Account: Vietcombank keeps salary and transfers, drops cash spending.
+    await tester.ensureVisible(find.byKey(const ValueKey('filter_account')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filter_account')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Vietcombank').last);
+    await tester.pumpAndSettle();
+    // Coffee is always paid in cash in the demo data.
+    expect(find.text('Cà phê'), findsNothing);
+
+    // Time: this month only.
+    await tester.ensureVisible(find.byKey(const ValueKey('filter_time')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filter_time')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Tháng này'));
+    await tester.pumpAndSettle();
+    final query = container.read(transactionsQueryProvider);
+    expect(query.accountId, 'acc-bank');
+    expect(query.period, PeriodPreset.thisMonth);
+    expect(find.textContaining('tháng 9'), findsNothing);
+
+    // Type income narrows the category list to income categories.
+    final incomeChip = find.widgetWithText(ChoiceChip, 'Khoản thu');
+    await tester.ensureVisible(incomeChip);
+    await tester.pumpAndSettle();
+    await tester.tap(incomeChip);
+    await tester.pumpAndSettle();
+
+    // Category: salary only.
+    await tester.ensureVisible(find.byKey(const ValueKey('filter_category')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('filter_category')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Lương').last);
+    await tester.pumpAndSettle();
+    expect(find.text('Rút tiền ATM'), findsNothing);
+    expect(find.text('Lương'), findsWidgets);
+    expect(find.text('1 giao dịch'), findsOneWidget);
+
+    await tester.ensureVisible(find.text('Xóa bộ lọc'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Xóa bộ lọc'));
+    await tester.pumpAndSettle();
+    expect(container.read(transactionsQueryProvider).isFiltered, isFalse);
+    expect(find.text('Cà phê'), findsWidgets);
   });
 }
 

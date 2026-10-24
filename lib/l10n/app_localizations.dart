@@ -1495,6 +1495,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No transactions yet'**
   String get noTransactionsYet;
+
+  /// No description provided for @filterTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get filterTime;
+
+  /// No description provided for @periodAnyTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Any time'**
+  String get periodAnyTime;
+
+  /// No description provided for @periodThisMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'This month'**
+  String get periodThisMonth;
+
+  /// No description provided for @periodLastMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Last month'**
+  String get periodLastMonth;
+
+  /// No description provided for @periodCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose dates…'**
+  String get periodCustom;
+
+  /// No description provided for @allAccounts.
+  ///
+  /// In en, this message translates to:
+  /// **'All accounts'**
+  String get allAccounts;
+
+  /// No description provided for @allCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'All categories'**
+  String get allCategories;
+
+  /// No description provided for @resetFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset filters'**
+  String get resetFilters;
+
+  /// No description provided for @dateRange.
+  ///
+  /// In en, this message translates to:
+  /// **'{start} – {end}'**
+  String dateRange(String start, String end);
+
+  /// No description provided for @resultCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 transaction} other{{count} transactions}}'**
+  String resultCount(int count);
 }
 
 class _AppLocalizationsDelegate

@@ -346,5 +346,32 @@
   "recentTransactions": "Recent transactions",
   "noAccountsMessage": "Create a wallet or bank account to start recording money.",
   "savedMessage": "Saved",
-  "noTransactionsYet": "No transactions yet"
+  "noTransactionsYet": "No transactions yet",
+  "filterTime": "Time",
+  "periodAnyTime": "Any time",
+  "periodThisMonth": "This month",
+  "periodLastMonth": "Last month",
+  "periodCustom": "Choose dates…",
+  "allAccounts": "All accounts",
+  "allCategories": "All categories",
+  "resetFilters": "Reset filters",
+  "dateRange": "{start} – {end}",
+  "@dateRange": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "resultCount": "{count, plural, =1{1 transaction} other{{count} transactions}}",
+  "@resultCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

@@ -8,6 +8,7 @@ import '../../../core/widgets/empty_state_view.dart';
 import '../../../l10n/app_localizations.dart';
 import '../domain/ledger.dart';
 import '../domain/models.dart';
+import '../domain/transaction_query.dart';
 import '../providers/transactions_provider.dart';
 import 'widgets/transaction_filter_bar.dart';
 import 'widgets/transaction_list_item.dart';
@@ -24,7 +25,7 @@ class DailyTransactionsScreen extends ConsumerStatefulWidget {
 
 class _DailyTransactionsScreenState
     extends ConsumerState<DailyTransactionsScreen> {
-  TransactionFilter _filter = TransactionFilter.all;
+  TypeFilter _filter = TypeFilter.all;
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +34,11 @@ class _DailyTransactionsScreenState
     final theme = Theme.of(context);
     final colors = AppColors.of(context);
     final all = ref.watch(dayTransactionsProvider(widget.date));
-    final visible = all.where(_filter.matches).toList();
+    final visible = all
+        .where(
+          (t) => TransactionQuery(type: _filter).matches(t, now: t.occurredAt),
+        )
+        .toList();
     final totals = totalsOf(all);
 
     Widget totalTile(String label, String value, Color color) => Expanded(

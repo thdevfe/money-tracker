@@ -6,6 +6,7 @@ import '../domain/ledger.dart';
 import '../domain/ledger_repository.dart';
 import '../domain/ledger_rules.dart';
 import '../domain/models.dart';
+import '../domain/transaction_query.dart';
 
 /// "Now". Overridden in tests for deterministic data.
 final clockProvider = Provider<DateTime Function()>((ref) => DateTime.now);
@@ -296,18 +297,7 @@ final totalBalanceProvider = Provider<int>((ref) {
   return ref.watch(accountBalancesProvider).values.fold(0, (a, b) => a + b);
 });
 
-enum TransactionFilter { all, expense, income, transfer }
-
-extension TransactionFilterMatch on TransactionFilter {
-  bool matches(MoneyTransaction t) => switch (this) {
-    TransactionFilter.all => true,
-    TransactionFilter.expense => t.type == TransactionType.expense,
-    TransactionFilter.income => t.type == TransactionType.income,
-    TransactionFilter.transfer => t.type == TransactionType.transfer,
-  };
-}
-
-/// Filter on the Transactions tab.
-final transactionsFilterProvider = StateProvider<TransactionFilter>(
-  (ref) => TransactionFilter.all,
+/// Filters on the Transactions tab.
+final transactionsQueryProvider = StateProvider<TransactionQuery>(
+  (ref) => const TransactionQuery(),
 );

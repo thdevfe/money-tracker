@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../../../l10n/app_localizations.dart';
-import '../../providers/transactions_provider.dart';
+import '../../domain/transaction_query.dart';
 
 /// All / Expense / Income / Transfer chips.
 class TransactionFilterBar extends StatelessWidget {
-  final TransactionFilter selected;
-  final ValueChanged<TransactionFilter> onChanged;
+  final TypeFilter selected;
+  final ValueChanged<TypeFilter> onChanged;
 
   const TransactionFilterBar({
     super.key,
@@ -18,18 +18,18 @@ class TransactionFilterBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    String label(TransactionFilter f) => switch (f) {
-      TransactionFilter.all => l10n.filterAll,
-      TransactionFilter.expense => l10n.typeExpense,
-      TransactionFilter.income => l10n.typeIncome,
-      TransactionFilter.transfer => l10n.typeTransfer,
+    String label(TypeFilter f) => switch (f) {
+      TypeFilter.all => l10n.filterAll,
+      TypeFilter.expense => l10n.typeExpense,
+      TypeFilter.income => l10n.typeIncome,
+      TypeFilter.transfer => l10n.typeTransfer,
     };
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
       child: Row(
         children: [
-          for (final f in TransactionFilter.values)
+          for (final f in TypeFilter.values)
             Padding(
               padding: const EdgeInsets.only(right: AppSpacing.sm),
               child: ChoiceChip(
