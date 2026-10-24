@@ -296,6 +296,18 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                     ),
                     child: Row(
                       children: [
+                        // First, so it stays visible on narrow screens.
+                        if (query.isFiltered)
+                          Padding(
+                            padding: const EdgeInsets.only(
+                              right: AppSpacing.sm,
+                            ),
+                            child: IconButton.filledTonal(
+                              tooltip: l10n.resetFilters,
+                              onPressed: _reset,
+                              icon: const Icon(Icons.filter_alt_off_rounded),
+                            ),
+                          ),
                         _FilterButton(
                           key: const ValueKey('filter_time'),
                           icon: Icons.calendar_month_rounded,
@@ -319,12 +331,6 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                           active: query.categoryId != null,
                           onTap: _pickCategory,
                         ),
-                        if (query.isFiltered)
-                          TextButton.icon(
-                            onPressed: _reset,
-                            icon: const Icon(Icons.filter_alt_off_rounded),
-                            label: Text(l10n.resetFilters),
-                          ),
                       ],
                     ),
                   ),

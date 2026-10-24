@@ -79,7 +79,7 @@ class TransactionListItem extends ConsumerWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '$detail · ${fmt.time(t.occurredAt)}',
+                      detail,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: theme.textTheme.bodySmall?.copyWith(
@@ -90,23 +90,38 @@ class TransactionListItem extends ConsumerWidget {
                 ),
               ),
               const SizedBox(width: AppSpacing.sm),
-              Row(
-                mainAxisSize: MainAxisSize.min,
+              // Amount with the time under it, so long details never hide
+              // the time.
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  if (t.type == TransactionType.transfer)
-                    Padding(
-                      padding: const EdgeInsets.only(right: 2),
-                      child: Icon(
-                        Icons.swap_horiz_rounded,
-                        size: 16,
-                        color: colors.transfer,
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (t.type == TransactionType.transfer)
+                        Padding(
+                          padding: const EdgeInsets.only(right: 2),
+                          child: Icon(
+                            Icons.swap_horiz_rounded,
+                            size: 16,
+                            color: colors.transfer,
+                          ),
+                        ),
+                      Text(
+                        fmt.signedMoney(t.type, t.amountMinor),
+                        style: theme.textTheme.bodyLarge?.copyWith(
+                          fontWeight: FontWeight.w700,
+                          color: amountColor(context, t.type),
+                          fontFeatures: const [FontFeature.tabularFigures()],
+                        ),
                       ),
-                    ),
+                    ],
+                  ),
+                  const SizedBox(height: 2),
                   Text(
-                    fmt.signedMoney(t.type, t.amountMinor),
-                    style: theme.textTheme.bodyLarge?.copyWith(
-                      fontWeight: FontWeight.w700,
-                      color: amountColor(context, t.type),
+                    fmt.time(t.occurredAt),
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: colors.textSecondary,
                       fontFeatures: const [FontFeature.tabularFigures()],
                     ),
                   ),

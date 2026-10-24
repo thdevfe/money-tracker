@@ -497,9 +497,9 @@ void main() {
     expect(find.text('Lương'), findsWidgets);
     expect(find.text('1 giao dịch'), findsOneWidget);
 
-    await tester.ensureVisible(find.text('Xóa bộ lọc'));
+    await tester.ensureVisible(find.byTooltip('Xóa bộ lọc'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Xóa bộ lọc'));
+    await tester.tap(find.byTooltip('Xóa bộ lọc'));
     await tester.pumpAndSettle();
     expect(container.read(transactionsQueryProvider).isFiltered, isFalse);
     expect(find.text('Cà phê'), findsWidgets);
