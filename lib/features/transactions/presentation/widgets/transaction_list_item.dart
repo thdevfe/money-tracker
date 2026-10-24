@@ -46,7 +46,10 @@ class TransactionListItem extends ConsumerWidget {
         accounts[t.destinationAccountId]?.name ?? '',
       );
     } else {
-      detail = t.category?.label(l10n) ?? '';
+      detail = [
+        t.category?.label(l10n),
+        accounts[t.accountId]?.name,
+      ].whereType<String>().join(' · ');
     }
 
     return InkWell(
