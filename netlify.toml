@@ -1,7 +1,8 @@
-# Netlify serves the prebuilt web app (Netlify's build image has no Flutter):
-#   flutter build web --release --dart-define-from-file=config/supabase.json
-# then deploy build/web (drag-and-drop, or `netlify deploy --prod`).
+# Netlify builds the Flutter web app from GitHub on every push.
+# Set SUPABASE_URL and SUPABASE_PUBLISHABLE_KEY under
+# Site configuration › Environment variables.
 [build]
+  command = "bash scripts/netlify_build.sh"
   publish = "build/web"
 
 [[headers]]
@@ -9,3 +10,14 @@
   [headers.values]
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
+
+# Always fetch the latest app shell so new deploys show up.
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+[[headers]]
+  for = "/flutter_service_worker.js"
+  [headers.values]
+    Cache-Control = "no-cache"

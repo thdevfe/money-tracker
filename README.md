@@ -32,13 +32,18 @@ flutter run                                                # demo mode
 
 ## Deploy the web app (Netlify)
 
-```bash
-flutter build web --release --dart-define-from-file=config/supabase.json
-```
+Netlify builds from GitHub on every push (`netlify.toml` →
+`scripts/netlify_build.sh`, which installs Flutter and runs
+`flutter build web`).
 
-Then upload `build/web` to Netlify (drag-and-drop on the site's *Deploys* page,
-or `netlify deploy --prod`). Users open the link in Safari and choose
-**Share › Add to Home Screen**.
+1. Netlify › **Add new site › Import an existing project › GitHub**, pick
+   this repo. Build settings come from `netlify.toml`.
+2. **Site configuration › Environment variables**: add `SUPABASE_URL` and
+   `SUPABASE_PUBLISHABLE_KEY`, then redeploy.
+3. In Supabase, **Authentication › URL Configuration**: set **Site URL** to the
+   Netlify URL and add it under **Redirect URLs**.
+
+Users open the link in Safari and choose **Share › Add to Home Screen**.
 
 ## Test and analyze
 
