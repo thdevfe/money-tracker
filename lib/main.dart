@@ -1,18 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'app/app.dart';
 import 'core/config/backend_config.dart';
 import 'features/auth/providers/auth_provider.dart';
+import 'features/settings/data/shared_preference_store.dart';
+import 'features/settings/providers/settings_provider.dart';
 import 'features/transactions/data/supabase_ledger_repository.dart';
 import 'features/transactions/providers/transactions_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  final preferences = await SharedPreferences.getInstance();
+  final overrides = <Override>[
+    preferenceStoreProvider.overrideWithValue(
+      SharedPreferenceStore(preferences),
+    ),
+  ];
+
   // Without Supabase settings the app runs in demo mode with sample data.
-  final overrides = <Override>[];
   if (BackendConfig.isConfigured) {
     final supabase = await Supabase.initialize(
       url: BackendConfig.url,
