@@ -190,8 +190,8 @@ class AppBottomNav extends StatelessWidget {
                     child: Center(
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 150),
-                        width: 48,
-                        height: 40,
+                        width: _tabWidth,
+                        height: _tabHeight,
                         decoration: BoxDecoration(
                           color: i == currentIndex
                               ? scheme.primary.withValues(alpha: 0.16)
