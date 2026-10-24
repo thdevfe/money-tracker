@@ -1374,7 +1374,7 @@ Exit criteria:
 
 ### Phase 2 — Accounts and categories
 
-**Status: in progress.**
+**Status: done.** Account create/edit/delete with in-use and opening-balance rules, account detail, custom categories (create, rename, recolor, archive/restore, delete when unused) with `0002_custom_categories.sql`. Built-in categories stay app-defined codes. Pending: apply both migrations to the owner's Supabase project.
 
 Tasks:
 - Build account list, create/edit account form, and account detail.
