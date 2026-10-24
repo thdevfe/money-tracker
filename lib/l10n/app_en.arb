@@ -257,5 +257,25 @@
         "type": "String"
       }
     }
-  }
+  },
+  "photoUpload": "Upload photo",
+  "photoQuickHint": "Snap a receipt or the moment. Optional.",
+  "detailsLabel": "Details",
+  "typeShortExpense": "Expense",
+  "typeShortIncome": "Income",
+  "typeShortTransfer": "Transfer",
+  "chooseFromLibrary": "Choose from library",
+  "skipPhoto": "Skip photo",
+  "takePhoto": "Take photo",
+  "cameraUnavailable": "The camera isn't available here. Choose from your library or skip the photo.",
+  "flashOn": "Turn flash on",
+  "flashOff": "Turn flash off",
+  "switchCamera": "Switch camera",
+  "addDetails": "Add details",
+  "done": "Done",
+  "changePhoto": "Change photo",
+  "retakePhoto": "Take again",
+  "keypadClear": "Clear",
+  "keypadBackspace": "Delete last digit",
+  "chooseCategory": "Choose category"
 }

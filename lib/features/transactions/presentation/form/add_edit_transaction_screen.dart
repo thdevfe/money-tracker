@@ -1,10 +1,7 @@
-import 'dart:io';
+import 'dart:ui';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../../app/navigation.dart';
@@ -12,23 +9,34 @@ import '../../../../core/formatting/formatters.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../data/mock_data.dart';
+import '../../domain/ledger.dart';
 import '../../domain/models.dart';
 import '../../providers/transactions_provider.dart';
+import '../category_presentation.dart';
 import '../widgets/transaction_list_item.dart';
+import 'capture_photo_screen.dart';
+import 'keypad_expression.dart';
 import 'transaction_form_validation.dart';
-import 'widgets/account_selector.dart';
-import 'widgets/amount_input.dart';
-import 'widgets/category_selector.dart';
-import 'widgets/optional_photo_picker.dart';
-import 'widgets/transaction_type_selector.dart';
+import 'widgets/account_picker_sheet.dart';
+import 'widgets/amount_keypad.dart';
 
+/// Step 2 of adding (and the edit screen): a hero card with the photo or the
+/// category, the amount, quick pickers and a calculator keypad.
 class AddEditTransactionScreen extends ConsumerStatefulWidget {
   final MoneyTransaction? existing;
 
   /// Default day for a new transaction (time defaults to now).
   final DateTime? initialDate;
 
-  const AddEditTransactionScreen({super.key, this.existing, this.initialDate});
+  /// Photo taken or chosen in the capture step.
+  final TransactionPhoto? initialPhoto;
+
+  const AddEditTransactionScreen({
+    super.key,
+    this.existing,
+    this.initialDate,
+    this.initialPhoto,
+  });
 
   @override
   ConsumerState<AddEditTransactionScreen> createState() =>
@@ -39,16 +47,15 @@ class _AddEditTransactionScreenState
     extends ConsumerState<AddEditTransactionScreen> {
   static const _uuid = Uuid();
 
-  final _amountController = TextEditingController();
-  final _noteController = TextEditingController();
-
   late TransactionType _type;
   CategoryCode? _category;
   late String _accountId;
   late String _sourceAccountId;
   late String _destinationAccountId;
   late DateTime _occurredAt;
+  late String _note;
   TransactionPhoto? _photo;
+  late KeypadExpression _amount;
 
   late final int _initialSnapshot;
   bool _submitted = false;
@@ -63,7 +70,7 @@ class _AddEditTransactionScreenState
     final e = widget.existing;
     final now = ref.read(clockProvider)();
     _type = e?.type ?? TransactionType.expense;
-    _category = e?.category;
+    _category = e?.category ?? _defaultCategory(_type);
     _accountId = e?.accountId ?? cashAccountId;
     _sourceAccountId = e?.sourceAccountId ?? bankAccountId;
     _destinationAccountId = e?.destinationAccountId ?? cashAccountId;
@@ -73,46 +80,38 @@ class _AddEditTransactionScreenState
         (day == null
             ? now
             : DateTime(day.year, day.month, day.day, now.hour, now.minute));
-    _noteController.text = e?.note ?? '';
-    _photo = e?.photo;
-    _initialSnapshot = _snapshot(e?.amountMinor);
+    _note = e?.note ?? '';
+    _photo = e?.photo ?? widget.initialPhoto;
+    _amount = e == null
+        ? const KeypadExpression.empty()
+        : KeypadExpression.fromAmount(e.amountMinor);
+    // Baseline for "unsaved changes"; a fresh photo counts as a change.
+    _initialSnapshot = _snapshot(e?.amountMinor, photo: e?.photo);
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    // Format the existing amount once the locale is available.
-    final e = widget.existing;
-    if (e != null && _amountController.text.isEmpty) {
-      _amountController.text = Formatters.of(
-        context,
-      ).groupDigits(e.amountMinor);
-    }
-  }
+  static CategoryCode? _defaultCategory(TransactionType type) =>
+      type == TransactionType.transfer
+      ? null
+      : CategoryCode.forType(type).first;
 
-  @override
-  void dispose() {
-    _amountController.dispose();
-    _noteController.dispose();
-    super.dispose();
-  }
-
-  int? get _amountMinor => parseAmountMinor(_amountController.text);
+  int? get _amountMinor => _amount.evaluate();
 
   /// Hash of the editable values, used to detect unsaved changes.
-  int _snapshot(int? amountMinor) => Object.hashAll([
-    _type,
-    amountMinor,
-    _category,
-    _accountId,
-    _sourceAccountId,
-    _destinationAccountId,
-    _occurredAt,
-    _noteController.text.trim(),
-    _photo,
-  ]);
+  int _snapshot(int? amountMinor, {required TransactionPhoto? photo}) =>
+      Object.hashAll([
+        _type,
+        amountMinor,
+        _category,
+        _accountId,
+        _sourceAccountId,
+        _destinationAccountId,
+        _occurredAt,
+        _note.trim(),
+        photo,
+      ]);
 
-  bool get _isDirty => _snapshot(_amountMinor) != _initialSnapshot;
+  bool get _isDirty =>
+      _snapshot(_amountMinor, photo: _photo) != _initialSnapshot;
 
   TransactionFormErrors get _errors => validateTransactionForm(
     type: _type,
@@ -123,13 +122,15 @@ class _AddEditTransactionScreenState
   );
 
   void _changeType(TransactionType type) {
-    if (type == _type) return;
+    if (type == _type || _isEditing) return;
     setState(() {
       _type = type;
-      _category = null;
+      _category = _defaultCategory(type);
       if (type == TransactionType.transfer) _photo = null;
     });
   }
+
+  void _updateAmount(KeypadExpression next) => setState(() => _amount = next);
 
   Future<void> _pickDate() async {
     final picked = await showDatePicker(
@@ -150,53 +151,205 @@ class _AddEditTransactionScreenState
     });
   }
 
-  Future<void> _pickTime() async {
-    final picked = await showTimePicker(
+  Future<void> _pickCategory() async {
+    final l10n = AppLocalizations.of(context);
+    final picked = await showModalBottomSheet<CategoryCode>(
       context: context,
-      initialTime: TimeOfDay.fromDateTime(_occurredAt),
+      showDragHandle: true,
+      builder: (context) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.lg,
+            0,
+            AppSpacing.lg,
+            AppSpacing.lg,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                l10n.chooseCategory,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: AppSpacing.md),
+              GridView.count(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                crossAxisCount: 4,
+                mainAxisSpacing: AppSpacing.md,
+                crossAxisSpacing: AppSpacing.sm,
+                childAspectRatio: 0.82,
+                children: [
+                  for (final c in CategoryCode.forType(_type))
+                    _CategoryOption(
+                      category: c,
+                      selected: c == _category,
+                      onTap: () => Navigator.of(context).pop(c),
+                    ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
     );
-    if (picked == null) return;
-    setState(() {
-      _occurredAt = DateTime(
-        _occurredAt.year,
-        _occurredAt.month,
-        _occurredAt.day,
-        picked.hour,
-        picked.minute,
-      );
-    });
+    if (picked != null) setState(() => _category = picked);
   }
 
-  Future<void> _pickPhoto(ImageSource source) async {
-    FocusScope.of(context).unfocus();
-    final messenger = ScaffoldMessenger.of(context);
+  Future<void> _pickAccount({
+    required String title,
+    required String selectedId,
+    required ValueChanged<String> onPicked,
+  }) async {
+    final id = await showAccountPicker(
+      context,
+      title: title,
+      accounts: ref.read(accountsProvider),
+      balances: ref.read(accountBalancesProvider),
+      selectedId: selectedId,
+    );
+    if (id != null) setState(() => onPicked(id));
+  }
+
+  /// Photo actions from the hero: retake, library, or remove.
+  Future<void> _photoActions() async {
     final l10n = AppLocalizations.of(context);
-    try {
-      final file = await ImagePicker().pickImage(
-        source: source,
-        maxWidth: 1600,
-        imageQuality: 85,
-      );
-      if (file == null || !mounted) return;
-      final provider = kIsWeb
-          ? NetworkImage(file.path) as ImageProvider
-          : FileImage(File(file.path));
-      setState(() => _photo = PickedTransactionPhoto(file.path, provider));
-    } on PlatformException {
-      // Permission denied or no camera (e.g. the simulator).
-      messenger.showSnackBar(SnackBar(content: Text(l10n.photoPickError)));
+    final action = await showModalBottomSheet<String>(
+      context: context,
+      showDragHandle: true,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.photo_camera_outlined),
+              title: Text(_photo == null ? l10n.takePhoto : l10n.retakePhoto),
+              onTap: () => Navigator.of(context).pop('camera'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library_outlined),
+              title: Text(l10n.chooseFromLibrary),
+              onTap: () => Navigator.of(context).pop('library'),
+            ),
+            if (_photo != null)
+              ListTile(
+                leading: Icon(
+                  Icons.delete_outline_rounded,
+                  color: Theme.of(context).colorScheme.error,
+                ),
+                title: Text(l10n.photoRemove),
+                onTap: () => Navigator.of(context).pop('remove'),
+              ),
+            const SizedBox(height: AppSpacing.sm),
+          ],
+        ),
+      ),
+    );
+    if (!mounted || action == null) return;
+    switch (action) {
+      case 'camera':
+        final result = await Navigator.of(context).push<CaptureResult>(
+          MaterialPageRoute(
+            builder: (_) => const CapturePhotoScreen(),
+            fullscreenDialog: true,
+          ),
+        );
+        if (result?.photo != null) setState(() => _photo = result!.photo);
+      case 'library':
+        final photo = await pickFromLibrary(context);
+        if (photo != null) setState(() => _photo = photo);
+      case 'remove':
+        setState(() => _photo = null);
     }
+  }
+
+  /// Note and time, in a sheet behind "Add details".
+  Future<void> _editDetails() async {
+    final l10n = AppLocalizations.of(context);
+    final fmt = Formatters.of(context);
+    final controller = TextEditingController(text: _note);
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (sheetContext) => Padding(
+        padding: EdgeInsets.fromLTRB(
+          AppSpacing.lg,
+          0,
+          AppSpacing.lg,
+          AppSpacing.lg + MediaQuery.viewInsetsOf(sheetContext).bottom,
+        ),
+        child: StatefulBuilder(
+          builder: (sheetContext, setSheetState) => Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              TextField(
+                controller: controller,
+                autofocus: true,
+                maxLength: 300,
+                minLines: 1,
+                maxLines: 4,
+                textCapitalization: TextCapitalization.sentences,
+                textInputAction: TextInputAction.done,
+                onSubmitted: (_) => Navigator.of(sheetContext).pop(),
+                decoration: InputDecoration(
+                  labelText: l10n.noteLabel,
+                  hintText: l10n.noteHint,
+                  counterText: '',
+                  prefixIcon: const Icon(Icons.notes_rounded),
+                ),
+              ),
+              const SizedBox(height: AppSpacing.md),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.schedule_rounded),
+                title: Text(l10n.timeLabel),
+                trailing: Text(
+                  fmt.time(_occurredAt),
+                  style: Theme.of(sheetContext).textTheme.titleMedium,
+                ),
+                onTap: () async {
+                  final picked = await showTimePicker(
+                    context: sheetContext,
+                    initialTime: TimeOfDay.fromDateTime(_occurredAt),
+                  );
+                  if (picked == null) return;
+                  setState(() {
+                    _occurredAt = DateTime(
+                      _occurredAt.year,
+                      _occurredAt.month,
+                      _occurredAt.day,
+                      picked.hour,
+                      picked.minute,
+                    );
+                  });
+                  setSheetState(() {});
+                },
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              FilledButton(
+                onPressed: () => Navigator.of(sheetContext).pop(),
+                child: Text(l10n.done),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    setState(() => _note = controller.text);
+    controller.dispose();
   }
 
   Future<void> _save() async {
     if (_saving) return;
-    FocusScope.of(context).unfocus();
     setState(() => _submitted = true);
     if (!_errors.isValid) return;
 
     setState(() => _saving = true);
     final isTransfer = _type == TransactionType.transfer;
-    final note = _noteController.text.trim();
+    final note = _note.trim();
     final transaction = MoneyTransaction(
       id: widget.existing?.id ?? _uuid.v4(),
       type: _type,
@@ -281,10 +434,13 @@ class _AddEditTransactionScreenState
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final fmt = Formatters.of(context);
-    final accounts = ref.watch(accountsProvider);
-    final balances = ref.watch(accountBalancesProvider);
+    final theme = Theme.of(context);
+    final colors = AppColors.of(context);
+    final accounts = ref.watch(accountByIdProvider);
     final errors = _submitted ? _errors : const TransactionFormErrors();
     final isTransfer = _type == TransactionType.transfer;
+    final accent = amountColor(context, _type);
+    final today = dateOnly(ref.watch(clockProvider)());
 
     final amountError = switch (errors.amount) {
       AmountError.required => l10n.errorAmountRequired,
@@ -292,6 +448,12 @@ class _AddEditTransactionScreenState
       AmountError.tooLarge => l10n.errorAmountTooLarge,
       null => null,
     };
+    final day = dateOnly(_occurredAt);
+    final dateLabel =
+        isSameDay(day, today) ||
+            isSameDay(day, today.subtract(const Duration(days: 1)))
+        ? fmt.dayHeading(day, today)
+        : fmt.dayMonth(day);
 
     return PopScope(
       canPop: _allowPop || !_isDirty,
@@ -299,154 +461,496 @@ class _AddEditTransactionScreenState
         if (!didPop) _confirmDiscard();
       },
       child: Scaffold(
-        appBar: AppBar(
-          leadingWidth: 96,
-          leading: TextButton(
-            onPressed: () => Navigator.of(context).maybePop(),
-            child: Text(l10n.cancel),
-          ),
-          centerTitle: true,
-          title: Text(_isEditing ? l10n.editTitle : l10n.addTitle),
-          actions: [
-            if (_isEditing)
-              IconButton(
-                tooltip: l10n.delete,
-                icon: const Icon(Icons.delete_outline_rounded),
-                onPressed: _delete,
+        resizeToAvoidBottomInset: false,
+        body: Column(
+          children: [
+            Expanded(
+              child: _Hero(
+                photo: isTransfer ? null : _photo,
+                tint: isTransfer
+                    ? colors.transfer
+                    : (_category?.tint ?? theme.colorScheme.primary),
+                icon: isTransfer
+                    ? Icons.swap_horiz_rounded
+                    : (_category?.icon ?? Icons.category_rounded),
+                title: isTransfer
+                    ? l10n.typeTransfer
+                    : (_category?.label(l10n) ?? ''),
+                onTapPhoto: isTransfer ? null : _photoActions,
+                onCancel: () => Navigator.of(context).maybePop(),
+                onDelete: _isEditing ? _delete : null,
+                amountPanel: _AmountPanel(
+                  sign: switch (_type) {
+                    TransactionType.expense => '−',
+                    TransactionType.income => '+',
+                    TransactionType.transfer => '',
+                  },
+                  text: _amount.isEmpty ? '0' : _amount.format(fmt.groupDigits),
+                  result: _amount.hasOperator && _amountMinor != null
+                      ? '= ${fmt.money(_amountMinor!)}'
+                      : null,
+                  isPlaceholder: _amount.isEmpty,
+                  accent: accent,
+                  error: amountError,
+                  note: _note.trim(),
+                  onAddDetails: _editDetails,
+                ),
               ),
-          ],
-        ),
-        body: GestureDetector(
-          onTap: () => FocusScope.of(context).unfocus(),
-          child: Column(
-            children: [
-              Expanded(
-                child: ListView(
-                  keyboardDismissBehavior:
-                      ScrollViewKeyboardDismissBehavior.onDrag,
-                  padding: const EdgeInsets.fromLTRB(
-                    AppSpacing.lg,
-                    AppSpacing.sm,
-                    AppSpacing.lg,
-                    AppSpacing.xxl,
-                  ),
-                  children: [
-                    TransactionTypeSelector(
-                      selected: _type,
-                      onChanged: _isEditing ? null : _changeType,
-                    ),
-                    if (_isEditing)
-                      Padding(
-                        padding: const EdgeInsets.only(top: AppSpacing.xs),
-                        child: Text(
-                          l10n.typeLockedHint,
-                          textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.bodySmall
-                              ?.copyWith(
-                                color: AppColors.of(context).textSecondary,
-                              ),
-                        ),
-                      ),
-                    const SizedBox(height: AppSpacing.xl),
-                    AmountInput(
-                      controller: _amountController,
-                      autofocus: !_isEditing,
-                      color: amountColor(context, _type),
-                      errorText: amountError,
-                      onChanged: (_) => setState(() {}),
-                    ),
-                    const SizedBox(height: AppSpacing.xl),
-                    if (!isTransfer) ...[
-                      CategorySelector(
-                        type: _type,
-                        selected: _category,
-                        errorText: errors.categoryMissing
-                            ? l10n.errorCategoryRequired
-                            : null,
-                        onChanged: (c) => setState(() => _category = c),
-                      ),
-                      const SizedBox(height: AppSpacing.xl),
-                      AccountSelector(
-                        label: l10n.accountLabel,
-                        accounts: accounts,
-                        balances: balances,
-                        selectedId: _accountId,
-                        onChanged: (id) => setState(() => _accountId = id),
-                      ),
-                    ] else ...[
-                      AccountSelector(
-                        label: l10n.fromAccountLabel,
-                        accounts: accounts,
-                        balances: balances,
-                        selectedId: _sourceAccountId,
-                        onChanged: (id) =>
-                            setState(() => _sourceAccountId = id),
-                      ),
-                      const SizedBox(height: AppSpacing.md),
-                      AccountSelector(
-                        label: l10n.toAccountLabel,
-                        accounts: accounts,
-                        balances: balances,
-                        selectedId: _destinationAccountId,
-                        errorText: errors.sameAccount
-                            ? l10n.errorSameAccount
-                            : null,
-                        onChanged: (id) =>
-                            setState(() => _destinationAccountId = id),
-                      ),
-                    ],
-                    const SizedBox(height: AppSpacing.md),
-                    Row(
-                      children: [
-                        Expanded(
-                          flex: 3,
-                          child: _PickerField(
-                            label: l10n.dateLabel,
-                            icon: Icons.calendar_today_rounded,
-                            value: fmt.shortDate(_occurredAt),
-                            onTap: _pickDate,
+            ),
+            const SizedBox(height: AppSpacing.md),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+              child: Wrap(
+                alignment: WrapAlignment.center,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: AppSpacing.sm,
+                runSpacing: AppSpacing.sm,
+                children: isTransfer
+                    ? [
+                        _PickerChip(
+                          key: const ValueKey('from_account'),
+                          icon: accounts[_sourceAccountId]?.type.icon,
+                          label: accounts[_sourceAccountId]?.name ?? '',
+                          onTap: () => _pickAccount(
+                            title: l10n.fromAccountLabel,
+                            selectedId: _sourceAccountId,
+                            onPicked: (id) => _sourceAccountId = id,
                           ),
                         ),
-                        const SizedBox(width: AppSpacing.md),
-                        Expanded(
-                          flex: 2,
-                          child: _PickerField(
-                            label: l10n.timeLabel,
-                            icon: Icons.schedule_rounded,
-                            value: fmt.time(_occurredAt),
-                            onTap: _pickTime,
+                        Icon(
+                          Icons.arrow_forward_rounded,
+                          color: colors.transfer,
+                        ),
+                        _PickerChip(
+                          key: const ValueKey('to_account'),
+                          icon: accounts[_destinationAccountId]?.type.icon,
+                          label: accounts[_destinationAccountId]?.name ?? '',
+                          onTap: () => _pickAccount(
+                            title: l10n.toAccountLabel,
+                            selectedId: _destinationAccountId,
+                            onPicked: (id) => _destinationAccountId = id,
+                          ),
+                        ),
+                      ]
+                    : [
+                        _PickerChip(
+                          key: const ValueKey('category'),
+                          icon: _category?.icon,
+                          iconColor: _category?.tint,
+                          label: _category?.label(l10n) ?? l10n.chooseCategory,
+                          onTap: _pickCategory,
+                        ),
+                        _PickerChip(
+                          key: const ValueKey('account'),
+                          icon: accounts[_accountId]?.type.icon,
+                          label: accounts[_accountId]?.name ?? '',
+                          onTap: () => _pickAccount(
+                            title: l10n.accountLabel,
+                            selectedId: _accountId,
+                            onPicked: (id) => _accountId = id,
                           ),
                         ),
                       ],
-                    ),
-                    const SizedBox(height: AppSpacing.md),
-                    TextField(
-                      controller: _noteController,
-                      maxLength: 300,
-                      minLines: 1,
-                      maxLines: 3,
-                      textCapitalization: TextCapitalization.sentences,
-                      textInputAction: TextInputAction.done,
-                      onChanged: (_) => setState(() {}),
-                      decoration: InputDecoration(
-                        labelText: l10n.noteLabel,
-                        hintText: l10n.noteHint,
-                        counterText: '',
-                        prefixIcon: const Icon(Icons.notes_rounded),
+              ),
+            ),
+            if (errors.sameAccount || errors.categoryMissing)
+              Padding(
+                padding: const EdgeInsets.only(top: AppSpacing.xs),
+                child: Text(
+                  errors.sameAccount
+                      ? l10n.errorSameAccount
+                      : l10n.errorCategoryRequired,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.error,
+                  ),
+                ),
+              ),
+            const SizedBox(height: AppSpacing.md),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _TypeToggle(
+                  selected: _type,
+                  enabled: !_isEditing,
+                  onChanged: _changeType,
+                ),
+                const SizedBox(width: AppSpacing.md),
+                _PickerChip(
+                  key: const ValueKey('date'),
+                  icon: Icons.calendar_month_rounded,
+                  label: dateLabel,
+                  onTap: _pickDate,
+                ),
+              ],
+            ),
+            if (_isEditing)
+              Padding(
+                padding: const EdgeInsets.only(top: AppSpacing.xs),
+                child: Text(
+                  l10n.typeLockedHint,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: colors.textSecondary,
+                  ),
+                ),
+              ),
+            const SizedBox(height: AppSpacing.md),
+            SafeArea(
+              top: false,
+              minimum: const EdgeInsets.only(bottom: AppSpacing.sm),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
+                child: AmountKeypad(
+                  accent: accent,
+                  onDigits: (d) => _updateAmount(_amount.appendDigits(d)),
+                  onOp: (op) => _updateAmount(_amount.appendOp(op)),
+                  onClear: () => _updateAmount(const KeypadExpression.empty()),
+                  onBackspace: () => _updateAmount(_amount.backspace()),
+                  onDone: _saving ? null : _save,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Top card: the photo (or the category on a tinted gradient), Cancel and
+/// Delete, and the amount panel at the bottom.
+class _Hero extends StatelessWidget {
+  final TransactionPhoto? photo;
+  final Color tint;
+  final IconData icon;
+  final String title;
+  final VoidCallback? onTapPhoto;
+  final VoidCallback onCancel;
+  final VoidCallback? onDelete;
+  final Widget amountPanel;
+
+  const _Hero({
+    required this.photo,
+    required this.tint,
+    required this.icon,
+    required this.title,
+    required this.onTapPhoto,
+    required this.onCancel,
+    required this.onDelete,
+    required this.amountPanel,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final current = photo;
+    final dark = Color.lerp(tint, Colors.black, 0.75)!;
+
+    Widget glassButton(Widget child, VoidCallback onTap, {String? tooltip}) {
+      final button = Material(
+        color: Colors.white.withValues(alpha: 0.16),
+        shape: const StadiumBorder(),
+        child: InkWell(
+          customBorder: const StadiumBorder(),
+          onTap: onTap,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+              child: Center(widthFactor: 1, child: child),
+            ),
+          ),
+        ),
+      );
+      return tooltip == null
+          ? button
+          : Tooltip(message: tooltip, child: button);
+    }
+
+    return ClipRRect(
+      borderRadius: const BorderRadius.vertical(bottom: Radius.circular(44)),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          if (current != null)
+            Image(
+              image: current.imageProvider,
+              fit: BoxFit.cover,
+              errorBuilder: (_, _, _) => ColoredBox(color: dark),
+            )
+          else
+            DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [tint, dark],
+                ),
+              ),
+            ),
+          // Keeps text readable over bright photos.
+          const DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Color(0x66000000),
+                  Color(0x00000000),
+                  Color(0x99000000),
+                ],
+                stops: [0, 0.4, 1],
+              ),
+            ),
+          ),
+          if (onTapPhoto != null)
+            Semantics(
+              button: true,
+              label: current == null ? l10n.takePhoto : l10n.changePhoto,
+              excludeSemantics: true,
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: onTapPhoto,
+              ),
+            ),
+          SafeArea(
+            bottom: false,
+            child: Padding(
+              padding: const EdgeInsets.all(AppSpacing.lg),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      glassButton(
+                        Text(
+                          l10n.cancel,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        onCancel,
                       ),
-                    ),
-                    if (!isTransfer) ...[
-                      const SizedBox(height: AppSpacing.xl),
-                      OptionalPhotoPicker(
-                        photo: _photo,
-                        onPick: _pickPhoto,
-                        onRemove: () => setState(() => _photo = null),
-                      ),
+                      const Spacer(),
+                      if (onDelete != null)
+                        glassButton(
+                          const Icon(
+                            Icons.delete_outline_rounded,
+                            color: Colors.white,
+                          ),
+                          onDelete!,
+                          tooltip: l10n.delete,
+                        ),
                     ],
+                  ),
+                  if (current == null)
+                    Expanded(
+                      child: IgnorePointer(
+                        // Scales down on short screens instead of overflowing.
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                width: 80,
+                                height: 80,
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.2),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  icon,
+                                  size: 40,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              const SizedBox(height: AppSpacing.sm),
+                              Text(
+                                title,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              if (onTapPhoto != null) ...[
+                                const SizedBox(height: AppSpacing.xs),
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(
+                                      Icons.add_a_photo_outlined,
+                                      size: 14,
+                                      color: Colors.white70,
+                                    ),
+                                    const SizedBox(width: AppSpacing.xs),
+                                    Text(
+                                      l10n.takePhoto,
+                                      style: const TextStyle(
+                                        color: Colors.white70,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                      ),
+                    )
+                  else
+                    const Spacer(),
+                  amountPanel,
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Frosted panel with the signed amount and an "Add details" pill.
+class _AmountPanel extends StatelessWidget {
+  final String sign;
+  final String text;
+  final String? result;
+  final bool isPlaceholder;
+  final Color accent;
+  final String? error;
+  final String note;
+  final VoidCallback onAddDetails;
+
+  const _AmountPanel({
+    required this.sign,
+    required this.text,
+    required this.result,
+    required this.isPlaceholder,
+    required this.accent,
+    required this.error,
+    required this.note,
+    required this.onAddDetails,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(28),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.lg,
+            AppSpacing.md,
+            AppSpacing.lg,
+            AppSpacing.lg,
+          ),
+          decoration: BoxDecoration(
+            color: Colors.black.withValues(alpha: 0.28),
+            borderRadius: BorderRadius.circular(28),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.14)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (sign.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(right: AppSpacing.sm),
+                        child: Text(
+                          sign,
+                          style: TextStyle(
+                            fontSize: 36,
+                            fontWeight: FontWeight.w700,
+                            color: accent,
+                          ),
+                        ),
+                      ),
+                    Text(
+                      text,
+                      style: TextStyle(
+                        fontSize: 52,
+                        fontWeight: FontWeight.w800,
+                        color: isPlaceholder ? Colors.white54 : Colors.white,
+                        fontFeatures: const [FontFeature.tabularFigures()],
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.sm),
+                    const Text(
+                      '₫',
+                      style: TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white70,
+                      ),
+                    ),
                   ],
                 ),
               ),
-              _SaveBar(label: l10n.save, onPressed: _saving ? null : _save),
+              if (result != null)
+                Text(
+                  result!,
+                  style: const TextStyle(color: Colors.white70, fontSize: 14),
+                ),
+              if (error != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 2),
+                  child: Text(
+                    error!,
+                    style: const TextStyle(
+                      color: Color(0xFFFFB4B6),
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              const SizedBox(height: AppSpacing.md),
+              Material(
+                color: Colors.white.withValues(alpha: 0.10),
+                shape: StadiumBorder(
+                  side: BorderSide(color: Colors.white.withValues(alpha: 0.16)),
+                ),
+                child: InkWell(
+                  customBorder: const StadiumBorder(),
+                  onTap: onAddDetails,
+                  child: SizedBox(
+                    height: 44,
+                    child: Row(
+                      children: [
+                        const SizedBox(width: AppSpacing.lg),
+                        const Icon(
+                          Icons.edit_outlined,
+                          size: 18,
+                          color: Colors.white60,
+                        ),
+                        Expanded(
+                          child: Text(
+                            note.isEmpty ? l10n.addDetails : note,
+                            textAlign: TextAlign.center,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: note.isEmpty
+                                  ? Colors.white60
+                                  : Colors.white,
+                              fontSize: 15,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: AppSpacing.lg + 18),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
         ),
@@ -455,33 +959,69 @@ class _AddEditTransactionScreenState
   }
 }
 
-/// Bottom Save button. Sits in the body column so it stays above the keyboard.
-class _SaveBar extends StatelessWidget {
+/// Rounded "icon label ⌄" chip that opens a picker.
+class _PickerChip extends StatelessWidget {
+  final IconData? icon;
+  final Color? iconColor;
   final String label;
-  final VoidCallback? onPressed;
+  final VoidCallback onTap;
 
-  const _SaveBar({required this.label, required this.onPressed});
+  const _PickerChip({
+    super.key,
+    required this.icon,
+    required this.label,
+    required this.onTap,
+    this.iconColor,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: Theme.of(context).scaffoldBackgroundColor,
-        border: Border(top: BorderSide(color: AppColors.of(context).border)),
+    final theme = Theme.of(context);
+    final colors = AppColors.of(context);
+    return Material(
+      color: theme.colorScheme.primaryContainer.withValues(alpha: 0.55),
+      shape: StadiumBorder(
+        side: BorderSide(
+          color: theme.colorScheme.primary.withValues(alpha: 0.35),
+        ),
       ),
-      child: SafeArea(
-        top: false,
-        minimum: const EdgeInsets.only(bottom: AppSpacing.sm),
+      child: InkWell(
+        customBorder: const StadiumBorder(),
+        onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.lg,
-            AppSpacing.sm,
-            AppSpacing.lg,
-            AppSpacing.sm,
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.lg,
+            vertical: AppSpacing.sm + 2,
           ),
-          child: SizedBox(
-            width: double.infinity,
-            child: FilledButton(onPressed: onPressed, child: Text(label)),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (icon != null) ...[
+                Icon(
+                  icon,
+                  size: 20,
+                  color: iconColor ?? theme.colorScheme.onSurface,
+                ),
+                const SizedBox(width: AppSpacing.sm),
+              ],
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 140),
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.xs),
+              Icon(
+                Icons.expand_more_rounded,
+                size: 20,
+                color: colors.textSecondary,
+              ),
+            ],
           ),
         ),
       ),
@@ -489,30 +1029,114 @@ class _SaveBar extends StatelessWidget {
   }
 }
 
-class _PickerField extends StatelessWidget {
-  final String label;
-  final IconData icon;
-  final String value;
+/// Round expense / income / transfer switch.
+class _TypeToggle extends StatelessWidget {
+  final TransactionType selected;
+  final bool enabled;
+  final ValueChanged<TransactionType> onChanged;
+
+  const _TypeToggle({
+    required this.selected,
+    required this.enabled,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final colors = AppColors.of(context);
+    return Container(
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: colors.elevatedSurface,
+        borderRadius: BorderRadius.circular(28),
+        border: Border.all(color: colors.border),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          for (final type in TransactionType.values)
+            Tooltip(
+              message: type.label(l10n),
+              child: Semantics(
+                button: true,
+                selected: type == selected,
+                label: type.label(l10n),
+                excludeSemantics: true,
+                child: GestureDetector(
+                  onTap: enabled ? () => onChanged(type) : null,
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 150),
+                    width: type == selected ? 60 : 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: type == selected
+                          ? amountColor(context, type)
+                          : Colors.transparent,
+                      borderRadius: BorderRadius.circular(22),
+                    ),
+                    child: Icon(
+                      type.icon,
+                      size: 20,
+                      color: type == selected
+                          ? Colors.white
+                          : colors.textSecondary.withValues(
+                              alpha: enabled ? 1 : 0.4,
+                            ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CategoryOption extends StatelessWidget {
+  final CategoryCode category;
+  final bool selected;
   final VoidCallback onTap;
 
-  const _PickerField({
-    required this.label,
-    required this.icon,
-    required this.value,
+  const _CategoryOption({
+    required this.category,
+    required this.selected,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
     return InkWell(
-      borderRadius: BorderRadius.circular(AppRadii.input),
+      borderRadius: BorderRadius.circular(AppRadii.card),
       onTap: onTap,
-      child: InputDecorator(
-        decoration: InputDecoration(
-          labelText: label,
-          prefixIcon: Icon(icon, size: 20),
-        ),
-        child: Text(value, maxLines: 1),
+      child: Column(
+        children: [
+          Container(
+            width: 56,
+            height: 56,
+            decoration: BoxDecoration(
+              color: category.tint,
+              borderRadius: BorderRadius.circular(AppRadii.card),
+              border: selected
+                  ? Border.all(color: theme.colorScheme.onSurface, width: 2.5)
+                  : null,
+            ),
+            child: Icon(category.icon, color: Colors.white, size: 28),
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            category.label(l10n),
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: theme.textTheme.labelSmall?.copyWith(
+              fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+            ),
+          ),
+        ],
       ),
     );
   }

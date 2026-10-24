@@ -1,6 +1,6 @@
 import 'package:expense_tracker/app/app.dart';
 import 'package:expense_tracker/features/transactions/domain/models.dart';
-import 'package:expense_tracker/features/transactions/presentation/form/widgets/account_selector.dart';
+import 'package:expense_tracker/features/transactions/presentation/form/capture_photo_screen.dart';
 import 'package:expense_tracker/features/transactions/presentation/home/widgets/photo_calendar_day_cell.dart';
 import 'package:expense_tracker/features/transactions/providers/transactions_provider.dart';
 import 'package:flutter/material.dart';
@@ -15,7 +15,10 @@ Future<ProviderContainer> pumpApp(WidgetTester tester) async {
   addTearDown(tester.view.reset);
 
   final container = ProviderContainer(
-    overrides: [clockProvider.overrideWithValue(() => _now)],
+    overrides: [
+      clockProvider.overrideWithValue(() => _now),
+      cameraListProvider.overrideWithValue(() async => const []),
+    ],
   );
   addTearDown(container.dispose);
   await tester.pumpWidget(
@@ -35,8 +38,24 @@ Finder dayCell(int day) => find.byWidgetPredicate(
       w.date == DateTime(2026, 10, day),
 );
 
+/// Opens Add, skips the photo step and lands on the entry screen.
 Future<void> openAddForm(WidgetTester tester) async {
   await tester.tap(find.byTooltip('Thêm giao dịch'));
+  await tester.pumpAndSettle();
+  await tester.tap(find.text('Bỏ qua ảnh'));
+  await tester.pumpAndSettle();
+}
+
+/// Taps keypad keys, e.g. `['1', '2', '000']` or `['add']`.
+Future<void> typeKeys(WidgetTester tester, List<String> keys) async {
+  for (final k in keys) {
+    await tester.tap(find.byKey(ValueKey('keypad_$k')));
+    await tester.pump();
+  }
+}
+
+Future<void> tapDone(WidgetTester tester) async {
+  await tester.tap(find.byKey(const ValueKey('keypad_done')));
   await tester.pumpAndSettle();
 }
 
@@ -90,37 +109,45 @@ void main() {
     final before = container.read(transactionsProvider).length;
 
     await openAddForm(tester);
-    await tester.enterText(find.byType(TextField).first, '120000');
-    await tester.tap(find.text('Ăn uống'));
-    await tester.pump();
-    await tester.tap(find.text('Lưu'));
-    await tester.pumpAndSettle();
+    await typeKeys(tester, ['1', '2', '0', '000']);
+    expect(find.text('120.000'), findsOneWidget);
+    await tapDone(tester);
 
     expect(find.text('Đã thêm giao dịch'), findsOneWidget);
     final items = container.read(transactionsProvider);
     expect(items.length, before + 1);
     final added = items.firstWhere((t) => t.amountMinor == 120000);
     expect(added.photo, isNull);
+    // The first category is preselected for quick entry.
     expect(added.category, CategoryCode.food);
     // Defaults to the day selected on Home.
     expect(added.occurredAt.day, 24);
   });
 
-  testWidgets('Form validation blocks invalid amounts and categories', (
-    tester,
-  ) async {
+  testWidgets('Keypad calculates before saving', (tester) async {
+    final container = await pumpApp(tester);
+
+    await openAddForm(tester);
+    await typeKeys(tester, ['1', '2', '0', '000', 'add', '3', '5', '000']);
+    expect(find.textContaining('155.000'), findsOneWidget);
+    await tapDone(tester);
+
+    expect(
+      container.read(transactionsProvider).any((t) => t.amountMinor == 155000),
+      isTrue,
+    );
+  });
+
+  testWidgets('Form validation blocks empty and zero amounts', (tester) async {
     final container = await pumpApp(tester);
     final before = container.read(transactionsProvider).length;
 
     await openAddForm(tester);
-    await tester.tap(find.text('Lưu'));
-    await tester.pumpAndSettle();
+    await tapDone(tester);
     expect(find.text('Nhập số tiền'), findsOneWidget);
-    expect(find.text('Chọn danh mục'), findsOneWidget);
 
-    await tester.enterText(find.byType(TextField).first, '0');
-    await tester.tap(find.text('Lưu'));
-    await tester.pumpAndSettle();
+    await typeKeys(tester, ['0']);
+    await tapDone(tester);
     expect(find.text('Số tiền phải lớn hơn 0'), findsOneWidget);
     expect(container.read(transactionsProvider).length, before);
   });
@@ -131,19 +158,18 @@ void main() {
     await pumpApp(tester);
     await openAddForm(tester);
 
-    await tester.tap(find.text('Chuyển khoản'));
+    await tester.tap(find.byTooltip('Chuyển khoản'));
     await tester.pumpAndSettle();
-    expect(find.text('Danh mục'), findsNothing);
-    expect(find.text('Ảnh (không bắt buộc)'), findsNothing);
+    expect(find.byKey(const ValueKey('category')), findsNothing);
+    expect(find.text('Chụp ảnh'), findsNothing);
 
-    await tester.enterText(find.byType(TextField).first, '50000');
+    await typeKeys(tester, ['5', '0', '000']);
     // Change destination to the source account (Vietcombank).
-    await tester.tap(find.widgetWithText(AccountSelector, 'Đến tài khoản'));
+    await tester.tap(find.byKey(const ValueKey('to_account')));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Vietcombank').last);
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Lưu'));
-    await tester.pumpAndSettle();
+    await tapDone(tester);
 
     expect(find.text('Chọn hai tài khoản khác nhau'), findsOneWidget);
   });
@@ -154,15 +180,14 @@ void main() {
     await pumpApp(tester);
     await openAddForm(tester);
 
-    await tester.enterText(find.byType(TextField).first, '1000');
-    await tester.pump();
+    await typeKeys(tester, ['1']);
     await tester.tap(find.text('Hủy'));
     await tester.pumpAndSettle();
     expect(find.text('Bỏ các thay đổi?'), findsOneWidget);
 
     await tester.tap(find.text('Bỏ thay đổi'));
     await tester.pumpAndSettle();
-    expect(find.text('Giao dịch mới'), findsNothing);
+    expect(find.byKey(const ValueKey('keypad_done')), findsNothing);
   });
 
   testWidgets('Editing opens the existing transaction', (tester) async {
@@ -174,7 +199,8 @@ void main() {
     await tester.tap(find.text('Mua sắm').first);
     await tester.pumpAndSettle();
 
-    expect(find.text('Sửa giao dịch'), findsOneWidget);
+    expect(find.byTooltip('Xóa'), findsOneWidget);
+    expect(find.text('Không thể đổi loại khi đang sửa.'), findsOneWidget);
     expect(find.text('165.000'), findsOneWidget);
   });
 
@@ -261,5 +287,27 @@ void main() {
     await tester.tap(find.text('Cụm'));
     await tester.pumpAndSettle();
     expect(find.text('Sẽ có ở phiên bản sau'), findsOneWidget);
+  });
+
+  testWidgets('Add starts with the capture step, then the entry screen', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+
+    await tester.tap(find.byTooltip('Thêm giao dịch'));
+    await tester.pumpAndSettle();
+    expect(find.text('Chọn từ thư viện'), findsOneWidget);
+    expect(find.text('Bỏ qua ảnh'), findsOneWidget);
+    // No camera in tests: the viewfinder explains it.
+    expect(find.textContaining('Không dùng được máy ảnh'), findsOneWidget);
+
+    await tester.tap(find.text('Bỏ qua ảnh'));
+    await tester.pumpAndSettle();
+    expect(find.text('Thêm chi tiết'), findsOneWidget);
+    expect(find.byKey(const ValueKey('category')), findsOneWidget);
+
+    await tester.tap(find.text('Thêm chi tiết'));
+    await tester.pumpAndSettle();
+    expect(find.text('Ghi chú (không bắt buộc)'), findsOneWidget);
   });
 }

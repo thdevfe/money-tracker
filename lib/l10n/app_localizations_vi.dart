@@ -500,4 +500,65 @@ class AppLocalizationsVi extends AppLocalizations {
   String categoryShareDetail(int count, String percent) {
     return '$count giao dịch · $percent';
   }
+
+  @override
+  String get photoUpload => 'Tải ảnh lên';
+
+  @override
+  String get photoQuickHint => 'Chụp hóa đơn hoặc khoảnh khắc. Không bắt buộc.';
+
+  @override
+  String get detailsLabel => 'Chi tiết';
+
+  @override
+  String get typeShortExpense => 'Chi';
+
+  @override
+  String get typeShortIncome => 'Thu';
+
+  @override
+  String get typeShortTransfer => 'Chuyển';
+
+  @override
+  String get chooseFromLibrary => 'Chọn từ thư viện';
+
+  @override
+  String get skipPhoto => 'Bỏ qua ảnh';
+
+  @override
+  String get takePhoto => 'Chụp ảnh';
+
+  @override
+  String get cameraUnavailable =>
+      'Không dùng được máy ảnh ở đây. Hãy chọn ảnh từ thư viện hoặc bỏ qua ảnh.';
+
+  @override
+  String get flashOn => 'Bật đèn flash';
+
+  @override
+  String get flashOff => 'Tắt đèn flash';
+
+  @override
+  String get switchCamera => 'Đổi máy ảnh';
+
+  @override
+  String get addDetails => 'Thêm chi tiết';
+
+  @override
+  String get done => 'Xong';
+
+  @override
+  String get changePhoto => 'Đổi ảnh';
+
+  @override
+  String get retakePhoto => 'Chụp lại';
+
+  @override
+  String get keypadClear => 'Xóa hết';
+
+  @override
+  String get keypadBackspace => 'Xóa số cuối';
+
+  @override
+  String get chooseCategory => 'Chọn danh mục';
 }

@@ -48,9 +48,15 @@ project's own.
   Map are placeholders.
 - **Daily transactions**: totals, All/Expense/Income/Transfer filter, rows that
   open the edit form.
-- **Add/Edit transaction**: Expense / Income / Transfer, grouped amount input,
-  category chips, account picker(s), date/time, optional note and optional photo.
-  Validation, delete confirmation and an unsaved-changes prompt.
+- **Add transaction (two steps)**:
+  1. Capture: live camera preview (flash, flip, 1x/2x) with a shutter,
+     "Choose from library", or "Skip photo". Falls back to a message where
+     no camera is available (simulator, web).
+  2. Entry: the photo (or the category on a tinted card) with the amount on a
+     frosted panel, "Add details" for note and time, category and wallet
+     chips, an expense/income/transfer switch, a date chip, and a calculator
+     keypad (+ − × ÷, 000) with a Done key. The first category is
+     preselected. Editing opens the entry screen directly.
 - **Transactions**: grouped by day, type filters and text search.
 - **Accounts**: read-only list with derived balances.
 - **Profile**: name, theme and language (all in memory only).

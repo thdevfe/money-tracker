@@ -1003,6 +1003,126 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =1{1 transaction} other{{count} transactions}} · {percent}'**
   String categoryShareDetail(int count, String percent);
+
+  /// No description provided for @photoUpload.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload photo'**
+  String get photoUpload;
+
+  /// No description provided for @photoQuickHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Snap a receipt or the moment. Optional.'**
+  String get photoQuickHint;
+
+  /// No description provided for @detailsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get detailsLabel;
+
+  /// No description provided for @typeShortExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense'**
+  String get typeShortExpense;
+
+  /// No description provided for @typeShortIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'Income'**
+  String get typeShortIncome;
+
+  /// No description provided for @typeShortTransfer.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfer'**
+  String get typeShortTransfer;
+
+  /// No description provided for @chooseFromLibrary.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose from library'**
+  String get chooseFromLibrary;
+
+  /// No description provided for @skipPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip photo'**
+  String get skipPhoto;
+
+  /// No description provided for @takePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Take photo'**
+  String get takePhoto;
+
+  /// No description provided for @cameraUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'The camera isn\'t available here. Choose from your library or skip the photo.'**
+  String get cameraUnavailable;
+
+  /// No description provided for @flashOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn flash on'**
+  String get flashOn;
+
+  /// No description provided for @flashOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn flash off'**
+  String get flashOff;
+
+  /// No description provided for @switchCamera.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch camera'**
+  String get switchCamera;
+
+  /// No description provided for @addDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Add details'**
+  String get addDetails;
+
+  /// No description provided for @done.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get done;
+
+  /// No description provided for @changePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Change photo'**
+  String get changePhoto;
+
+  /// No description provided for @retakePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Take again'**
+  String get retakePhoto;
+
+  /// No description provided for @keypadClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get keypadClear;
+
+  /// No description provided for @keypadBackspace.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete last digit'**
+  String get keypadBackspace;
+
+  /// No description provided for @chooseCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose category'**
+  String get chooseCategory;
 }
 
 class _AppLocalizationsDelegate

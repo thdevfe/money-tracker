@@ -526,4 +526,65 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0 · $percent';
   }
+
+  @override
+  String get photoUpload => 'Upload photo';
+
+  @override
+  String get photoQuickHint => 'Snap a receipt or the moment. Optional.';
+
+  @override
+  String get detailsLabel => 'Details';
+
+  @override
+  String get typeShortExpense => 'Expense';
+
+  @override
+  String get typeShortIncome => 'Income';
+
+  @override
+  String get typeShortTransfer => 'Transfer';
+
+  @override
+  String get chooseFromLibrary => 'Choose from library';
+
+  @override
+  String get skipPhoto => 'Skip photo';
+
+  @override
+  String get takePhoto => 'Take photo';
+
+  @override
+  String get cameraUnavailable =>
+      'The camera isn\'t available here. Choose from your library or skip the photo.';
+
+  @override
+  String get flashOn => 'Turn flash on';
+
+  @override
+  String get flashOff => 'Turn flash off';
+
+  @override
+  String get switchCamera => 'Switch camera';
+
+  @override
+  String get addDetails => 'Add details';
+
+  @override
+  String get done => 'Done';
+
+  @override
+  String get changePhoto => 'Change photo';
+
+  @override
+  String get retakePhoto => 'Take again';
+
+  @override
+  String get keypadClear => 'Clear';
+
+  @override
+  String get keypadBackspace => 'Delete last digit';
+
+  @override
+  String get chooseCategory => 'Choose category';
 }

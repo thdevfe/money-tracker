@@ -1,7 +1,7 @@
 import 'package:expense_tracker/core/formatting/formatters.dart';
 import 'package:expense_tracker/features/transactions/domain/models.dart';
 import 'package:expense_tracker/features/transactions/presentation/form/transaction_form_validation.dart';
-import 'package:expense_tracker/features/transactions/presentation/form/widgets/amount_input.dart';
+import 'package:expense_tracker/features/transactions/presentation/form/keypad_expression.dart';
 import 'package:expense_tracker/l10n/app_localizations.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -61,19 +61,41 @@ void main() {
     final vi = Formatters('vi', lookupAppLocalizations(const Locale('vi')));
     final en = Formatters('en', lookupAppLocalizations(const Locale('en')));
 
-    test('parseAmountMinor reads digits only', () {
-      expect(parseAmountMinor('1.250.000'), 1250000);
-      expect(parseAmountMinor('1,250,000'), 1250000);
-      expect(parseAmountMinor(''), isNull);
+    KeypadExpression type(String keys) {
+      var e = const KeypadExpression.empty();
+      for (final k in keys.split(' ')) {
+        e = switch (k) {
+          '+' => e.appendOp(KeypadOp.add),
+          '-' => e.appendOp(KeypadOp.subtract),
+          '*' => e.appendOp(KeypadOp.multiply),
+          '/' => e.appendOp(KeypadOp.divide),
+          '<' => e.backspace(),
+          _ => e.appendDigits(k),
+        };
+      }
+      return e;
+    }
+
+    test('keypad builds numbers, including the 000 key', () {
+      expect(type('1 2 000').evaluate(), 12000);
+      expect(type('000 5').evaluate(), 5);
+      expect(type('1 2 <').evaluate(), 1);
+      expect(const KeypadExpression.empty().evaluate(), isNull);
     });
 
-    test('grouping formatter regroups digits for the locale', () {
-      final formatter = AmountGroupingFormatter(vi);
-      final result = formatter.formatEditUpdate(
-        TextEditingValue.empty,
-        const TextEditingValue(text: '0120000'),
-      );
-      expect(result.text, '120.000');
+    test('keypad evaluates with operator precedence', () {
+      expect(type('120 000 + 35 000').evaluate(), 155000);
+      expect(type('100 - 20 * 3').evaluate(), 40);
+      expect(type('100 / 3').evaluate(), 33);
+      expect(type('100 / 0').evaluate(), isNull);
+      // A trailing operator is ignored; a repeated one replaces it.
+      expect(type('50 + * 2').evaluate(), 100);
+      expect(type('50 +').evaluate(), 50);
+    });
+
+    test('keypad formats with locale grouping', () {
+      expect(type('1200 000 + 5').format(vi.groupDigits), '1.200.000 + 5');
+      expect(type('9 / 2').format(vi.groupDigits), '9 ÷ 2');
     });
 
     test('compact amounts are localized', () {
