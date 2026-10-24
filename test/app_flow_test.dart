@@ -307,8 +307,15 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Chọn từ thư viện'), findsOneWidget);
     expect(find.text('Bỏ qua ảnh'), findsOneWidget);
-    // No camera in tests: the viewfinder explains it.
-    expect(find.textContaining('Không dùng được máy ảnh'), findsOneWidget);
+    // No camera in tests: the viewfinder explains the system-camera fallback
+    // and the shutter stays enabled (it opens the system camera).
+    expect(find.textContaining('Nhấn nút chụp để mở máy ảnh'), findsOneWidget);
+    final handle = tester.ensureSemantics();
+    expect(
+      tester.getSemantics(find.bySemanticsLabel('Chụp ảnh')),
+      isSemantics(isButton: true, isEnabled: true),
+    );
+    handle.dispose();
 
     await tester.tap(find.text('Bỏ qua ảnh'));
     await tester.pumpAndSettle();

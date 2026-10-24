@@ -160,7 +160,7 @@
   "chooseFromLibrary": "Chọn từ thư viện",
   "skipPhoto": "Bỏ qua ảnh",
   "takePhoto": "Chụp ảnh",
-  "cameraUnavailable": "Không dùng được máy ảnh ở đây. Hãy chọn ảnh từ thư viện hoặc bỏ qua ảnh.",
+  "cameraUnavailable": "Không xem trước được máy ảnh ở đây. Nhấn nút chụp để mở máy ảnh, hoặc chọn ảnh từ thư viện.",
   "flashOn": "Bật đèn flash",
   "flashOff": "Tắt đèn flash",
   "switchCamera": "Đổi máy ảnh",

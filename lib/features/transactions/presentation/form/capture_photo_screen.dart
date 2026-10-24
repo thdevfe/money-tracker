@@ -94,16 +94,24 @@ class _CapturePhotoScreenState extends ConsumerState<CapturePhotoScreen>
     }
   }
 
+  /// How long to wait for the live preview before falling back to the
+  /// system camera (browsers may never answer the permission request).
+  static const _previewTimeout = Duration(seconds: 8);
+
   Future<void> _initCamera() async {
     try {
-      if (_cameras.isEmpty) _cameras = await ref.read(cameraListProvider)();
+      if (_cameras.isEmpty) {
+        _cameras = await ref
+            .read(cameraListProvider)()
+            .timeout(_previewTimeout);
+      }
       if (_cameras.isEmpty) throw CameraException('none', 'No camera');
       final controller = CameraController(
         _cameras[_cameraIndex],
         ResolutionPreset.high,
         enableAudio: false,
       );
-      await controller.initialize();
+      await controller.initialize().timeout(_previewTimeout);
       await controller.setFlashMode(_flash);
       final maxZoom = await controller.getMaxZoomLevel();
       if (!mounted) {
@@ -117,7 +125,8 @@ class _CapturePhotoScreenState extends ConsumerState<CapturePhotoScreen>
         _unavailable = false;
       });
     } catch (_) {
-      // No camera (simulator/web), permission denied, or plugin missing.
+      // No camera, permission denied or timed out (common in Safari and
+      // home-screen web apps). The shutter then opens the system camera.
       if (mounted) setState(() => _unavailable = true);
     }
   }
@@ -155,6 +164,31 @@ class _CapturePhotoScreenState extends ConsumerState<CapturePhotoScreen>
     } on CameraException {
       if (mounted) setState(() => _busy = false);
     }
+  }
+
+  /// Fallback when there is no live preview: the platform's own camera
+  /// (on iPhone Safari, the native camera via the file picker).
+  Future<void> _systemCamera() async {
+    if (_busy) return;
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = AppLocalizations.of(context);
+    setState(() => _busy = true);
+    try {
+      final file = await ImagePicker().pickImage(
+        source: ImageSource.camera,
+        maxWidth: 1600,
+        imageQuality: 85,
+      );
+      if (!mounted) return;
+      if (file != null) {
+        Navigator.of(context).pop(CaptureResult(pickedPhoto(file)));
+        return;
+      }
+    } catch (_) {
+      // Permission denied or no camera picker available.
+      messenger.showSnackBar(SnackBar(content: Text(l10n.photoPickError)));
+    }
+    if (mounted) setState(() => _busy = false);
   }
 
   Future<void> _library() async {
@@ -206,9 +240,10 @@ class _CapturePhotoScreenState extends ConsumerState<CapturePhotoScreen>
             ),
             const SizedBox(height: AppSpacing.lg),
             _Shutter(
-              enabled: _controller != null && !_busy,
+              // Without a live preview the shutter opens the system camera.
+              enabled: (_controller != null || _unavailable) && !_busy,
               tooltip: l10n.takePhoto,
-              onPressed: _capture,
+              onPressed: _controller != null ? _capture : _systemCamera,
             ),
             const SizedBox(height: AppSpacing.xxl),
             FilledButton.tonalIcon(

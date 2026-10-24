@@ -556,7 +556,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cameraUnavailable =>
-      'The camera isn\'t available here. Choose from your library or skip the photo.';
+      'Live preview isn\'t available here. Tap the shutter to open the camera, or choose from your library.';
 
   @override
   String get flashOn => 'Turn flash on';
