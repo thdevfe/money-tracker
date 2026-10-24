@@ -366,6 +366,89 @@ void main() {
     expect(find.text('Đăng nhập'), findsWidgets);
     expect(find.byType(PhotoCalendarDayCell), findsNothing);
   });
+
+  testWidgets('Creating an account adds it to the Accounts tab', (
+    tester,
+  ) async {
+    final container = await pumpApp(tester);
+
+    await tester.tap(find.byTooltip('Tài khoản'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Thêm tài khoản'));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byType(TextField).first, 'Momo');
+    await tester.tap(find.text('Ngân hàng'));
+    await tester.enterText(find.byType(TextField).last, '500000');
+    await tester.tap(find.text('Lưu'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Momo'), findsOneWidget);
+    final momo = container
+        .read(accountsProvider)
+        .firstWhere((a) => a.name == 'Momo');
+    expect(momo.type, AccountType.bank);
+    expect(momo.openingBalanceMinor, 500000);
+  });
+
+  testWidgets('An account with transactions cannot be deleted', (tester) async {
+    await pumpApp(tester);
+
+    await tester.tap(find.byTooltip('Tài khoản'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Ví tiền mặt'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Xóa'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(TextButton, 'Xóa'));
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('Tài khoản đang có giao dịch'), findsOneWidget);
+  });
+
+  testWidgets('A new custom category can be picked when adding', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+
+    await tester.tap(find.byTooltip('Hồ sơ'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Quản lý danh mục'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Thêm danh mục'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField), 'Cà phê sáng');
+    await tester.tap(find.text('Lưu'));
+    await tester.pumpAndSettle();
+    expect(find.text('Cà phê sáng'), findsOneWidget);
+
+    // Duplicate names are refused.
+    await tester.tap(find.byTooltip('Thêm danh mục'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField), 'cà phê sáng');
+    await tester.tap(find.text('Lưu'));
+    await tester.pumpAndSettle();
+    expect(find.text('Tên này đã được dùng'), findsOneWidget);
+    await tester.tap(find.byTooltip('Hủy'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(BackButton));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byTooltip('Tổng quan'));
+    await tester.pumpAndSettle();
+    await openAddForm(tester);
+    await tester.tap(find.byKey(const ValueKey('category')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Cà phê sáng'));
+    await tester.pumpAndSettle();
+    expect(
+      find.descendant(
+        of: find.byKey(const ValueKey('category')),
+        matching: find.text('Cà phê sáng'),
+      ),
+      findsOneWidget,
+    );
+  });
 }
 
 class _FailingSaveRepository extends InMemoryLedgerRepository {
