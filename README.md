@@ -1,20 +1,22 @@
-# Money Tracker (UI prototype)
+# Money Tracker
 
 Personal income/expense tracker built with Flutter, iOS first. Its main
 feature is a **monthly photo calendar**: each day shows small thumbnails of
 that day's transaction photos and the day's spending total.
 
-> **Status:** saves data to **Supabase** (sign-in, database, private photo
-> storage) and is hosted as a web app on **Netlify**. Without Supabase
-> settings it runs in **demo mode** with sample data in memory.
+> **Live:** https://thdevfe-money-tracker.netlify.app — data is saved to
+> **Supabase** (sign-in, database, private photo storage) and the web app is
+> built by **Netlify** on every push to `main`. Without Supabase settings the
+> app runs in **demo mode** with sample data in memory.
 
 ## Backend setup (once)
 
 1. Create a free project at supabase.com (region: Southeast Asia).
 2. In the dashboard, open **SQL Editor › New query**, paste
-   `supabase/migrations/0001_init.sql` and click **Run**. This creates the
-   tables, row-level security (each user sees only their own data), a default
-   cash wallet for new users, and the private `transaction-photos` bucket.
+   `supabase/migrations/0001_init.sql` and click **Run**, then do the same
+   with `0002_custom_categories.sql`. This creates the tables, row-level
+   security (each user sees only their own data), a default cash wallet for
+   new users, custom categories, and the private `transaction-photos` bucket.
 3. Copy `config/supabase.example.json` to `config/supabase.json` and fill in
    the **Project URL** and the **publishable** key from
    *Project Settings › API Keys*. Never use the secret/service_role key in the
@@ -60,8 +62,7 @@ only). The name, green accent, icons, wording and sample photos are this
 project's own.
 
 - **Shell**: floating icon-only pill nav bar (Home, Reports, Transactions,
-  Accounts, Profile) and a floating + button on Home and Transactions. Dark
-  theme by default.
+  Accounts, Profile) with the + button beside it. Dark theme by default.
 - **Home**: time-of-day greeting with name and avatar, "Spent X today" pill,
   Day/Month toggle with counts, hide-amounts (eye) button, account filter chips,
   and a month bar (‹ month ⌄ ↺ ›) with a month picker.
@@ -84,9 +85,14 @@ project's own.
      chips, an expense/income/transfer switch, a date chip, and a calculator
      keypad (+ − × ÷, 000) with a Done key. The first category is
      preselected. Editing opens the entry screen directly.
-- **Transactions**: grouped by day, type filters and text search.
-- **Accounts**: read-only list with derived balances.
-- **Profile**: name, theme and language (all in memory only).
+- **Transactions**: grouped by day, with time, account, category and type
+  filters, text search and reset.
+- **Accounts**: create, edit and delete wallets (deleting is blocked while
+  used; the opening balance locks after the first transaction), with a detail
+  screen showing balance and recent transactions.
+- **Categories** (Profile › Danh mục): built-in categories plus your own,
+  with icon and color; archive, restore, or delete when unused.
+- **Profile**: name, theme, language and sign-out (preferences in memory).
 
 ## Architecture
 
@@ -116,6 +122,6 @@ assets/mock_photos/  original sample images made for this project
 
 - Needs an internet connection (no offline mode yet).
 - The transaction type can't be changed while editing.
-- Accounts and categories can't be created or edited yet (new users get one
-  cash wallet). Report clusters and map are placeholders.
+- Report clusters and map are placeholders; reports have no custom date range
+  yet.
 - Theme and language choices are not saved between launches.
