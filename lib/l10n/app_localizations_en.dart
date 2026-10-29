@@ -882,4 +882,13 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get monthStartDayHelp =>
       'Each monthly period starts on this day, for example your payday (default: 1st).';
+
+  @override
+  String get saveAndAddNext => 'Add';
+
+  @override
+  String get chooseDay => 'Select day';
+
+  @override
+  String get noteShort => 'Note';
 }

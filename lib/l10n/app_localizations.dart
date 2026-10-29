@@ -1669,6 +1669,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Each monthly period starts on this day, for example your payday (default: 1st).'**
   String get monthStartDayHelp;
+
+  /// No description provided for @saveAndAddNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get saveAndAddNext;
+
+  /// No description provided for @chooseDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Select day'**
+  String get chooseDay;
+
+  /// No description provided for @noteShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get noteShort;
 }
 
 class _AppLocalizationsDelegate

@@ -852,4 +852,13 @@ class AppLocalizationsVi extends AppLocalizations {
   @override
   String get monthStartDayHelp =>
       'Mỗi kỳ tháng bắt đầu từ ngày này, ví dụ ngày nhận lương (mặc định: ngày 1).';
+
+  @override
+  String get saveAndAddNext => 'Thêm';
+
+  @override
+  String get chooseDay => 'Chọn ngày';
+
+  @override
+  String get noteShort => 'Ghi chú';
 }

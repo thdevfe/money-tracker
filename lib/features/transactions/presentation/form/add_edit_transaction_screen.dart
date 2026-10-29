@@ -62,6 +62,10 @@ class _AddEditTransactionScreenState
   bool _saving = false;
   bool _allowPop = false;
 
+  /// The keypad slides in for typing; with it closed the photo shows in
+  /// full and the bottom bar saves.
+  late bool _keypadOpen;
+
   bool get _isEditing => widget.existing != null;
 
   @override
@@ -94,6 +98,8 @@ class _AddEditTransactionScreenState
     _amount = e == null
         ? const KeypadExpression.empty()
         : KeypadExpression.fromAmount(e.amountMinor);
+    // Without a photo there is nothing to look at: start typing right away.
+    _keypadOpen = e == null && _photo == null;
     // Baseline for "unsaved changes"; a fresh photo counts as a change.
     _initialSnapshot = _snapshot(e?.amountMinor, photo: e?.photo);
   }
@@ -156,11 +162,50 @@ class _AddEditTransactionScreenState
   void _updateAmount(KeypadExpression next) => setState(() => _amount = next);
 
   Future<void> _pickDate() async {
-    final picked = await showDatePicker(
+    final l10n = AppLocalizations.of(context);
+    final today = dateOnly(ref.read(clockProvider)());
+    final picked = await showModalBottomSheet<DateTime>(
       context: context,
-      initialDate: _occurredAt,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
+      showDragHandle: true,
+      // The month grid is taller than the default half-height sheet.
+      isScrollControlled: true,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: FilledButton.tonal(
+                      // The theme makes filled buttons full width.
+                      style: FilledButton.styleFrom(
+                        minimumSize: const Size(0, 40),
+                      ),
+                      onPressed: () => Navigator.of(context).pop(today),
+                      child: Text(l10n.today),
+                    ),
+                  ),
+                  Text(
+                    l10n.chooseDay,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                ],
+              ),
+            ),
+            CalendarDatePicker(
+              initialDate: dateOnly(_occurredAt),
+              firstDate: DateTime(2000),
+              lastDate: DateTime(2100),
+              currentDate: today,
+              onDateChanged: (d) => Navigator.of(context).pop(d),
+            ),
+          ],
+        ),
+      ),
     );
     if (picked == null) return;
     setState(() {
@@ -176,7 +221,8 @@ class _AddEditTransactionScreenState
 
   Future<void> _pickCategory() async {
     final l10n = AppLocalizations.of(context);
-    final options = ref.read(selectableCategoriesProvider(_type));
+    // Expense / income tabs, like the type toggle; locked while editing.
+    var sheetType = _type;
     final picked = await showModalBottomSheet<Category>(
       context: context,
       showDragHandle: true,
@@ -185,54 +231,82 @@ class _AddEditTransactionScreenState
       constraints: BoxConstraints(
         maxHeight: MediaQuery.sizeOf(context).height * 0.75,
       ),
-      builder: (context) => SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.lg,
-            0,
-            AppSpacing.lg,
-            AppSpacing.lg,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                l10n.chooseCategory,
-                style: Theme.of(context).textTheme.titleMedium,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setSheetState) {
+          final options = ref.read(selectableCategoriesProvider(sheetType));
+          return SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.lg,
+                0,
+                AppSpacing.lg,
+                AppSpacing.lg,
               ),
-              const SizedBox(height: AppSpacing.md),
-              GridView.count(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                crossAxisCount: 4,
-                mainAxisSpacing: AppSpacing.md,
-                crossAxisSpacing: AppSpacing.sm,
-                childAspectRatio: 0.82,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  for (final c in options)
-                    _CategoryOption(
-                      category: c,
-                      selected: c == _category,
-                      onTap: () => Navigator.of(context).pop(c),
+                  Text(
+                    l10n.chooseCategory,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  if (!_isEditing) ...[
+                    const SizedBox(height: AppSpacing.md),
+                    SegmentedButton<TransactionType>(
+                      showSelectedIcon: false,
+                      segments: [
+                        ButtonSegment(
+                          value: TransactionType.expense,
+                          label: Text(l10n.typeExpense),
+                        ),
+                        ButtonSegment(
+                          value: TransactionType.income,
+                          label: Text(l10n.typeIncome),
+                        ),
+                      ],
+                      selected: {sheetType},
+                      onSelectionChanged: (s) =>
+                          setSheetState(() => sheetType = s.first),
                     ),
+                  ],
+                  const SizedBox(height: AppSpacing.md),
+                  GridView.count(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    crossAxisCount: 4,
+                    mainAxisSpacing: AppSpacing.md,
+                    crossAxisSpacing: AppSpacing.sm,
+                    childAspectRatio: 0.82,
+                    children: [
+                      for (final c in options)
+                        _CategoryOption(
+                          category: c,
+                          selected: c == _category,
+                          onTap: () => Navigator.of(context).pop(c),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  TextButton.icon(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      openCategories(this.context, type: sheetType);
+                    },
+                    icon: const Icon(Icons.tune_rounded),
+                    label: Text(l10n.manageCategories),
+                  ),
                 ],
               ),
-              const SizedBox(height: AppSpacing.sm),
-              TextButton.icon(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  openCategories(this.context, type: _type);
-                },
-                icon: const Icon(Icons.tune_rounded),
-                label: Text(l10n.manageCategories),
-              ),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       ),
     );
-    if (picked != null) setState(() => _category = picked);
+    if (picked == null) return;
+    // A category from the other tab switches the type as well.
+    _changeType(picked.type);
+    setState(() => _category = picked);
   }
 
   Future<void> _pickAccount({
@@ -380,10 +454,22 @@ class _AddEditTransactionScreenState
     controller.dispose();
   }
 
-  Future<void> _save() async {
+  /// Keypad Done: closes the keypad once the amount is valid.
+  void _keypadDone() {
+    if (_errors.amount != null) {
+      setState(() => _submitted = true);
+      return;
+    }
+    setState(() => _keypadOpen = false);
+  }
+
+  Future<void> _save({bool next = false}) async {
     if (_saving) return;
     setState(() => _submitted = true);
-    if (!_errors.isValid) return;
+    if (!_errors.isValid) {
+      if (_errors.amount != null) setState(() => _keypadOpen = true);
+      return;
+    }
 
     setState(() => _saving = true);
     final isTransfer = _type == TransactionType.transfer;
@@ -413,7 +499,11 @@ class _AddEditTransactionScreenState
     }
     if (!mounted) return;
     _close(
-      _isEditing ? TransactionFormResult.updated : TransactionFormResult.added,
+      _isEditing
+          ? TransactionFormResult.updated
+          : next
+          ? TransactionFormResult.addedNext
+          : TransactionFormResult.added,
     );
   }
 
@@ -528,6 +618,9 @@ class _AddEditTransactionScreenState
                     ? l10n.typeTransfer
                     : (_category?.label(l10n) ?? ''),
                 onTapPhoto: isTransfer ? null : _photoActions,
+                onRemovePhoto: isTransfer || _photo == null
+                    ? null
+                    : () => setState(() => _photo = null),
                 onCancel: () => Navigator.of(context).maybePop(),
                 onDelete: _isEditing ? _delete : null,
                 amountPanel: _AmountPanel(
@@ -545,6 +638,7 @@ class _AddEditTransactionScreenState
                   error: amountError,
                   note: _note.trim(),
                   onAddDetails: _editDetails,
+                  onTapAmount: () => setState(() => _keypadOpen = true),
                 ),
               ),
             ),
@@ -654,13 +748,30 @@ class _AddEditTransactionScreenState
               minimum: const EdgeInsets.only(bottom: AppSpacing.sm),
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
-                child: AmountKeypad(
-                  accent: accent,
-                  onDigits: (d) => _updateAmount(_amount.appendDigits(d)),
-                  onOp: (op) => _updateAmount(_amount.appendOp(op)),
-                  onClear: () => _updateAmount(const KeypadExpression.empty()),
-                  onBackspace: () => _updateAmount(_amount.backspace()),
-                  onDone: _saving ? null : _save,
+                child: AnimatedSize(
+                  duration: const Duration(milliseconds: 220),
+                  curve: Curves.easeOutCubic,
+                  alignment: Alignment.bottomCenter,
+                  child: _keypadOpen
+                      ? AmountKeypad(
+                          accent: accent,
+                          onDigits: (d) =>
+                              _updateAmount(_amount.appendDigits(d)),
+                          onOp: (op) => _updateAmount(_amount.appendOp(op)),
+                          onClear: () =>
+                              _updateAmount(const KeypadExpression.empty()),
+                          onBackspace: () => _updateAmount(_amount.backspace()),
+                          onDone: _keypadDone,
+                        )
+                      : _ActionBar(
+                          accent: accent,
+                          ready: _amountMinor != null && _amountMinor! > 0,
+                          onDetails: _editDetails,
+                          onSave: _saving ? null : () => _save(),
+                          onSaveNext: _isEditing || _saving
+                              ? null
+                              : () => _save(next: true),
+                        ),
                 ),
               ),
             ),
@@ -671,14 +782,15 @@ class _AddEditTransactionScreenState
   }
 }
 
-/// Top card: the photo (or the category on a tinted gradient), Cancel and
-/// Delete, and the amount panel at the bottom.
+/// Cancel / Delete on top, then a rounded card with the photo (or the
+/// category on a tinted gradient) and the amount panel at its bottom.
 class _Hero extends StatelessWidget {
   final TransactionPhoto? photo;
   final Color tint;
   final IconData icon;
   final String title;
   final VoidCallback? onTapPhoto;
+  final VoidCallback? onRemovePhoto;
   final VoidCallback onCancel;
   final VoidCallback? onDelete;
   final Widget amountPanel;
@@ -689,6 +801,7 @@ class _Hero extends StatelessWidget {
     required this.icon,
     required this.title,
     required this.onTapPhoto,
+    required this.onRemovePhoto,
     required this.onCancel,
     required this.onDelete,
     required this.amountPanel,
@@ -697,12 +810,13 @@ class _Hero extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
     final current = photo;
     final dark = Color.lerp(tint, Colors.black, 0.75)!;
 
-    Widget glassButton(Widget child, VoidCallback onTap, {String? tooltip}) {
+    Widget pillButton(Widget child, VoidCallback onTap, {String? tooltip}) {
       final button = Material(
-        color: Colors.white.withValues(alpha: 0.16),
+        color: scheme.onSurface.withValues(alpha: 0.08),
         shape: const StadiumBorder(),
         child: InkWell(
           customBorder: const StadiumBorder(),
@@ -721,146 +835,312 @@ class _Hero extends StatelessWidget {
           : Tooltip(message: tooltip, child: button);
     }
 
-    return ClipRRect(
-      borderRadius: const BorderRadius.vertical(bottom: Radius.circular(44)),
-      child: Stack(
-        fit: StackFit.expand,
+    return SafeArea(
+      bottom: false,
+      child: Column(
         children: [
-          if (current != null)
-            Image(
-              image: current.imageProvider,
-              fit: BoxFit.cover,
-              errorBuilder: (_, _, _) => ColoredBox(color: dark),
-            )
-          else
-            DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [tint, dark],
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.lg,
+              AppSpacing.sm,
+              AppSpacing.lg,
+              AppSpacing.md,
+            ),
+            child: Row(
+              children: [
+                pillButton(
+                  Text(
+                    l10n.cancel,
+                    style: TextStyle(
+                      color: scheme.onSurface.withValues(alpha: 0.8),
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  onCancel,
+                ),
+                const Spacer(),
+                if (onDelete != null)
+                  pillButton(
+                    Icon(Icons.delete_outline_rounded, color: scheme.error),
+                    onDelete!,
+                    tooltip: l10n.delete,
+                  ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(40),
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    if (current != null)
+                      Image(
+                        image: current.imageProvider,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, _, _) => ColoredBox(color: dark),
+                      )
+                    else
+                      DecoratedBox(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [tint, dark],
+                          ),
+                        ),
+                      ),
+                    // Keeps the amount readable over bright photos.
+                    const DecoratedBox(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [Color(0x00000000), Color(0x99000000)],
+                          stops: [0.4, 1],
+                        ),
+                      ),
+                    ),
+                    if (onTapPhoto != null)
+                      Semantics(
+                        button: true,
+                        label: current == null
+                            ? l10n.takePhoto
+                            : l10n.changePhoto,
+                        excludeSemantics: true,
+                        child: GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: onTapPhoto,
+                        ),
+                      ),
+                    Padding(
+                      padding: const EdgeInsets.all(AppSpacing.md),
+                      child: Column(
+                        children: [
+                          if (current == null)
+                            Expanded(
+                              child: IgnorePointer(
+                                // Scales down on short screens.
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: _HeroCategory(
+                                    icon: icon,
+                                    title: title,
+                                    showPhotoHint: onTapPhoto != null,
+                                  ),
+                                ),
+                              ),
+                            )
+                          else
+                            const Spacer(),
+                          amountPanel,
+                        ],
+                      ),
+                    ),
+                    if (onRemovePhoto != null)
+                      Positioned(
+                        top: AppSpacing.md,
+                        right: AppSpacing.md,
+                        child: IconButton(
+                          tooltip: l10n.photoRemove,
+                          style: IconButton.styleFrom(
+                            backgroundColor: Colors.black.withValues(
+                              alpha: 0.45,
+                            ),
+                            foregroundColor: Colors.white,
+                          ),
+                          icon: const Icon(Icons.close_rounded),
+                          onPressed: onRemovePhoto,
+                        ),
+                      ),
+                  ],
                 ),
               ),
             ),
-          // Keeps text readable over bright photos.
-          const DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Color(0x66000000),
-                  Color(0x00000000),
-                  Color(0x99000000),
-                ],
-                stops: [0, 0.4, 1],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Category icon and name shown on the card when there is no photo.
+class _HeroCategory extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final bool showPhotoHint;
+
+  const _HeroCategory({
+    required this.icon,
+    required this.title,
+    required this.showPhotoHint,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 80,
+          height: 80,
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.2),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(icon, size: 40, color: Colors.white),
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        Text(
+          title,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        if (showPhotoHint) ...[
+          const SizedBox(height: AppSpacing.xs),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(
+                Icons.add_a_photo_outlined,
+                size: 14,
+                color: Colors.white70,
+              ),
+              const SizedBox(width: AppSpacing.xs),
+              Text(
+                l10n.takePhoto,
+                style: const TextStyle(color: Colors.white70, fontSize: 12),
+              ),
+            ],
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+/// Shown while the keypad is closed: note, a large save check and
+/// "Add" (save, then start the next entry).
+class _ActionBar extends StatelessWidget {
+  final Color accent;
+  final bool ready;
+  final VoidCallback onDetails;
+  final VoidCallback? onSave;
+  final VoidCallback? onSaveNext;
+
+  const _ActionBar({
+    required this.accent,
+    required this.ready,
+    required this.onDetails,
+    required this.onSave,
+    required this.onSaveNext,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final colors = AppColors.of(context);
+
+    Widget side({
+      required Key key,
+      required IconData icon,
+      required String label,
+      required VoidCallback? onTap,
+      Color? color,
+    }) {
+      return SizedBox(
+        width: 88,
+        child: Opacity(
+          opacity: onTap == null ? 0.35 : 1,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton.filledTonal(
+                key: key,
+                tooltip: label,
+                style: IconButton.styleFrom(
+                  fixedSize: const Size(52, 52),
+                  foregroundColor: color,
+                  backgroundColor: (color ?? colors.textSecondary).withValues(
+                    alpha: 0.16,
+                  ),
+                ),
+                icon: Icon(icon),
+                onPressed: onTap,
+              ),
+              const SizedBox(height: 2),
+              ExcludeSemantics(
+                child: Text(
+                  label,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.labelSmall?.copyWith(color: colors.textSecondary),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          side(
+            key: const ValueKey('details'),
+            icon: Icons.edit_note_rounded,
+            label: l10n.noteShort,
+            onTap: onDetails,
+          ),
+          Semantics(
+            button: true,
+            label: l10n.save,
+            excludeSemantics: true,
+            child: GestureDetector(
+              key: const ValueKey('save'),
+              onTap: onSave,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                width: 80,
+                height: 80,
+                padding: const EdgeInsets.all(5),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: ready ? accent : colors.textSecondary,
+                    width: 3,
+                  ),
+                ),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: ready ? accent : colors.elevatedSurface,
+                  ),
+                  child: const Icon(
+                    Icons.check_rounded,
+                    size: 38,
+                    color: Colors.white,
+                  ),
+                ),
               ),
             ),
           ),
-          if (onTapPhoto != null)
-            Semantics(
-              button: true,
-              label: current == null ? l10n.takePhoto : l10n.changePhoto,
-              excludeSemantics: true,
-              child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: onTapPhoto,
-              ),
-            ),
-          SafeArea(
-            bottom: false,
-            child: Padding(
-              padding: const EdgeInsets.all(AppSpacing.lg),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      glassButton(
-                        Text(
-                          l10n.cancel,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        onCancel,
-                      ),
-                      const Spacer(),
-                      if (onDelete != null)
-                        glassButton(
-                          const Icon(
-                            Icons.delete_outline_rounded,
-                            color: Colors.white,
-                          ),
-                          onDelete!,
-                          tooltip: l10n.delete,
-                        ),
-                    ],
-                  ),
-                  if (current == null)
-                    Expanded(
-                      child: IgnorePointer(
-                        // Scales down on short screens instead of overflowing.
-                        child: FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Container(
-                                width: 80,
-                                height: 80,
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withValues(alpha: 0.2),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Icon(
-                                  icon,
-                                  size: 40,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              const SizedBox(height: AppSpacing.sm),
-                              Text(
-                                title,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              if (onTapPhoto != null) ...[
-                                const SizedBox(height: AppSpacing.xs),
-                                Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const Icon(
-                                      Icons.add_a_photo_outlined,
-                                      size: 14,
-                                      color: Colors.white70,
-                                    ),
-                                    const SizedBox(width: AppSpacing.xs),
-                                    Text(
-                                      l10n.takePhoto,
-                                      style: const TextStyle(
-                                        color: Colors.white70,
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ],
-                          ),
-                        ),
-                      ),
-                    )
-                  else
-                    const Spacer(),
-                  amountPanel,
-                ],
-              ),
-            ),
+          side(
+            key: const ValueKey('save_next'),
+            icon: Icons.add_rounded,
+            label: l10n.saveAndAddNext,
+            onTap: onSaveNext,
+            color: accent,
           ),
         ],
       ),
@@ -878,6 +1158,7 @@ class _AmountPanel extends StatelessWidget {
   final String? error;
   final String note;
   final VoidCallback onAddDetails;
+  final VoidCallback onTapAmount;
 
   const _AmountPanel({
     required this.sign,
@@ -888,6 +1169,7 @@ class _AmountPanel extends StatelessWidget {
     required this.error,
     required this.note,
     required this.onAddDetails,
+    required this.onTapAmount,
   });
 
   @override
@@ -912,42 +1194,47 @@ class _AmountPanel extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (sign.isNotEmpty)
-                      Padding(
-                        padding: const EdgeInsets.only(right: AppSpacing.sm),
-                        child: Text(
-                          sign,
-                          style: TextStyle(
-                            fontSize: 36,
-                            fontWeight: FontWeight.w700,
-                            color: accent,
+              GestureDetector(
+                key: const ValueKey('amount'),
+                behavior: HitTestBehavior.opaque,
+                onTap: onTapAmount,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (sign.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(right: AppSpacing.sm),
+                          child: Text(
+                            sign,
+                            style: TextStyle(
+                              fontSize: 36,
+                              fontWeight: FontWeight.w700,
+                              color: accent,
+                            ),
                           ),
                         ),
+                      Text(
+                        text,
+                        style: TextStyle(
+                          fontSize: 52,
+                          fontWeight: FontWeight.w800,
+                          color: isPlaceholder ? Colors.white54 : Colors.white,
+                          fontFeatures: const [FontFeature.tabularFigures()],
+                        ),
                       ),
-                    Text(
-                      text,
-                      style: TextStyle(
-                        fontSize: 52,
-                        fontWeight: FontWeight.w800,
-                        color: isPlaceholder ? Colors.white54 : Colors.white,
-                        fontFeatures: const [FontFeature.tabularFigures()],
+                      const SizedBox(width: AppSpacing.sm),
+                      const Text(
+                        '₫',
+                        style: TextStyle(
+                          fontSize: 26,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white70,
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: AppSpacing.sm),
-                    const Text(
-                      '₫',
-                      style: TextStyle(
-                        fontSize: 26,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white70,
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
               if (result != null)

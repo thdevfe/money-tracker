@@ -392,5 +392,8 @@
   "badgeSection": "Badge",
   "showCountBadge": "Show count badge",
   "monthStartDay": "Month start day",
-  "monthStartDayHelp": "Each monthly period starts on this day, for example your payday (default: 1st)."
+  "monthStartDayHelp": "Each monthly period starts on this day, for example your payday (default: 1st).",
+  "saveAndAddNext": "Add",
+  "chooseDay": "Select day",
+  "noteShort": "Note"
 }

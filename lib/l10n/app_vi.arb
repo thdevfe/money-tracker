@@ -261,5 +261,8 @@
   "badgeSection": "Huy hiệu",
   "showCountBadge": "Hiện số giao dịch thêm",
   "monthStartDay": "Ngày bắt đầu tháng",
-  "monthStartDayHelp": "Mỗi kỳ tháng bắt đầu từ ngày này, ví dụ ngày nhận lương (mặc định: ngày 1)."
+  "monthStartDayHelp": "Mỗi kỳ tháng bắt đầu từ ngày này, ví dụ ngày nhận lương (mặc định: ngày 1).",
+  "saveAndAddNext": "Thêm",
+  "chooseDay": "Chọn ngày",
+  "noteShort": "Ghi chú"
 }

@@ -13,7 +13,8 @@ import '../features/transactions/presentation/form/capture_photo_screen.dart';
 import '../l10n/app_localizations.dart';
 
 /// Result returned by the Add/Edit screen when it closes after a change.
-enum TransactionFormResult { added, updated, deleted }
+/// [addedNext] saved and asks for another entry right away.
+enum TransactionFormResult { added, addedNext, updated, deleted }
 
 /// Opens Add Transaction. When [date] is given the form defaults to that day
 /// at the current time.
@@ -23,24 +24,29 @@ Future<void> openAddTransaction(BuildContext context, {DateTime? date}) async {
   if (ProviderScope.containerOf(context).read(accountsProvider).isEmpty) {
     return openAccountForm(context);
   }
-  final capture = await Navigator.of(context).push<CaptureResult>(
-    MaterialPageRoute(
-      builder: (_) => const CapturePhotoScreen(),
-      fullscreenDialog: true,
-    ),
-  );
-  if (capture == null || !context.mounted) return;
-  await _openForm(
-    context,
-    AddEditTransactionScreen(initialDate: date, initialPhoto: capture.photo),
-  );
+  // "Add" on the entry screen saves and starts the next one.
+  while (true) {
+    if (!context.mounted) return;
+    final capture = await Navigator.of(context).push<CaptureResult>(
+      MaterialPageRoute(
+        builder: (_) => const CapturePhotoScreen(),
+        fullscreenDialog: true,
+      ),
+    );
+    if (capture == null || !context.mounted) return;
+    final result = await _openForm(
+      context,
+      AddEditTransactionScreen(initialDate: date, initialPhoto: capture.photo),
+    );
+    if (result != TransactionFormResult.addedNext) return;
+  }
 }
 
 Future<void> openEditTransaction(
   BuildContext context,
   MoneyTransaction transaction,
-) {
-  return _openForm(context, AddEditTransactionScreen(existing: transaction));
+) async {
+  await _openForm(context, AddEditTransactionScreen(existing: transaction));
 }
 
 Future<void> openDailyTransactions(BuildContext context, DateTime date) {
@@ -49,24 +55,29 @@ Future<void> openDailyTransactions(BuildContext context, DateTime date) {
   );
 }
 
-Future<void> _openForm(BuildContext context, Widget screen) async {
+Future<TransactionFormResult?> _openForm(
+  BuildContext context,
+  Widget screen,
+) async {
   final messenger = ScaffoldMessenger.of(context);
   final l10n = AppLocalizations.of(context);
   final result = await Navigator.of(context).push<TransactionFormResult>(
     MaterialPageRoute(builder: (_) => screen, fullscreenDialog: true),
   );
-  if (result == null) return;
+  if (result == null) return null;
   messenger
     ..hideCurrentSnackBar()
     ..showSnackBar(
       SnackBar(
         content: Text(switch (result) {
-          TransactionFormResult.added => l10n.savedAdded,
+          TransactionFormResult.added ||
+          TransactionFormResult.addedNext => l10n.savedAdded,
           TransactionFormResult.updated => l10n.savedUpdated,
           TransactionFormResult.deleted => l10n.deleted,
         }),
       ),
     );
+  return result;
 }
 
 Future<void> openAccountForm(BuildContext context, {Account? existing}) {

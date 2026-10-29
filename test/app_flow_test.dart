@@ -66,9 +66,15 @@ Future<void> typeKeys(WidgetTester tester, List<String> keys) async {
   }
 }
 
+/// Keypad Done, then the save check when the keypad closed.
 Future<void> tapDone(WidgetTester tester) async {
   await tester.tap(find.byKey(const ValueKey('keypad_done')));
   await tester.pumpAndSettle();
+  final save = find.byKey(const ValueKey('save'));
+  if (save.evaluate().isNotEmpty) {
+    await tester.tap(save);
+    await tester.pumpAndSettle();
+  }
 }
 
 void main() {
@@ -134,6 +140,61 @@ void main() {
     expect(added.category, const Category.system(CategoryCode.food));
     // Defaults to the day selected on Home.
     expect(added.occurredAt.day, 24);
+  });
+
+  testWidgets('Done closes the keypad; Add saves and starts the next one', (
+    tester,
+  ) async {
+    final container = await pumpApp(tester);
+    final before = container.read(transactionsProvider).length;
+
+    await openAddForm(tester);
+    await typeKeys(tester, ['4', '5', '000']);
+    await tester.tap(find.byKey(const ValueKey('keypad_done')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('keypad_done')), findsNothing);
+    expect(container.read(transactionsProvider).length, before);
+
+    // Tapping the amount brings the keypad back.
+    await tester.tap(find.byKey(const ValueKey('amount')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('keypad_done')), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('keypad_done')));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const ValueKey('save_next')));
+    await tester.pumpAndSettle();
+    expect(container.read(transactionsProvider).length, before + 1);
+    // Back on the capture step for the next entry.
+    expect(find.text('Bỏ qua ảnh'), findsOneWidget);
+  });
+
+  testWidgets('Category sheet tabs switch to income; Today sets the date', (
+    tester,
+  ) async {
+    final container = await pumpApp(tester);
+
+    await openAddForm(tester);
+    await tester.tap(find.byKey(const ValueKey('category')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Khoản thu').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Lương'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const ValueKey('date')));
+    await tester.pumpAndSettle();
+    expect(find.text('Chọn ngày'), findsOneWidget);
+    await tester.tap(find.widgetWithText(FilledButton, 'Hôm nay'));
+    await tester.pumpAndSettle();
+
+    await typeKeys(tester, ['9', '000']);
+    await tapDone(tester);
+    final added = container
+        .read(transactionsProvider)
+        .firstWhere((t) => t.amountMinor == 9000);
+    expect(added.type, TransactionType.income);
+    expect(added.category, const Category.system(CategoryCode.salary));
   });
 
   testWidgets('Keypad calculates before saving', (tester) async {
