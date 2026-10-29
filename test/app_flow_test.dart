@@ -197,6 +197,37 @@ void main() {
     expect(added.category, const Category.system(CategoryCode.salary));
   });
 
+  testWidgets('Bulk entry saves one transaction per line', (tester) async {
+    final container = await pumpApp(tester);
+    final before = container.read(transactionsProvider).length;
+
+    await tester.tap(find.byTooltip('Thêm giao dịch'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Nhập nhiều khoản'));
+    await tester.pumpAndSettle();
+    expect(find.text('Nhanh như ghi chú'), findsOneWidget);
+
+    await tester.enterText(
+      find.byKey(const ValueKey('bulk_text')),
+      'cà phê 35k\ngrab 52k\nhello\n+lương 15tr',
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Không thấy số tiền'), findsOneWidget);
+    expect(find.text('Lưu 3 giao dịch'), findsOneWidget);
+
+    await tester.tap(find.byKey(const ValueKey('bulk_save')));
+    await tester.pumpAndSettle();
+    expect(find.text('Đã thêm 3 giao dịch'), findsOneWidget);
+    final items = container.read(transactionsProvider);
+    expect(items.length, before + 3);
+    final salary = items.firstWhere((t) => t.amountMinor == 15000000);
+    expect(salary.type, TransactionType.income);
+    expect(salary.category, const Category.system(CategoryCode.salary));
+    final grab = items.firstWhere((t) => t.amountMinor == 52000);
+    expect(grab.note, 'grab');
+    expect(grab.category, const Category.system(CategoryCode.transport));
+  });
+
   testWidgets('Keypad calculates before saving', (tester) async {
     final container = await pumpApp(tester);
 

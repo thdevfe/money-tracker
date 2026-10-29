@@ -21,7 +21,12 @@ final cameraListProvider = Provider<Future<List<CameraDescription>> Function()>(
 class CaptureResult {
   final TransactionPhoto? photo;
 
-  const CaptureResult(this.photo);
+  /// The user chose to type several transactions as a list instead.
+  final bool bulk;
+
+  const CaptureResult(this.photo) : bulk = false;
+
+  const CaptureResult.bulk() : photo = null, bulk = true;
 }
 
 /// Wraps a picked or captured file until it is uploaded on save.
@@ -252,11 +257,26 @@ class _CapturePhotoScreenState extends ConsumerState<CapturePhotoScreen>
               ),
             ),
             const SizedBox(height: AppSpacing.lg),
-            _Shutter(
-              // Without a live preview the shutter opens the system camera.
-              enabled: (_controller != null || _unavailable) && !_busy,
-              tooltip: l10n.takePhoto,
-              onPressed: _controller != null ? _capture : _systemCamera,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Balances the list button so the shutter stays centered.
+                const SizedBox(width: 48 + AppSpacing.xxl),
+                _Shutter(
+                  // Without a live preview the shutter opens the system
+                  // camera.
+                  enabled: (_controller != null || _unavailable) && !_busy,
+                  tooltip: l10n.takePhoto,
+                  onPressed: _controller != null ? _capture : _systemCamera,
+                ),
+                const SizedBox(width: AppSpacing.xxl),
+                _RoundIconButton(
+                  tooltip: l10n.bulkEntry,
+                  icon: Icons.format_list_bulleted_rounded,
+                  onPressed: () =>
+                      Navigator.of(context).pop(const CaptureResult.bulk()),
+                ),
+              ],
             ),
             const SizedBox(height: AppSpacing.xxl),
             FilledButton.tonalIcon(

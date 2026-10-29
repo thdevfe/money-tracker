@@ -19,6 +19,8 @@ import 'keypad_expression.dart';
 import 'transaction_form_validation.dart';
 import 'widgets/account_picker_sheet.dart';
 import 'widgets/amount_keypad.dart';
+import 'widgets/day_picker_sheet.dart';
+import 'widgets/picker_chip.dart';
 
 /// Step 2 of adding (and the edit screen): a hero card with the photo or the
 /// category, the amount, quick pickers and a calculator keypad.
@@ -162,50 +164,10 @@ class _AddEditTransactionScreenState
   void _updateAmount(KeypadExpression next) => setState(() => _amount = next);
 
   Future<void> _pickDate() async {
-    final l10n = AppLocalizations.of(context);
-    final today = dateOnly(ref.read(clockProvider)());
-    final picked = await showModalBottomSheet<DateTime>(
-      context: context,
-      showDragHandle: true,
-      // The month grid is taller than the default half-height sheet.
-      isScrollControlled: true,
-      builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: FilledButton.tonal(
-                      // The theme makes filled buttons full width.
-                      style: FilledButton.styleFrom(
-                        minimumSize: const Size(0, 40),
-                      ),
-                      onPressed: () => Navigator.of(context).pop(today),
-                      child: Text(l10n.today),
-                    ),
-                  ),
-                  Text(
-                    l10n.chooseDay,
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                ],
-              ),
-            ),
-            CalendarDatePicker(
-              initialDate: dateOnly(_occurredAt),
-              firstDate: DateTime(2000),
-              lastDate: DateTime(2100),
-              currentDate: today,
-              onDateChanged: (d) => Navigator.of(context).pop(d),
-            ),
-          ],
-        ),
-      ),
+    final picked = await showDayPicker(
+      context,
+      initial: _occurredAt,
+      today: dateOnly(ref.read(clockProvider)()),
     );
     if (picked == null) return;
     setState(() {
@@ -652,7 +614,7 @@ class _AddEditTransactionScreenState
                 runSpacing: AppSpacing.sm,
                 children: isTransfer
                     ? [
-                        _PickerChip(
+                        PickerChip(
                           key: const ValueKey('from_account'),
                           icon: accounts[_sourceAccountId]?.type.icon,
                           label: accounts[_sourceAccountId]?.name ?? '',
@@ -666,7 +628,7 @@ class _AddEditTransactionScreenState
                           Icons.arrow_forward_rounded,
                           color: colors.transfer,
                         ),
-                        _PickerChip(
+                        PickerChip(
                           key: const ValueKey('to_account'),
                           icon: accounts[_destinationAccountId]?.type.icon,
                           label: accounts[_destinationAccountId]?.name ?? '',
@@ -678,14 +640,14 @@ class _AddEditTransactionScreenState
                         ),
                       ]
                     : [
-                        _PickerChip(
+                        PickerChip(
                           key: const ValueKey('category'),
                           icon: _category?.icon,
                           iconColor: _category?.tint,
                           label: _category?.label(l10n) ?? l10n.chooseCategory,
                           onTap: _pickCategory,
                         ),
-                        _PickerChip(
+                        PickerChip(
                           key: const ValueKey('account'),
                           icon: accounts[_accountId]?.type.icon,
                           label: accounts[_accountId]?.name ?? '',
@@ -724,7 +686,7 @@ class _AddEditTransactionScreenState
                   onChanged: _changeType,
                 ),
                 const SizedBox(width: AppSpacing.md),
-                _PickerChip(
+                PickerChip(
                   key: const ValueKey('date'),
                   icon: Icons.calendar_month_rounded,
                   label: dateLabel,
@@ -1292,76 +1254,6 @@ class _AmountPanel extends StatelessWidget {
                     ),
                   ),
                 ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// Rounded "icon label ⌄" chip that opens a picker.
-class _PickerChip extends StatelessWidget {
-  final IconData? icon;
-  final Color? iconColor;
-  final String label;
-  final VoidCallback onTap;
-
-  const _PickerChip({
-    super.key,
-    required this.icon,
-    required this.label,
-    required this.onTap,
-    this.iconColor,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = AppColors.of(context);
-    return Material(
-      color: theme.colorScheme.primaryContainer.withValues(alpha: 0.55),
-      shape: StadiumBorder(
-        side: BorderSide(
-          color: theme.colorScheme.primary.withValues(alpha: 0.35),
-        ),
-      ),
-      child: InkWell(
-        customBorder: const StadiumBorder(),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.lg,
-            vertical: AppSpacing.sm + 2,
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (icon != null) ...[
-                Icon(
-                  icon,
-                  size: 20,
-                  color: iconColor ?? theme.colorScheme.onSurface,
-                ),
-                const SizedBox(width: AppSpacing.sm),
-              ],
-              ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 140),
-                child: Text(
-                  label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-              const SizedBox(width: AppSpacing.xs),
-              Icon(
-                Icons.expand_more_rounded,
-                size: 20,
-                color: colors.textSecondary,
               ),
             ],
           ),

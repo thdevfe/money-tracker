@@ -1687,6 +1687,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Note'**
   String get noteShort;
+
+  /// No description provided for @bulkEntry.
+  ///
+  /// In en, this message translates to:
+  /// **'Bulk entry'**
+  String get bulkEntry;
+
+  /// No description provided for @bulkHint.
+  ///
+  /// In en, this message translates to:
+  /// **'One transaction per line, e.g.\ncoffee 35k\ngrab 52k\nlunch 1tr2\n+salary 15tr'**
+  String get bulkHint;
+
+  /// No description provided for @paste.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste'**
+  String get paste;
+
+  /// No description provided for @bulkEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'As quick as jotting a note'**
+  String get bulkEmptyTitle;
+
+  /// No description provided for @bulkEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Type or paste your spending list. The app picks out the amounts and guesses the categories.'**
+  String get bulkEmptyBody;
+
+  /// No description provided for @bulkNoAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'No amount found'**
+  String get bulkNoAmount;
+
+  /// No description provided for @bulkSave.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Nothing to save yet} =1{Save 1 transaction} other{Save {count} transactions}}'**
+  String bulkSave(int count);
+
+  /// No description provided for @bulkSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Added 1 transaction} other{Added {count} transactions}}'**
+  String bulkSaved(int count);
 }
 
 class _AppLocalizationsDelegate

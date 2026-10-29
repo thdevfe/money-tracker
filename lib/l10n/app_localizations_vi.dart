@@ -861,4 +861,40 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get noteShort => 'Ghi chú';
+
+  @override
+  String get bulkEntry => 'Nhập nhiều khoản';
+
+  @override
+  String get bulkHint =>
+      'Mỗi dòng một giao dịch, ví dụ:\ncà phê 35k\ngrab 52k\năn trưa 1tr2\n+lương 15tr';
+
+  @override
+  String get paste => 'Dán';
+
+  @override
+  String get bulkEmptyTitle => 'Nhanh như ghi chú';
+
+  @override
+  String get bulkEmptyBody =>
+      'Gõ hoặc dán danh sách chi tiêu. App tự nhận số tiền và đoán danh mục.';
+
+  @override
+  String get bulkNoAmount => 'Không thấy số tiền';
+
+  @override
+  String bulkSave(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Lưu $count giao dịch',
+      zero: 'Chưa có khoản nào',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String bulkSaved(int count) {
+    return 'Đã thêm $count giao dịch';
+  }
 }

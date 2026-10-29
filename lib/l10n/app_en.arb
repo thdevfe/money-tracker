@@ -395,5 +395,15 @@
   "monthStartDayHelp": "Each monthly period starts on this day, for example your payday (default: 1st).",
   "saveAndAddNext": "Add",
   "chooseDay": "Select day",
-  "noteShort": "Note"
+  "noteShort": "Note",
+  "bulkEntry": "Bulk entry",
+  "bulkHint": "One transaction per line, e.g.\ncoffee 35k\ngrab 52k\nlunch 1tr2\n+salary 15tr",
+  "paste": "Paste",
+  "bulkEmptyTitle": "As quick as jotting a note",
+  "bulkEmptyBody": "Type or paste your spending list. The app picks out the amounts and guesses the categories.",
+  "bulkNoAmount": "No amount found",
+  "bulkSave": "{count, plural, =0{Nothing to save yet} =1{Save 1 transaction} other{Save {count} transactions}}",
+  "@bulkSave": {"placeholders": {"count": {"type": "int"}}},
+  "bulkSaved": "{count, plural, =1{Added 1 transaction} other{Added {count} transactions}}",
+  "@bulkSaved": {"placeholders": {"count": {"type": "int"}}}
 }

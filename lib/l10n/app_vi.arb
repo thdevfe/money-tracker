@@ -264,5 +264,15 @@
   "monthStartDayHelp": "Mỗi kỳ tháng bắt đầu từ ngày này, ví dụ ngày nhận lương (mặc định: ngày 1).",
   "saveAndAddNext": "Thêm",
   "chooseDay": "Chọn ngày",
-  "noteShort": "Ghi chú"
+  "noteShort": "Ghi chú",
+  "bulkEntry": "Nhập nhiều khoản",
+  "bulkHint": "Mỗi dòng một giao dịch, ví dụ:\ncà phê 35k\ngrab 52k\năn trưa 1tr2\n+lương 15tr",
+  "paste": "Dán",
+  "bulkEmptyTitle": "Nhanh như ghi chú",
+  "bulkEmptyBody": "Gõ hoặc dán danh sách chi tiêu. App tự nhận số tiền và đoán danh mục.",
+  "bulkNoAmount": "Không thấy số tiền",
+  "bulkSave": "{count, plural, =0{Chưa có khoản nào} other{Lưu {count} giao dịch}}",
+  "@bulkSave": {"placeholders": {"count": {"type": "int"}}},
+  "bulkSaved": "Đã thêm {count} giao dịch",
+  "@bulkSaved": {"placeholders": {"count": {"type": "int"}}}
 }

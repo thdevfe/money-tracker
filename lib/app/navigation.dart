@@ -9,6 +9,7 @@ import '../features/transactions/providers/transactions_provider.dart';
 import '../features/transactions/domain/models.dart';
 import '../features/transactions/presentation/daily_transactions_screen.dart';
 import '../features/transactions/presentation/form/add_edit_transaction_screen.dart';
+import '../features/transactions/presentation/form/bulk_entry_screen.dart';
 import '../features/transactions/presentation/form/capture_photo_screen.dart';
 import '../l10n/app_localizations.dart';
 
@@ -34,12 +35,28 @@ Future<void> openAddTransaction(BuildContext context, {DateTime? date}) async {
       ),
     );
     if (capture == null || !context.mounted) return;
+    if (capture.bulk) return _openBulkEntry(context, date);
     final result = await _openForm(
       context,
       AddEditTransactionScreen(initialDate: date, initialPhoto: capture.photo),
     );
     if (result != TransactionFormResult.addedNext) return;
   }
+}
+
+Future<void> _openBulkEntry(BuildContext context, DateTime? date) async {
+  final messenger = ScaffoldMessenger.of(context);
+  final l10n = AppLocalizations.of(context);
+  final saved = await Navigator.of(context).push<int>(
+    MaterialPageRoute(
+      builder: (_) => BulkEntryScreen(initialDate: date),
+      fullscreenDialog: true,
+    ),
+  );
+  if (saved == null || saved == 0) return;
+  messenger
+    ..hideCurrentSnackBar()
+    ..showSnackBar(SnackBar(content: Text(l10n.bulkSaved(saved))));
 }
 
 Future<void> openEditTransaction(

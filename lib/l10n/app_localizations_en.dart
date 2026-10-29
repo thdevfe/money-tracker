@@ -891,4 +891,47 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noteShort => 'Note';
+
+  @override
+  String get bulkEntry => 'Bulk entry';
+
+  @override
+  String get bulkHint =>
+      'One transaction per line, e.g.\ncoffee 35k\ngrab 52k\nlunch 1tr2\n+salary 15tr';
+
+  @override
+  String get paste => 'Paste';
+
+  @override
+  String get bulkEmptyTitle => 'As quick as jotting a note';
+
+  @override
+  String get bulkEmptyBody =>
+      'Type or paste your spending list. The app picks out the amounts and guesses the categories.';
+
+  @override
+  String get bulkNoAmount => 'No amount found';
+
+  @override
+  String bulkSave(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Save $count transactions',
+      one: 'Save 1 transaction',
+      zero: 'Nothing to save yet',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String bulkSaved(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Added $count transactions',
+      one: 'Added 1 transaction',
+    );
+    return '$_temp0';
+  }
 }
