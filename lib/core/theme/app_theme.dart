@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 /// Spacing scale (4-point grid).
@@ -185,6 +186,13 @@ class AppTheme {
         ),
       ),
       dividerTheme: DividerThemeData(color: colors.border, space: 1),
+      // iOS-style slides (with swipe back) everywhere, the web included.
+      pageTransitionsTheme: PageTransitionsTheme(
+        builders: {
+          for (final platform in TargetPlatform.values)
+            platform: const CupertinoPageTransitionsBuilder(),
+        },
+      ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: scheme.surface,

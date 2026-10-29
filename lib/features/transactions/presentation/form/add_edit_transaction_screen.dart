@@ -605,15 +605,18 @@ class _AddEditTransactionScreenState
                 ),
               ),
             const SizedBox(height: AppSpacing.md),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+            // Wraps the date chip under the toggle when a long date doesn't fit.
+            Wrap(
+              alignment: WrapAlignment.center,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: AppSpacing.md,
+              runSpacing: AppSpacing.sm,
               children: [
                 _TypeToggle(
                   selected: _type,
                   enabled: !_isEditing,
                   onChanged: _changeType,
                 ),
-                const SizedBox(width: AppSpacing.md),
                 PickerChip(
                   key: const ValueKey('date'),
                   icon: Icons.calendar_month_rounded,

@@ -16,6 +16,7 @@ import '../form/widgets/account_picker_sheet.dart';
 import '../form/widgets/amount_keypad.dart';
 import '../form/widgets/category_picker_sheet.dart';
 import '../form/widgets/day_picker_sheet.dart';
+import '../home/widgets/day_photo_grid.dart';
 import '../widgets/transaction_list_item.dart';
 
 /// Full-screen cards for a set of transactions (usually one day). Swipe
@@ -507,31 +508,33 @@ class _ViewerCardState extends ConsumerState<_ViewerCard> {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            if (photo != null)
-              Image(
-                image: photo.imageProvider,
-                fit: BoxFit.cover,
-                errorBuilder: (_, _, _) => ColoredBox(color: dark),
-              )
-            else
-              DecoratedBox(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [tint, dark],
-                  ),
-                ),
-                child: Center(
-                  child: Icon(
-                    isTransfer
-                        ? Icons.swap_horiz_rounded
-                        : (t.category?.icon ?? Icons.category_rounded),
-                    size: 72,
-                    color: Colors.white.withValues(alpha: 0.35),
-                  ),
-                ),
-              ),
+            Hero(
+              tag: transactionHeroTag(t),
+              child: photo != null
+                  ? Image(
+                      image: photo.imageProvider,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, _, _) => ColoredBox(color: dark),
+                    )
+                  : DecoratedBox(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [tint, dark],
+                        ),
+                      ),
+                      child: Center(
+                        child: Icon(
+                          isTransfer
+                              ? Icons.swap_horiz_rounded
+                              : (t.category?.icon ?? Icons.category_rounded),
+                          size: 72,
+                          color: Colors.white.withValues(alpha: 0.35),
+                        ),
+                      ),
+                    ),
+            ),
             const DecoratedBox(
               decoration: BoxDecoration(
                 gradient: LinearGradient(

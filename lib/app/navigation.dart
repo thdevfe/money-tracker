@@ -10,6 +10,7 @@ import '../features/transactions/providers/transactions_provider.dart';
 
 import '../features/transactions/domain/models.dart';
 import '../features/transactions/presentation/daily_transactions_screen.dart';
+import '../features/transactions/presentation/day_detail_screen.dart';
 import '../features/transactions/presentation/form/add_edit_transaction_screen.dart';
 import '../features/transactions/presentation/form/bulk_entry_screen.dart';
 import '../features/transactions/presentation/form/capture_photo_screen.dart';
@@ -97,15 +98,28 @@ Future<void> openTransactionViewer(
   List<MoneyTransaction> transactions,
   int index,
 ) {
+  // A fade lets the tapped photo grow into its card (a shared Hero).
   return Navigator.of(context).push(
-    MaterialPageRoute(
-      builder: (_) => TransactionViewerScreen(
+    PageRouteBuilder<void>(
+      transitionDuration: const Duration(milliseconds: 320),
+      reverseTransitionDuration: const Duration(milliseconds: 260),
+      pageBuilder: (_, _, _) => TransactionViewerScreen(
         transactionIds: [for (final t in transactions) t.id],
         initialIndex: index,
       ),
-      fullscreenDialog: true,
+      transitionsBuilder: (_, animation, _, child) => FadeTransition(
+        opacity: CurvedAnimation(parent: animation, curve: Curves.easeOut),
+        child: child,
+      ),
     ),
   );
+}
+
+/// A calendar day's photo tiles (tapping a day that has transactions).
+Future<void> openDayDetail(BuildContext context, DateTime date) {
+  return Navigator.of(
+    context,
+  ).push(MaterialPageRoute(builder: (_) => DayDetailScreen(date: date)));
 }
 
 /// Searches all transactions (Home's search button).

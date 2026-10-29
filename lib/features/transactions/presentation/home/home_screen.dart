@@ -76,6 +76,25 @@ class HomeScreen extends ConsumerWidget {
       child: child,
     );
 
+    /// Cross-fades [child] when [key] changes (month, day or layout).
+    Widget switching(Object key, Widget child) => AnimatedSwitcher(
+      duration: const Duration(milliseconds: 220),
+      switchInCurve: Curves.easeOutCubic,
+      switchOutCurve: Curves.easeInCubic,
+      transitionBuilder: (child, animation) => FadeTransition(
+        opacity: animation,
+        child: ScaleTransition(
+          scale: Tween(begin: 0.98, end: 1.0).animate(animation),
+          child: child,
+        ),
+      ),
+      layoutBuilder: (current, previous) => Stack(
+        alignment: Alignment.topCenter,
+        children: [...previous, ?current],
+      ),
+      child: KeyedSubtree(key: ValueKey(key), child: child),
+    );
+
     final isMonth = mode == HomeViewMode.month;
     final periodTotals = totalsOf(isMonth ? monthItems : dayItems);
     // Grid settings only apply to the photo layouts.
@@ -209,40 +228,55 @@ class HomeScreen extends ConsumerWidget {
             if (isMonth) ...[
               if (monthLayout == MonthLayout.list)
                 padded(
-                  monthCount == 0
-                      ? Card(
-                          child: EmptyStateView(
-                            compact: true,
-                            icon: Icons.calendar_month_outlined,
-                            title: l10n.monthEmptyTitle,
-                            message: l10n.monthEmptyMessage,
+                  switching(
+                    'list $month',
+                    monthCount == 0
+                        ? Card(
+                            child: EmptyStateView(
+                              compact: true,
+                              icon: Icons.calendar_month_outlined,
+                              title: l10n.monthEmptyTitle,
+                              message: l10n.monthEmptyMessage,
+                            ),
+                          )
+                        : MonthTransactionList(
+                            month: month,
+                            today: today,
+                            transactionsByDay: byDay,
                           ),
-                        )
-                      : MonthTransactionList(
-                          month: month,
-                          today: today,
-                          transactionsByDay: byDay,
-                        ),
+                  ),
                 )
               else ...[
                 padded(
-                  monthLayout == MonthLayout.chart
-                      ? MonthBarChart(
-                          month: month,
-                          selectedDate: selected,
-                          today: today,
-                          transactionsByDay: byDay,
-                          onDateSelected: (date) => selectDate(ref, date),
-                        )
-                      : PhotoCalendar(
-                          month: month,
-                          selectedDate: selected,
-                          today: today,
-                          transactionsByDay: byDay,
-                          onMonthOffset: shiftMonth,
-                          onDateSelected: (date) => selectDate(ref, date),
-                          settings: ref.watch(calendarGridSettingsProvider),
-                        ),
+                  switching(
+                    '$monthLayout $month',
+                    monthLayout == MonthLayout.chart
+                        ? MonthBarChart(
+                            month: month,
+                            selectedDate: selected,
+                            today: today,
+                            transactionsByDay: byDay,
+                            onDateSelected: (date) => selectDate(ref, date),
+                          )
+                        : PhotoCalendar(
+                            month: month,
+                            selectedDate: selected,
+                            today: today,
+                            transactionsByDay: byDay,
+                            onMonthOffset: shiftMonth,
+                            // Days with entries open their page; empty days
+                            // start an entry for that day.
+                            onDateSelected: (date) {
+                              selectDate(ref, date);
+                              if ((byDay[date] ?? const []).isEmpty) {
+                                openAddTransaction(context, date: date);
+                              } else {
+                                openDayDetail(context, date);
+                              }
+                            },
+                            settings: ref.watch(calendarGridSettingsProvider),
+                          ),
+                  ),
                 ),
                 const SizedBox(height: AppSpacing.md),
                 padded(
@@ -264,29 +298,32 @@ class HomeScreen extends ConsumerWidget {
               ],
             ] else
               padded(
-                dayItems.isEmpty
-                    ? EmptyStateView(
-                        icon: Icons.photo_camera_back_outlined,
-                        title: l10n.dayEmptyTitle,
-                        message: l10n.dayEmptyMessage,
-                        actionLabel: l10n.addTransaction,
-                        onAction: () =>
-                            openAddTransaction(context, date: selected),
-                      )
-                    : dayLayout == DayLayout.list
-                    ? DayTransactionsCard(
-                        date: selected,
-                        today: today,
-                        transactions: dayItems,
-                      )
-                    : DayPhotoGrid(
-                        transactions: dayItems,
-                        onTap: (t) => openTransactionViewer(
-                          context,
-                          dayItems,
-                          dayItems.indexOf(t),
+                switching(
+                  '$dayLayout $selected',
+                  dayItems.isEmpty
+                      ? EmptyStateView(
+                          icon: Icons.photo_camera_back_outlined,
+                          title: l10n.dayEmptyTitle,
+                          message: l10n.dayEmptyMessage,
+                          actionLabel: l10n.addTransaction,
+                          onAction: () =>
+                              openAddTransaction(context, date: selected),
+                        )
+                      : dayLayout == DayLayout.list
+                      ? DayTransactionsCard(
+                          date: selected,
+                          today: today,
+                          transactions: dayItems,
+                        )
+                      : DayPhotoGrid(
+                          transactions: dayItems,
+                          onTap: (t) => openTransactionViewer(
+                            context,
+                            dayItems,
+                            dayItems.indexOf(t),
+                          ),
                         ),
-                      ),
+                ),
               ),
           ],
         ),

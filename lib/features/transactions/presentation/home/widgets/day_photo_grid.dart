@@ -8,6 +8,9 @@ import '../../category_presentation.dart';
 import '../../widgets/category_tile.dart';
 import '../../widgets/transaction_thumbnail.dart';
 
+/// Shared by a grid tile and its card in the transaction viewer.
+String transactionHeroTag(MoneyTransaction t) => 'transaction-${t.id}';
+
 /// Three-column grid of a day's transactions: the photo (or a category tile)
 /// with the amount overlaid. Used by the Day view on Home.
 class DayPhotoGrid extends StatelessWidget {
@@ -74,10 +77,13 @@ class _GridTile extends StatelessWidget {
             child: Stack(
               fit: StackFit.expand,
               children: [
-                if (t.photo != null)
-                  PhotoImage(photo: t.photo!, size: size, fallback: tile)
-                else
-                  tile,
+                // Grows into the viewer card when opened.
+                Hero(
+                  tag: transactionHeroTag(t),
+                  child: t.photo != null
+                      ? PhotoImage(photo: t.photo!, size: size, fallback: tile)
+                      : tile,
+                ),
                 if (t.photo == null)
                   Positioned(
                     left: AppSpacing.sm,

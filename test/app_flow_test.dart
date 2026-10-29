@@ -1,3 +1,4 @@
+import 'package:expense_tracker/features/transactions/presentation/day_detail_screen.dart';
 import 'package:expense_tracker/features/transactions/presentation/home/widgets/day_photo_grid.dart';
 import 'package:expense_tracker/features/transactions/presentation/home/widgets/month_bar_chart.dart';
 import 'package:expense_tracker/features/transactions/presentation/home/widgets/month_transaction_list.dart';
@@ -197,14 +198,45 @@ void main() {
     expect(find.byType(PhotoCalendar), findsOneWidget);
   });
 
-  testWidgets('Selecting a day updates the preview', (tester) async {
-    await pumpApp(tester);
+  testWidgets('A day with entries opens its page and selects it', (
+    tester,
+  ) async {
+    final container = await pumpApp(tester);
 
     await tester.tap(dayCell(6));
     await tester.pumpAndSettle();
-
+    expect(find.byType(DayDetailScreen), findsOneWidget);
     expect(find.text('Thứ Ba, 6 tháng 10, 2026'), findsOneWidget);
-    expect(find.text('Hôm nay'), findsNothing);
+    expect(container.read(selectedDateProvider), DateTime(2026, 10, 6));
+
+    // Tiles open the viewer.
+    await tester.tap(
+      find
+          .descendant(
+            of: find.byType(DayPhotoGrid),
+            matching: find.byType(GestureDetector),
+          )
+          .first,
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('1 / 7'), findsOneWidget);
+  });
+
+  testWidgets('An empty day starts an entry for that day', (tester) async {
+    final container = await pumpApp(tester);
+    final before = container.read(transactionsProvider).length;
+
+    await tester.tap(dayCell(15));
+    await tester.pumpAndSettle();
+    expect(find.text('Bỏ qua ảnh'), findsOneWidget);
+    await tester.tap(find.text('Bỏ qua ảnh'));
+    await tester.pumpAndSettle();
+    await typeKeys(tester, ['5', '000']);
+    await tapDone(tester);
+
+    final items = container.read(transactionsProvider);
+    expect(items.length, before + 1);
+    expect(items.firstWhere((t) => t.amountMinor == 5000).occurredAt.day, 15);
   });
 
   testWidgets('An empty month shows the empty state', (tester) async {
