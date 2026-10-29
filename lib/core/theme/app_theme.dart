@@ -186,11 +186,12 @@ class AppTheme {
         ),
       ),
       dividerTheme: DividerThemeData(color: colors.border, space: 1),
-      // iOS-style slides (with swipe back) everywhere, the web included.
+      // iOS-style slides everywhere, without the edge swipe-back gesture:
+      // on the web it fights Safari's own swipe and glitches.
       pageTransitionsTheme: PageTransitionsTheme(
         builders: {
           for (final platform in TargetPlatform.values)
-            platform: const CupertinoPageTransitionsBuilder(),
+            platform: const _SlideTransitionsBuilder(),
         },
       ),
       inputDecorationTheme: InputDecorationTheme(
@@ -256,6 +257,35 @@ class AppTheme {
       snackBarTheme: const SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
       ),
+    );
+  }
+}
+
+/// iOS slide (or slide-up for full-screen dialogs) with no back gesture.
+class _SlideTransitionsBuilder extends PageTransitionsBuilder {
+  const _SlideTransitionsBuilder();
+
+  @override
+  Widget buildTransitions<T>(
+    PageRoute<T> route,
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
+    if (route.fullscreenDialog) {
+      return CupertinoFullscreenDialogTransition(
+        primaryRouteAnimation: animation,
+        secondaryRouteAnimation: secondaryAnimation,
+        linearTransition: false,
+        child: child,
+      );
+    }
+    return CupertinoPageTransition(
+      primaryRouteAnimation: animation,
+      secondaryRouteAnimation: secondaryAnimation,
+      linearTransition: false,
+      child: child,
     );
   }
 }
