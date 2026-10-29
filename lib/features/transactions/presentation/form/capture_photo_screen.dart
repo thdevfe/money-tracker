@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:camera/camera.dart';
@@ -73,6 +74,9 @@ class _CapturePhotoScreenState extends ConsumerState<CapturePhotoScreen>
   bool _unavailable = false;
   bool _busy = false;
 
+  /// Browsers often can't control the flash (iPhone Safari never can).
+  bool _flashSupported = false;
+
   /// Set once a photo is returned, so a late picker result can't pop twice.
   bool _done = false;
 
@@ -102,51 +106,85 @@ class _CapturePhotoScreenState extends ConsumerState<CapturePhotoScreen>
     }
   }
 
-  /// How long to wait for the live preview before falling back to the
-  /// system camera (browsers may never answer the permission request).
-  static const _previewTimeout = Duration(seconds: 8);
+  /// How long to wait for the live preview before also offering the system
+  /// camera. The browser may still be showing its permission prompt; if the
+  /// preview starts later it is used anyway.
+  static const _previewTimeout = Duration(seconds: 10);
 
   Future<void> _initCamera() async {
-    // Browsers (especially iPhone Safari and home-screen apps) handle the
-    // live camera stream poorly and can keep the camera busy, which then
-    // blocks the native camera. The web always uses the system camera.
-    if (kIsWeb) {
-      _unavailable = true;
-      return;
-    }
-    CameraController? controller;
     try {
       if (_cameras.isEmpty) {
-        _cameras = await ref
+        final cameras = await ref
             .read(cameraListProvider)()
             .timeout(_previewTimeout);
+        // Rear camera first: receipts and food, not selfies.
+        _cameras = [
+          ...cameras.where((c) => c.lensDirection == CameraLensDirection.back),
+          ...cameras.where((c) => c.lensDirection != CameraLensDirection.back),
+        ];
       }
       if (_cameras.isEmpty) throw CameraException('none', 'No camera');
-      controller = CameraController(
-        _cameras[_cameraIndex],
-        ResolutionPreset.high,
-        enableAudio: false,
-      );
-      await controller.initialize().timeout(_previewTimeout);
-      await controller.setFlashMode(_flash);
-      final maxZoom = await controller.getMaxZoomLevel();
-      if (!mounted) {
+    } catch (_) {
+      if (mounted) setState(() => _unavailable = true);
+      return;
+    }
+
+    final controller = CameraController(
+      _cameras[_cameraIndex],
+      ResolutionPreset.high,
+      enableAudio: false,
+    );
+    final ready = controller.initialize();
+    try {
+      await ready.timeout(_previewTimeout);
+    } on TimeoutException {
+      // Offer the system camera meanwhile; adopt the preview if it starts.
+      if (mounted) setState(() => _unavailable = true);
+      try {
+        await ready;
+      } catch (_) {
         await controller.dispose();
         return;
       }
-      final ready = controller;
-      setState(() {
-        _controller = ready;
-        _maxZoom = maxZoom;
-        _zoom = 1;
-        _unavailable = false;
-      });
     } catch (_) {
-      // No camera, permission denied or timed out. Release the camera so the
-      // system camera can use it; the shutter then opens that instead.
-      controller?.dispose().ignore();
+      // No camera or permission denied. Release it so the system camera
+      // can use it; the shutter then opens that instead.
+      await controller.dispose();
       if (mounted) setState(() => _unavailable = true);
+      return;
     }
+    if (!mounted) {
+      await controller.dispose();
+      return;
+    }
+    await _adopt(controller);
+  }
+
+  /// Shows a started preview. Flash and zoom are optional extras: browsers
+  /// often refuse them, which must not hide the preview.
+  Future<void> _adopt(CameraController controller) async {
+    var flashSupported = false;
+    if (!kIsWeb) {
+      try {
+        await controller.setFlashMode(_flash);
+        flashSupported = true;
+      } catch (_) {}
+    }
+    var maxZoom = 1.0;
+    try {
+      maxZoom = await controller.getMaxZoomLevel();
+    } catch (_) {}
+    if (!mounted) {
+      await controller.dispose();
+      return;
+    }
+    setState(() {
+      _controller = controller;
+      _flashSupported = flashSupported;
+      _maxZoom = maxZoom;
+      _zoom = 1;
+      _unavailable = false;
+    });
   }
 
   Future<void> _switchCamera() async {
@@ -162,13 +200,21 @@ class _CapturePhotoScreenState extends ConsumerState<CapturePhotoScreen>
 
   Future<void> _toggleFlash() async {
     final next = _flash == FlashMode.off ? FlashMode.always : FlashMode.off;
-    await _controller?.setFlashMode(next);
-    setState(() => _flash = next);
+    try {
+      await _controller?.setFlashMode(next);
+      setState(() => _flash = next);
+    } catch (_) {
+      setState(() => _flashSupported = false);
+    }
   }
 
   Future<void> _setZoom(double zoom) async {
-    await _controller?.setZoomLevel(zoom);
-    setState(() => _zoom = zoom);
+    try {
+      await _controller?.setZoomLevel(zoom);
+      setState(() => _zoom = zoom);
+    } catch (_) {
+      setState(() => _maxZoom = 1);
+    }
   }
 
   Future<void> _capture() async {
@@ -349,25 +395,30 @@ class _CapturePhotoScreenState extends ConsumerState<CapturePhotoScreen>
     return Stack(
       fit: StackFit.expand,
       children: [
-        FittedBox(
-          fit: BoxFit.cover,
-          child: SizedBox(
-            // previewSize is landscape; the phone is portrait.
-            width: previewSize?.height ?? 1,
-            height: previewSize?.width ?? 1,
-            child: CameraPreview(controller),
+        if (kIsWeb)
+          // The browser's video element already covers its box.
+          SizedBox.expand(child: controller.buildPreview())
+        else
+          FittedBox(
+            fit: BoxFit.cover,
+            child: SizedBox(
+              // previewSize is landscape; the phone is portrait.
+              width: previewSize?.height ?? 1,
+              height: previewSize?.width ?? 1,
+              child: CameraPreview(controller),
+            ),
           ),
-        ),
-        overlay(
-          _RoundIconButton(
-            tooltip: _flash == FlashMode.off ? l10n.flashOn : l10n.flashOff,
-            icon: _flash == FlashMode.off
-                ? Icons.flash_off_rounded
-                : Icons.flash_on_rounded,
-            onPressed: _toggleFlash,
+        if (_flashSupported)
+          overlay(
+            _RoundIconButton(
+              tooltip: _flash == FlashMode.off ? l10n.flashOn : l10n.flashOff,
+              icon: _flash == FlashMode.off
+                  ? Icons.flash_off_rounded
+                  : Icons.flash_on_rounded,
+              onPressed: _toggleFlash,
+            ),
+            Alignment.topLeft,
           ),
-          Alignment.topLeft,
-        ),
         if (_cameras.length > 1)
           overlay(
             _RoundIconButton(
