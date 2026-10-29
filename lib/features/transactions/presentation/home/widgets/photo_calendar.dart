@@ -105,6 +105,7 @@ class PhotoCalendar extends StatelessWidget {
                             inMonth: isSameMonth(d, month),
                             isToday: isSameDay(d, today),
                             isSelected: isSameDay(d, selectedDate),
+                            isFuture: d.isAfter(today),
                             width: cellWidth,
                             settings: settings,
                             borderColor: borderColor,

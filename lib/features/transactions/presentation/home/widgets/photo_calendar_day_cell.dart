@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../../core/theme/app_theme.dart';
+
 import '../../../../../core/formatting/formatters.dart';
 import '../../../../../l10n/app_localizations.dart';
 import '../../../../settings/domain/calendar_grid_settings.dart';
@@ -10,14 +12,15 @@ import '../../widgets/transaction_thumbnail.dart';
 
 /// Layout constants shared by [PhotoCalendarDayCell] and the calendar.
 class DayCellMetrics {
-  static const double padding = 3;
+  static const double padding = 2;
   static const double border = 1.5;
-  static const double dayLabelHeight = 22;
+  static const double dayLabelHeight = 18;
 
   static double thumbnailSize(double cellWidth) =>
-      (cellWidth * 0.62).clamp(22, 36);
+      (cellWidth * 0.66).clamp(22, 36);
 
-  static double stackHeight(double cellWidth) => thumbnailSize(cellWidth) + 10;
+  /// Room for the tilted back cards of a stack.
+  static double stackHeight(double cellWidth) => thumbnailSize(cellWidth) + 5;
 
   static double cellHeight(double cellWidth) =>
       (padding + border) * 2 + stackHeight(cellWidth) + dayLabelHeight;
@@ -42,6 +45,9 @@ class PhotoCalendarDayCell extends StatelessWidget {
   final Color borderColor;
   final VoidCallback onTap;
 
+  /// Days after today show a quiet placeholder instead of the "+" square.
+  final bool isFuture;
+
   const PhotoCalendarDayCell({
     super.key,
     required this.date,
@@ -53,6 +59,7 @@ class PhotoCalendarDayCell extends StatelessWidget {
     required this.onTap,
     this.settings = const CalendarGridSettings(),
     this.borderColor = Colors.white,
+    this.isFuture = false,
   });
 
   static int visibleCount(GridDisplay display) => switch (display) {
@@ -126,7 +133,12 @@ class PhotoCalendarDayCell extends StatelessWidget {
               SizedBox(
                 height: DayCellMetrics.stackHeight(width),
                 child: shown.isEmpty
-                    ? null
+                    ? Center(
+                        child: _EmptyDay(
+                          size: DayCellMetrics.thumbnailSize(width),
+                          isFuture: isFuture,
+                        ),
+                      )
                     : _PhotoStack(
                         items: shown,
                         extra: settings.showBadge ? extra : 0,
@@ -139,8 +151,8 @@ class PhotoCalendarDayCell extends StatelessWidget {
                 height: DayCellMetrics.dayLabelHeight,
                 child: Center(
                   child: Container(
-                    width: 22,
-                    height: 22,
+                    width: 18,
+                    height: 18,
                     alignment: Alignment.center,
                     decoration: isToday
                         ? BoxDecoration(
@@ -164,6 +176,39 @@ class PhotoCalendarDayCell extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Rounded "+" square for an empty day (a plain faint one for the future).
+class _EmptyDay extends StatelessWidget {
+  final double size;
+  final bool isFuture;
+
+  const _EmptyDay({required this.size, required this.isFuture});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+    final inner = size - 2;
+    return Container(
+      width: inner,
+      height: inner,
+      decoration: BoxDecoration(
+        color: onSurface.withValues(alpha: isFuture ? 0.07 : 0.03),
+        borderRadius: BorderRadius.circular(8),
+        border: isFuture
+            ? null
+            : Border.all(color: onSurface.withValues(alpha: 0.12)),
+      ),
+      child: isFuture
+          ? null
+          : Icon(
+              Icons.add_rounded,
+              size: inner * 0.5,
+              color: colors.textSecondary.withValues(alpha: 0.6),
+            ),
     );
   }
 }

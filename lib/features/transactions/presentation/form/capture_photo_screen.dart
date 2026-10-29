@@ -515,7 +515,7 @@ class _RoundIconButton extends StatelessWidget {
   }
 }
 
-/// Large white shutter with a gradient ring in the app's green accent.
+/// Large white shutter with a blue-purple-pink gradient ring.
 class _Shutter extends StatelessWidget {
   final bool enabled;
   final String tooltip;
@@ -548,10 +548,10 @@ class _Shutter extends StatelessWidget {
                 shape: BoxShape.circle,
                 gradient: SweepGradient(
                   colors: [
-                    Color(0xFF4ADE9A),
-                    Color(0xFF14B8A6),
-                    Color(0xFF3B82F6),
-                    Color(0xFF4ADE9A),
+                    Color(0xFF7FA8F8),
+                    Color(0xFF8B5CF6),
+                    Color(0xFFEC4899),
+                    Color(0xFF7FA8F8),
                   ],
                 ),
               ),

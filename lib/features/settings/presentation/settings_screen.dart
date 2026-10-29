@@ -258,10 +258,10 @@ class _ProfileCard extends ConsumerWidget {
                       shape: BoxShape.circle,
                       gradient: SweepGradient(
                         colors: [
-                          Color(0xFF4ADE9A),
-                          Color(0xFF14B8A6),
-                          Color(0xFF3B82F6),
-                          Color(0xFF4ADE9A),
+                          Color(0xFF7FA8F8),
+                          Color(0xFF8B5CF6),
+                          Color(0xFFEC4899),
+                          Color(0xFF7FA8F8),
                         ],
                       ),
                     ),

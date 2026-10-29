@@ -40,21 +40,21 @@ class AppColors extends ThemeExtension<AppColors> {
   });
 
   static const light = AppColors(
-    income: Color(0xFF159957),
+    income: Color(0xFF1F9D5C),
     expense: Color(0xFFE5484D),
-    transfer: Color(0xFF3984D6),
-    border: Color(0xFFE3E8E5),
-    textSecondary: Color(0xFF667085),
-    elevatedSurface: Color(0xFFF0F3F1),
+    transfer: Color(0xFF8B5CF6),
+    border: Color(0xFFE4E6EB),
+    textSecondary: Color(0xFF6B7080),
+    elevatedSurface: Color(0xFFEFF1F5),
   );
 
   static const dark = AppColors(
-    income: Color(0xFF4ADE9A),
-    expense: Color(0xFFFF7278),
-    transfer: Color(0xFF75B5FF),
-    border: Color(0xFF303D36),
-    textSecondary: Color(0xFFA8B5AE),
-    elevatedSurface: Color(0xFF202B26),
+    income: Color(0xFF5BD68E),
+    expense: Color(0xFFFF7A7F),
+    transfer: Color(0xFFB59CFF),
+    border: Color(0xFF2E3038),
+    textSecondary: Color(0xFF9EA2AE),
+    elevatedSurface: Color(0xFF22232A),
   );
 
   static AppColors of(BuildContext context) =>
@@ -97,25 +97,25 @@ class AppTheme {
   static ThemeData light() {
     const scheme = ColorScheme(
       brightness: Brightness.light,
-      primary: Color(0xFF16A36A),
+      primary: Color(0xFF3D7BF0),
       onPrimary: Colors.white,
-      primaryContainer: Color(0xFFDDF4E8),
-      onPrimaryContainer: Color(0xFF128354),
-      secondary: Color(0xFF128354),
+      primaryContainer: Color(0xFFE3ECFF),
+      onPrimaryContainer: Color(0xFF1F5BD0),
+      secondary: Color(0xFF1F5BD0),
       onSecondary: Colors.white,
       error: Color(0xFFE5484D),
       onError: Colors.white,
       surface: Color(0xFFFFFFFF),
-      onSurface: Color(0xFF17212B),
-      onSurfaceVariant: Color(0xFF667085),
-      surfaceContainerLowest: Color(0xFFF6F8F7),
-      surfaceContainerHighest: Color(0xFFEFF2F0),
-      outline: Color(0xFFE3E8E5),
-      outlineVariant: Color(0xFFE3E8E5),
+      onSurface: Color(0xFF181A20),
+      onSurfaceVariant: Color(0xFF6B7080),
+      surfaceContainerLowest: Color(0xFFF5F6F9),
+      surfaceContainerHighest: Color(0xFFEFF1F5),
+      outline: Color(0xFFE4E6EB),
+      outlineVariant: Color(0xFFE4E6EB),
     );
     return _build(
       scheme,
-      background: const Color(0xFFF6F8F7),
+      background: const Color(0xFFF5F6F9),
       colors: AppColors.light,
     );
   }
@@ -123,25 +123,25 @@ class AppTheme {
   static ThemeData dark() {
     const scheme = ColorScheme(
       brightness: Brightness.dark,
-      primary: Color(0xFF4ADE9A),
-      onPrimary: Color(0xFF0B2A1C),
-      primaryContainer: Color(0xFF1C3D2E),
-      onPrimaryContainer: Color(0xFF4ADE9A),
-      secondary: Color(0xFF4ADE9A),
-      onSecondary: Color(0xFF0B2A1C),
-      error: Color(0xFFFF7278),
+      primary: Color(0xFF7FA8F8),
+      onPrimary: Color(0xFF0C1A33),
+      primaryContainer: Color(0xFF243352),
+      onPrimaryContainer: Color(0xFFA9C6FF),
+      secondary: Color(0xFF7FA8F8),
+      onSecondary: Color(0xFF0C1A33),
+      error: Color(0xFFFF7A7F),
       onError: Color(0xFF2B0A0B),
-      surface: Color(0xFF19211E),
-      onSurface: Color(0xFFF3F7F4),
-      onSurfaceVariant: Color(0xFFA8B5AE),
-      surfaceContainerLowest: Color(0xFF101614),
-      surfaceContainerHighest: Color(0xFF202B26),
-      outline: Color(0xFF303D36),
-      outlineVariant: Color(0xFF303D36),
+      surface: Color(0xFF1B1C22),
+      onSurface: Color(0xFFF2F3F7),
+      onSurfaceVariant: Color(0xFF9EA2AE),
+      surfaceContainerLowest: Color(0xFF131418),
+      surfaceContainerHighest: Color(0xFF22232A),
+      outline: Color(0xFF2E3038),
+      outlineVariant: Color(0xFF2E3038),
     );
     return _build(
       scheme,
-      background: const Color(0xFF101614),
+      background: const Color(0xFF131418),
       colors: AppColors.dark,
     );
   }
