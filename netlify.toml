@@ -21,3 +21,20 @@
   for = "/flutter_service_worker.js"
   [headers.values]
     Cache-Control = "no-cache"
+
+# The rendering engine, fonts and icons rarely change between deploys;
+# cache them for a day and refresh in the background after that.
+[[headers]]
+  for = "/canvaskit/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400, stale-while-revalidate=604800"
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400, stale-while-revalidate=604800"
+
+[[headers]]
+  for = "/icons/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400, stale-while-revalidate=604800"
