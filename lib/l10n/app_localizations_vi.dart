@@ -530,7 +530,7 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get cameraUnavailable =>
-      'Không xem trước được máy ảnh ở đây. Nhấn nút chụp để mở máy ảnh, hoặc chọn ảnh từ thư viện.';
+      'Nhấn để mở máy ảnh, hoặc chọn ảnh từ thư viện.';
 
   @override
   String get flashOn => 'Bật đèn flash';

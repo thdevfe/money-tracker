@@ -267,7 +267,7 @@
   "chooseFromLibrary": "Choose from library",
   "skipPhoto": "Skip photo",
   "takePhoto": "Take photo",
-  "cameraUnavailable": "Live preview isn't available here. Tap the shutter to open the camera, or choose from your library.",
+  "cameraUnavailable": "Tap to open the camera, or choose from your library.",
   "flashOn": "Turn flash on",
   "flashOff": "Turn flash off",
   "switchCamera": "Switch camera",

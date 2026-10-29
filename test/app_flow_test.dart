@@ -312,7 +312,7 @@ void main() {
     expect(find.text('Bỏ qua ảnh'), findsOneWidget);
     // No camera in tests: the viewfinder explains the system-camera fallback
     // and the shutter stays enabled (it opens the system camera).
-    expect(find.textContaining('Nhấn nút chụp để mở máy ảnh'), findsOneWidget);
+    expect(find.textContaining('Nhấn để mở máy ảnh'), findsOneWidget);
     final handle = tester.ensureSemantics();
     expect(
       tester.getSemantics(find.bySemanticsLabel('Chụp ảnh')),

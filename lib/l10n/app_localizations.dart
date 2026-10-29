@@ -1061,7 +1061,7 @@ abstract class AppLocalizations {
   /// No description provided for @cameraUnavailable.
   ///
   /// In en, this message translates to:
-  /// **'Live preview isn\'t available here. Tap the shutter to open the camera, or choose from your library.'**
+  /// **'Tap to open the camera, or choose from your library.'**
   String get cameraUnavailable;
 
   /// No description provided for @flashOn.

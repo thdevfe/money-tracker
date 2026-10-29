@@ -68,6 +68,9 @@ class _CapturePhotoScreenState extends ConsumerState<CapturePhotoScreen>
   bool _unavailable = false;
   bool _busy = false;
 
+  /// Set once a photo is returned, so a late picker result can't pop twice.
+  bool _done = false;
+
   @override
   void initState() {
     super.initState();
@@ -99,6 +102,14 @@ class _CapturePhotoScreenState extends ConsumerState<CapturePhotoScreen>
   static const _previewTimeout = Duration(seconds: 8);
 
   Future<void> _initCamera() async {
+    // Browsers (especially iPhone Safari and home-screen apps) handle the
+    // live camera stream poorly and can keep the camera busy, which then
+    // blocks the native camera. The web always uses the system camera.
+    if (kIsWeb) {
+      _unavailable = true;
+      return;
+    }
+    CameraController? controller;
     try {
       if (_cameras.isEmpty) {
         _cameras = await ref
@@ -106,7 +117,7 @@ class _CapturePhotoScreenState extends ConsumerState<CapturePhotoScreen>
             .timeout(_previewTimeout);
       }
       if (_cameras.isEmpty) throw CameraException('none', 'No camera');
-      final controller = CameraController(
+      controller = CameraController(
         _cameras[_cameraIndex],
         ResolutionPreset.high,
         enableAudio: false,
@@ -118,15 +129,17 @@ class _CapturePhotoScreenState extends ConsumerState<CapturePhotoScreen>
         await controller.dispose();
         return;
       }
+      final ready = controller;
       setState(() {
-        _controller = controller;
+        _controller = ready;
         _maxZoom = maxZoom;
         _zoom = 1;
         _unavailable = false;
       });
     } catch (_) {
-      // No camera, permission denied or timed out (common in Safari and
-      // home-screen web apps). The shutter then opens the system camera.
+      // No camera, permission denied or timed out. Release the camera so the
+      // system camera can use it; the shutter then opens that instead.
+      controller?.dispose().ignore();
       if (mounted) setState(() => _unavailable = true);
     }
   }
@@ -159,8 +172,7 @@ class _CapturePhotoScreenState extends ConsumerState<CapturePhotoScreen>
     setState(() => _busy = true);
     try {
       final file = await controller.takePicture();
-      if (!mounted) return;
-      Navigator.of(context).pop(CaptureResult(pickedPhoto(file)));
+      _finish(pickedPhoto(file));
     } on CameraException {
       if (mounted) setState(() => _busy = false);
     }
@@ -168,34 +180,35 @@ class _CapturePhotoScreenState extends ConsumerState<CapturePhotoScreen>
 
   /// Fallback when there is no live preview: the platform's own camera
   /// (on iPhone Safari, the native camera via the file picker).
+  ///
+  /// Never locks the shutter: the browser doesn't always report when the
+  /// native camera is dismissed, so the user must always be able to retry.
+  /// The picker opens synchronously within the tap, as browsers require.
   Future<void> _systemCamera() async {
-    if (_busy) return;
     final messenger = ScaffoldMessenger.of(context);
     final l10n = AppLocalizations.of(context);
-    setState(() => _busy = true);
     try {
       final file = await ImagePicker().pickImage(
         source: ImageSource.camera,
         maxWidth: 1600,
         imageQuality: 85,
       );
-      if (!mounted) return;
-      if (file != null) {
-        Navigator.of(context).pop(CaptureResult(pickedPhoto(file)));
-        return;
-      }
+      if (file != null) _finish(pickedPhoto(file));
     } catch (_) {
       // Permission denied or no camera picker available.
       messenger.showSnackBar(SnackBar(content: Text(l10n.photoPickError)));
     }
-    if (mounted) setState(() => _busy = false);
   }
 
   Future<void> _library() async {
     final photo = await pickFromLibrary(context);
-    if (photo != null && mounted) {
-      Navigator.of(context).pop(CaptureResult(photo));
-    }
+    if (photo != null) _finish(photo);
+  }
+
+  void _finish(TransactionPhoto photo) {
+    if (_done || !mounted) return;
+    _done = true;
+    Navigator.of(context).pop(CaptureResult(photo));
   }
 
   @override
@@ -275,7 +288,7 @@ class _CapturePhotoScreenState extends ConsumerState<CapturePhotoScreen>
   Widget _buildViewfinder(AppLocalizations l10n) {
     final controller = _controller;
     if (_unavailable || controller == null) {
-      return Container(
+      final placeholder = Container(
         color: const Color(0xFF1F1F1F),
         padding: const EdgeInsets.all(AppSpacing.xxl),
         alignment: Alignment.center,
@@ -284,8 +297,8 @@ class _CapturePhotoScreenState extends ConsumerState<CapturePhotoScreen>
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   const Icon(
-                    Icons.no_photography_outlined,
-                    size: 44,
+                    Icons.photo_camera_outlined,
+                    size: 52,
                     color: Colors.white54,
                   ),
                   const SizedBox(height: AppSpacing.md),
@@ -298,6 +311,10 @@ class _CapturePhotoScreenState extends ConsumerState<CapturePhotoScreen>
               )
             : const CircularProgressIndicator(color: Colors.white54),
       );
+      if (!_unavailable) return placeholder;
+      // The whole viewfinder opens the camera too: a bigger touch target
+      // (the shutter remains the accessible button).
+      return GestureDetector(onTap: _systemCamera, child: placeholder);
     }
 
     final previewSize = controller.value.previewSize;
