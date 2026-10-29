@@ -34,11 +34,15 @@ class AddEditTransactionScreen extends ConsumerStatefulWidget {
   /// Photo taken or chosen in the capture step.
   final TransactionPhoto? initialPhoto;
 
+  /// Type of a new transaction (expense by default).
+  final TransactionType initialType;
+
   const AddEditTransactionScreen({
     super.key,
     this.existing,
     this.initialDate,
     this.initialPhoto,
+    this.initialType = TransactionType.expense,
   });
 
   @override
@@ -76,7 +80,7 @@ class _AddEditTransactionScreenState
     super.initState();
     final e = widget.existing;
     final now = ref.read(clockProvider)();
-    _type = e?.type ?? TransactionType.expense;
+    _type = e?.type ?? widget.initialType;
     _category = e?.category ?? _defaultCategory(_type);
     // Defaults: spend from cash, transfer from bank to cash.
     final accounts = ref.read(accountsProvider);

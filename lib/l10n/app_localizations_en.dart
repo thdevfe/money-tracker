@@ -982,4 +982,99 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get close => 'Close';
+
+  @override
+  String get periodThisYear => 'This year';
+
+  @override
+  String get periodAllTimeShort => 'All time';
+
+  @override
+  String get totalBalance => 'Total balance';
+
+  @override
+  String get accountsSection => 'Accounts';
+
+  @override
+  String get cashAndBank => 'Cash & bank';
+
+  @override
+  String get transferMoney => 'Transfer between accounts';
+
+  @override
+  String get termDeposits => 'Term deposits';
+
+  @override
+  String get addDeposit => 'Add deposit';
+
+  @override
+  String get noDepositsTitle => 'No deposits yet';
+
+  @override
+  String get noDepositsMessage =>
+      'Track a bank term deposit to see interest accrue toward maturity.';
+
+  @override
+  String get depositBank => 'Bank';
+
+  @override
+  String get depositBankHint => 'e.g. Vietcombank';
+
+  @override
+  String get depositPrincipal => 'Amount deposited';
+
+  @override
+  String get depositRate => 'Rate (%/year)';
+
+  @override
+  String get depositTerm => 'Term';
+
+  @override
+  String depositTermMonths(int months) {
+    String _temp0 = intl.Intl.pluralLogic(
+      months,
+      locale: localeName,
+      other: '$months months',
+      one: '1 month',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get depositStart => 'Start date';
+
+  @override
+  String depositMaturity(String date) {
+    return 'Matures $date';
+  }
+
+  @override
+  String get depositInterestSoFar => 'Interest so far';
+
+  @override
+  String get depositInterestTotal => 'Interest at maturity';
+
+  @override
+  String get depositMatured => 'Matured';
+
+  @override
+  String get editDeposit => 'Edit deposit';
+
+  @override
+  String get deleteDepositTitle => 'Delete this deposit?';
+
+  @override
+  String get errorBankRequired => 'Enter the bank name';
+
+  @override
+  String get errorRateInvalid => 'Rate must be 0–100%';
+
+  @override
+  String get depositsLoadFailed =>
+      'Couldn\'t load deposits. Pull down to retry.';
+
+  @override
+  String depositRateTerm(String rate, int months) {
+    return '$rate%/year · $months mo';
+  }
 }

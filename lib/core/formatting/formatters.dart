@@ -86,6 +86,9 @@ class Formatters {
 
   String time(DateTime date) => DateFormat.Hm(locale).format(date);
 
+  /// Up to two decimals without trailing zeros: 5 / 5,5 / 5,25.
+  String decimal(num value) => NumberFormat('#,##0.##', locale).format(value);
+
   /// "Today", "Yesterday", or the full date.
   String dayHeading(DateTime day, DateTime today) {
     if (isSameDay(day, today)) return l10n.today;

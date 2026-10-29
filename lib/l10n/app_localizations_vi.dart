@@ -945,4 +945,93 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get close => 'Đóng';
+
+  @override
+  String get periodThisYear => 'Năm nay';
+
+  @override
+  String get periodAllTimeShort => 'Tất cả';
+
+  @override
+  String get totalBalance => 'Tổng số dư';
+
+  @override
+  String get accountsSection => 'Tài khoản';
+
+  @override
+  String get cashAndBank => 'Tiền mặt & ngân hàng';
+
+  @override
+  String get transferMoney => 'Chuyển tiền giữa tài khoản';
+
+  @override
+  String get termDeposits => 'Tiền gửi có kỳ hạn';
+
+  @override
+  String get addDeposit => 'Thêm khoản gửi';
+
+  @override
+  String get noDepositsTitle => 'Chưa có khoản gửi nào';
+
+  @override
+  String get noDepositsMessage =>
+      'Theo dõi tiền gửi có kỳ hạn để xem tiền lãi tăng dần đến ngày đáo hạn.';
+
+  @override
+  String get depositBank => 'Ngân hàng';
+
+  @override
+  String get depositBankHint => 'VD: Vietcombank';
+
+  @override
+  String get depositPrincipal => 'Số tiền gửi';
+
+  @override
+  String get depositRate => 'Lãi suất (%/năm)';
+
+  @override
+  String get depositTerm => 'Kỳ hạn';
+
+  @override
+  String depositTermMonths(int months) {
+    return '$months tháng';
+  }
+
+  @override
+  String get depositStart => 'Ngày gửi';
+
+  @override
+  String depositMaturity(String date) {
+    return 'Đáo hạn $date';
+  }
+
+  @override
+  String get depositInterestSoFar => 'Lãi đến nay';
+
+  @override
+  String get depositInterestTotal => 'Lãi khi đáo hạn';
+
+  @override
+  String get depositMatured => 'Đã đáo hạn';
+
+  @override
+  String get editDeposit => 'Sửa khoản gửi';
+
+  @override
+  String get deleteDepositTitle => 'Xóa khoản gửi này?';
+
+  @override
+  String get errorBankRequired => 'Nhập tên ngân hàng';
+
+  @override
+  String get errorRateInvalid => 'Lãi suất từ 0 đến 100%';
+
+  @override
+  String get depositsLoadFailed =>
+      'Không tải được tiền gửi. Kéo xuống để thử lại.';
+
+  @override
+  String depositRateTerm(String rate, int months) {
+    return '$rate%/năm · $months tháng';
+  }
 }

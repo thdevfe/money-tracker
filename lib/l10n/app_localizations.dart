@@ -1819,6 +1819,168 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Close'**
   String get close;
+
+  /// No description provided for @periodThisYear.
+  ///
+  /// In en, this message translates to:
+  /// **'This year'**
+  String get periodThisYear;
+
+  /// No description provided for @periodAllTimeShort.
+  ///
+  /// In en, this message translates to:
+  /// **'All time'**
+  String get periodAllTimeShort;
+
+  /// No description provided for @totalBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Total balance'**
+  String get totalBalance;
+
+  /// No description provided for @accountsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Accounts'**
+  String get accountsSection;
+
+  /// No description provided for @cashAndBank.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash & bank'**
+  String get cashAndBank;
+
+  /// No description provided for @transferMoney.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfer between accounts'**
+  String get transferMoney;
+
+  /// No description provided for @termDeposits.
+  ///
+  /// In en, this message translates to:
+  /// **'Term deposits'**
+  String get termDeposits;
+
+  /// No description provided for @addDeposit.
+  ///
+  /// In en, this message translates to:
+  /// **'Add deposit'**
+  String get addDeposit;
+
+  /// No description provided for @noDepositsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No deposits yet'**
+  String get noDepositsTitle;
+
+  /// No description provided for @noDepositsMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Track a bank term deposit to see interest accrue toward maturity.'**
+  String get noDepositsMessage;
+
+  /// No description provided for @depositBank.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank'**
+  String get depositBank;
+
+  /// No description provided for @depositBankHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Vietcombank'**
+  String get depositBankHint;
+
+  /// No description provided for @depositPrincipal.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount deposited'**
+  String get depositPrincipal;
+
+  /// No description provided for @depositRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Rate (%/year)'**
+  String get depositRate;
+
+  /// No description provided for @depositTerm.
+  ///
+  /// In en, this message translates to:
+  /// **'Term'**
+  String get depositTerm;
+
+  /// No description provided for @depositTermMonths.
+  ///
+  /// In en, this message translates to:
+  /// **'{months, plural, =1{1 month} other{{months} months}}'**
+  String depositTermMonths(int months);
+
+  /// No description provided for @depositStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start date'**
+  String get depositStart;
+
+  /// No description provided for @depositMaturity.
+  ///
+  /// In en, this message translates to:
+  /// **'Matures {date}'**
+  String depositMaturity(String date);
+
+  /// No description provided for @depositInterestSoFar.
+  ///
+  /// In en, this message translates to:
+  /// **'Interest so far'**
+  String get depositInterestSoFar;
+
+  /// No description provided for @depositInterestTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Interest at maturity'**
+  String get depositInterestTotal;
+
+  /// No description provided for @depositMatured.
+  ///
+  /// In en, this message translates to:
+  /// **'Matured'**
+  String get depositMatured;
+
+  /// No description provided for @editDeposit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit deposit'**
+  String get editDeposit;
+
+  /// No description provided for @deleteDepositTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this deposit?'**
+  String get deleteDepositTitle;
+
+  /// No description provided for @errorBankRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the bank name'**
+  String get errorBankRequired;
+
+  /// No description provided for @errorRateInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Rate must be 0–100%'**
+  String get errorRateInvalid;
+
+  /// No description provided for @depositsLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load deposits. Pull down to retry.'**
+  String get depositsLoadFailed;
+
+  /// No description provided for @depositRateTerm.
+  ///
+  /// In en, this message translates to:
+  /// **'{rate}%/year · {months} mo'**
+  String depositRateTerm(String rate, int months);
 }
 
 class _AppLocalizationsDelegate

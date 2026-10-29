@@ -591,6 +591,43 @@ void main() {
     expect(momo.openingBalanceMinor, 500000);
   });
 
+  testWidgets('Accounts: add a term deposit and open a transfer', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    await tester.tap(find.byTooltip('Tài khoản'));
+    await tester.pumpAndSettle();
+    expect(find.text('Chưa có khoản gửi nào'), findsOneWidget);
+
+    await tester.ensureVisible(find.byKey(const ValueKey('add_deposit')));
+    await tester.tap(find.byKey(const ValueKey('add_deposit')));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const ValueKey('deposit_bank')),
+      'Techcombank',
+    );
+    await tester.enterText(
+      find.byKey(const ValueKey('deposit_principal')),
+      '50000000',
+    );
+    await tester.enterText(find.byKey(const ValueKey('deposit_rate')), '5,5');
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Lãi khi đáo hạn'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('deposit_save')));
+    await tester.pumpAndSettle();
+    expect(find.text('Techcombank'), findsOneWidget);
+    expect(find.textContaining('5,5%/năm · 6 tháng'), findsOneWidget);
+
+    await tester.scrollUntilVisible(
+      find.byTooltip('Chuyển tiền giữa tài khoản'),
+      -200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.tap(find.byTooltip('Chuyển tiền giữa tài khoản'));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('from_account')), findsOneWidget);
+  });
+
   testWidgets('An account with transactions cannot be deleted', (tester) async {
     await pumpApp(tester);
 

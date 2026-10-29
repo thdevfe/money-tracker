@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../features/accounts/presentation/account_detail_screen.dart';
 import '../features/accounts/presentation/account_form_screen.dart';
 import '../features/categories/presentation/categories_screen.dart';
+import '../features/deposits/domain/term_deposit.dart';
+import '../features/deposits/presentation/deposit_form_screen.dart';
 import '../features/transactions/providers/transactions_provider.dart';
 
 import '../features/transactions/domain/models.dart';
@@ -59,6 +61,26 @@ Future<void> _openBulkEntry(BuildContext context, DateTime? date) async {
   messenger
     ..hideCurrentSnackBar()
     ..showSnackBar(SnackBar(content: Text(l10n.bulkSaved(saved))));
+}
+
+/// Transfer between accounts, straight to the entry screen (no photo).
+Future<void> openTransfer(BuildContext context) async {
+  if (ProviderScope.containerOf(context).read(accountsProvider).length < 2) {
+    return openAccountForm(context);
+  }
+  await _openForm(
+    context,
+    const AddEditTransactionScreen(initialType: TransactionType.transfer),
+  );
+}
+
+Future<void> openDepositForm(BuildContext context, {TermDeposit? existing}) {
+  return Navigator.of(context).push(
+    MaterialPageRoute(
+      builder: (_) => DepositFormScreen(existing: existing),
+      fullscreenDialog: true,
+    ),
+  );
 }
 
 Future<void> openEditTransaction(
