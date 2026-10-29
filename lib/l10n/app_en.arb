@@ -479,5 +479,14 @@
   "budgetDaysLeft": "{days, plural, =0{Last day} =1{1 day left} other{{days} days left}}",
   "@budgetDaysLeft": {"placeholders": {"days": {"type": "int"}}},
   "deleteBudgetTitle": "Delete this budget?",
-  "budgetsLoadFailed": "Couldn't load budgets. Pull down to retry."
+  "budgetsLoadFailed": "Couldn't load budgets. Pull down to retry.",
+  "memberSince": "Member since {date}",
+  "@memberSince": {"placeholders": {"date": {"type": "String"}}},
+  "statTransactions": "Transactions",
+  "statIncome": "Total income",
+  "statExpense": "Total expense",
+  "sectionTools": "TOOLS",
+  "sectionPreferences": "PREFERENCES",
+  "sectionAccountData": "ACCOUNT & DATA",
+  "editName": "Edit name"
 }

@@ -2113,6 +2113,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Couldn\'t load budgets. Pull down to retry.'**
   String get budgetsLoadFailed;
+
+  /// No description provided for @memberSince.
+  ///
+  /// In en, this message translates to:
+  /// **'Member since {date}'**
+  String memberSince(String date);
+
+  /// No description provided for @statTransactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Transactions'**
+  String get statTransactions;
+
+  /// No description provided for @statIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'Total income'**
+  String get statIncome;
+
+  /// No description provided for @statExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Total expense'**
+  String get statExpense;
+
+  /// No description provided for @sectionTools.
+  ///
+  /// In en, this message translates to:
+  /// **'TOOLS'**
+  String get sectionTools;
+
+  /// No description provided for @sectionPreferences.
+  ///
+  /// In en, this message translates to:
+  /// **'PREFERENCES'**
+  String get sectionPreferences;
+
+  /// No description provided for @sectionAccountData.
+  ///
+  /// In en, this message translates to:
+  /// **'ACCOUNT & DATA'**
+  String get sectionAccountData;
+
+  /// No description provided for @editName.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit name'**
+  String get editName;
 }
 
 class _AppLocalizationsDelegate

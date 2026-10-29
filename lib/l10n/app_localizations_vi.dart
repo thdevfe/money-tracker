@@ -1118,4 +1118,30 @@ class AppLocalizationsVi extends AppLocalizations {
   @override
   String get budgetsLoadFailed =>
       'Không tải được ngân sách. Kéo xuống để thử lại.';
+
+  @override
+  String memberSince(String date) {
+    return 'Thành viên từ $date';
+  }
+
+  @override
+  String get statTransactions => 'Giao dịch';
+
+  @override
+  String get statIncome => 'Tổng thu';
+
+  @override
+  String get statExpense => 'Tổng chi';
+
+  @override
+  String get sectionTools => 'CÔNG CỤ';
+
+  @override
+  String get sectionPreferences => 'TÙY CHỌN';
+
+  @override
+  String get sectionAccountData => 'TÀI KHOẢN & DỮ LIỆU';
+
+  @override
+  String get editName => 'Đổi tên';
 }

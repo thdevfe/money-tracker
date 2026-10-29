@@ -438,6 +438,8 @@ void main() {
 
     await tester.tap(find.byTooltip('Hồ sơ'));
     await tester.pumpAndSettle();
+    await tester.tap(find.text('Ngôn ngữ'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('English'));
     await tester.pumpAndSettle();
     await tester.tap(find.byTooltip('Home'));
@@ -648,6 +650,23 @@ void main() {
     expect(find.text('Chi tiêu hàng tháng'), findsWidgets);
     expect(find.textContaining('Đã chi'), findsOneWidget);
     expect(find.textContaining('Còn '), findsWidgets);
+  });
+
+  testWidgets('Profile shows totals and edits the name', (tester) async {
+    final container = await pumpApp(tester);
+    await tester.tap(find.byTooltip('Hồ sơ'));
+    await tester.pumpAndSettle();
+    final count = container.read(transactionsProvider).length;
+    expect(find.text('$count'), findsOneWidget);
+    expect(find.text('Giao dịch'), findsOneWidget);
+
+    await tester.tap(find.byKey(const ValueKey('edit_name')));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const ValueKey('profile_name')), 'Thiện');
+    await tester.tap(find.text('Lưu'));
+    await tester.pumpAndSettle();
+    expect(container.read(profileNameProvider), 'Thiện');
+    expect(find.text('Thiện'), findsOneWidget);
   });
 
   testWidgets('An account with transactions cannot be deleted', (tester) async {

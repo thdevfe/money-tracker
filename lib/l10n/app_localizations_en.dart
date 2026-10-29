@@ -1161,4 +1161,30 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get budgetsLoadFailed => 'Couldn\'t load budgets. Pull down to retry.';
+
+  @override
+  String memberSince(String date) {
+    return 'Member since $date';
+  }
+
+  @override
+  String get statTransactions => 'Transactions';
+
+  @override
+  String get statIncome => 'Total income';
+
+  @override
+  String get statExpense => 'Total expense';
+
+  @override
+  String get sectionTools => 'TOOLS';
+
+  @override
+  String get sectionPreferences => 'PREFERENCES';
+
+  @override
+  String get sectionAccountData => 'ACCOUNT & DATA';
+
+  @override
+  String get editName => 'Edit name';
 }

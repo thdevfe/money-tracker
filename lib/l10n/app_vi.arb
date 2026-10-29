@@ -348,5 +348,14 @@
   "budgetDaysLeft": "{days, plural, =0{Ngày cuối kỳ} other{Còn {days} ngày}}",
   "@budgetDaysLeft": {"placeholders": {"days": {"type": "int"}}},
   "deleteBudgetTitle": "Xóa ngân sách này?",
-  "budgetsLoadFailed": "Không tải được ngân sách. Kéo xuống để thử lại."
+  "budgetsLoadFailed": "Không tải được ngân sách. Kéo xuống để thử lại.",
+  "memberSince": "Thành viên từ {date}",
+  "@memberSince": {"placeholders": {"date": {"type": "String"}}},
+  "statTransactions": "Giao dịch",
+  "statIncome": "Tổng thu",
+  "statExpense": "Tổng chi",
+  "sectionTools": "CÔNG CỤ",
+  "sectionPreferences": "TÙY CHỌN",
+  "sectionAccountData": "TÀI KHOẢN & DỮ LIỆU",
+  "editName": "Đổi tên"
 }
