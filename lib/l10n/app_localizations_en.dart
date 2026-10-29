@@ -960,4 +960,26 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dailySpending => 'Spending by day';
+
+  @override
+  String get addNotePlaceholder => 'Add a note…';
+
+  @override
+  String get editDetails => 'Edit details';
+
+  @override
+  String get moreActions => 'More actions';
+
+  @override
+  String viewerPosition(int index, int count) {
+    return '$index / $count';
+  }
+
+  @override
+  String dateAtTime(String date, String time) {
+    return '$date at $time';
+  }
+
+  @override
+  String get close => 'Close';
 }

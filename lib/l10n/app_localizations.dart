@@ -1783,6 +1783,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Spending by day'**
   String get dailySpending;
+
+  /// No description provided for @addNotePlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a note…'**
+  String get addNotePlaceholder;
+
+  /// No description provided for @editDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit details'**
+  String get editDetails;
+
+  /// No description provided for @moreActions.
+  ///
+  /// In en, this message translates to:
+  /// **'More actions'**
+  String get moreActions;
+
+  /// No description provided for @viewerPosition.
+  ///
+  /// In en, this message translates to:
+  /// **'{index} / {count}'**
+  String viewerPosition(int index, int count);
+
+  /// No description provided for @dateAtTime.
+  ///
+  /// In en, this message translates to:
+  /// **'{date} at {time}'**
+  String dateAtTime(String date, String time);
+
+  /// No description provided for @close.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get close;
 }
 
 class _AppLocalizationsDelegate

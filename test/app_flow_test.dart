@@ -136,6 +136,57 @@ void main() {
     expect(find.byType(DayTransactionsCard), findsOneWidget);
   });
 
+  testWidgets('The viewer edits amount, category and note in place', (
+    tester,
+  ) async {
+    final container = await pumpApp(tester);
+    await tester.tap(find.text('Ngày').first);
+    await tester.pumpAndSettle();
+    final first = container
+        .read(homeTransactionsByDayProvider)[DateTime(2026, 10, 24)]!
+        .first;
+
+    await tester.tap(
+      find
+          .descendant(
+            of: find.byType(DayPhotoGrid),
+            matching: find.byType(GestureDetector),
+          )
+          .first,
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('1 / 4'), findsOneWidget);
+
+    // Amount through the keypad.
+    await tester.tap(find.byKey(const ValueKey('viewer_amount')));
+    await tester.pumpAndSettle();
+    await typeKeys(tester, ['clear', '1', '0', '000']);
+    await tester.tap(find.byKey(const ValueKey('keypad_done')));
+    await tester.pumpAndSettle();
+    MoneyTransaction saved() => container
+        .read(transactionsProvider)
+        .firstWhere((t) => t.id == first.id);
+    expect(saved().amountMinor, 10000);
+
+    // Category from the sheet.
+    await tester.tap(find.byKey(const ValueKey('viewer_category')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Giải trí'));
+    await tester.pumpAndSettle();
+    expect(saved().category, const Category.system(CategoryCode.entertainment));
+
+    // Note saves when editing ends.
+    await tester.enterText(find.byKey(const ValueKey('viewer_note')), 'Phim');
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pumpAndSettle();
+    expect(saved().note, 'Phim');
+
+    // Swipe to the next one.
+    await tester.drag(find.byType(PageView), const Offset(-300, 0));
+    await tester.pumpAndSettle();
+    expect(find.text('2 / 4'), findsOneWidget);
+  });
+
   testWidgets('Home search opens the transaction search', (tester) async {
     await pumpApp(tester);
     await tester.tap(find.byTooltip('Tìm kiếm'));

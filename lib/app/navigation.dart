@@ -12,6 +12,7 @@ import '../features/transactions/presentation/form/add_edit_transaction_screen.d
 import '../features/transactions/presentation/form/bulk_entry_screen.dart';
 import '../features/transactions/presentation/form/capture_photo_screen.dart';
 import '../features/transactions/presentation/transactions_screen.dart';
+import '../features/transactions/presentation/viewer/transaction_viewer_screen.dart';
 import '../l10n/app_localizations.dart';
 
 /// Result returned by the Add/Edit screen when it closes after a change.
@@ -65,6 +66,24 @@ Future<void> openEditTransaction(
   MoneyTransaction transaction,
 ) async {
   await _openForm(context, AddEditTransactionScreen(existing: transaction));
+}
+
+/// Swipeable cards for [transactions], starting at [index]; edits are
+/// saved in place.
+Future<void> openTransactionViewer(
+  BuildContext context,
+  List<MoneyTransaction> transactions,
+  int index,
+) {
+  return Navigator.of(context).push(
+    MaterialPageRoute(
+      builder: (_) => TransactionViewerScreen(
+        transactionIds: [for (final t in transactions) t.id],
+        initialIndex: index,
+      ),
+      fullscreenDialog: true,
+    ),
+  );
 }
 
 /// Searches all transactions (Home's search button).

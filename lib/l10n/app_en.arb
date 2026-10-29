@@ -414,5 +414,13 @@
   "@switchLayout": {"placeholders": {"current": {"type": "String"}}},
   "expenseShort": "Exp",
   "incomeShort": "Inc",
-  "dailySpending": "Spending by day"
+  "dailySpending": "Spending by day",
+  "addNotePlaceholder": "Add a note…",
+  "editDetails": "Edit details",
+  "moreActions": "More actions",
+  "viewerPosition": "{index} / {count}",
+  "@viewerPosition": {"placeholders": {"index": {"type": "int"}, "count": {"type": "int"}}},
+  "dateAtTime": "{date} at {time}",
+  "@dateAtTime": {"placeholders": {"date": {"type": "String"}, "time": {"type": "String"}}},
+  "close": "Close"
 }

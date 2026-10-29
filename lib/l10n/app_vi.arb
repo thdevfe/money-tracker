@@ -283,5 +283,13 @@
   "@switchLayout": {"placeholders": {"current": {"type": "String"}}},
   "expenseShort": "Chi",
   "incomeShort": "Thu",
-  "dailySpending": "Chi tiêu theo ngày"
+  "dailySpending": "Chi tiêu theo ngày",
+  "addNotePlaceholder": "Thêm ghi chú…",
+  "editDetails": "Sửa chi tiết",
+  "moreActions": "Thêm thao tác",
+  "viewerPosition": "{index} / {count}",
+  "@viewerPosition": {"placeholders": {"index": {"type": "int"}, "count": {"type": "int"}}},
+  "dateAtTime": "{date} lúc {time}",
+  "@dateAtTime": {"placeholders": {"date": {"type": "String"}, "time": {"type": "String"}}},
+  "close": "Đóng"
 }

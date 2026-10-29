@@ -281,7 +281,11 @@ class HomeScreen extends ConsumerWidget {
                       )
                     : DayPhotoGrid(
                         transactions: dayItems,
-                        onTap: (t) => openEditTransaction(context, t),
+                        onTap: (t) => openTransactionViewer(
+                          context,
+                          dayItems,
+                          dayItems.indexOf(t),
+                        ),
                       ),
               ),
           ],

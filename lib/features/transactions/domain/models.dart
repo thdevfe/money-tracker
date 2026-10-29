@@ -203,16 +203,29 @@ class MoneyTransaction {
   bool get hasPhoto => photo != null;
 
   /// Same transaction showing an updated version of its category.
-  MoneyTransaction withCategory(Category category) => MoneyTransaction(
+  MoneyTransaction withCategory(Category category) =>
+      copyWith(category: category);
+
+  /// A changed copy. An empty [note] clears it; [removePhoto] drops the
+  /// photo.
+  MoneyTransaction copyWith({
+    int? amountMinor,
+    DateTime? occurredAt,
+    String? accountId,
+    Category? category,
+    String? note,
+    TransactionPhoto? photo,
+    bool removePhoto = false,
+  }) => MoneyTransaction(
     id: id,
     type: type,
-    amountMinor: amountMinor,
-    occurredAt: occurredAt,
-    accountId: accountId,
-    category: category,
+    amountMinor: amountMinor ?? this.amountMinor,
+    occurredAt: occurredAt ?? this.occurredAt,
+    accountId: accountId ?? this.accountId,
+    category: category ?? this.category,
     sourceAccountId: sourceAccountId,
     destinationAccountId: destinationAccountId,
-    note: note,
-    photo: photo,
+    note: note == null ? this.note : (note.trim().isEmpty ? null : note.trim()),
+    photo: removePhoto ? null : (photo ?? this.photo),
   );
 }

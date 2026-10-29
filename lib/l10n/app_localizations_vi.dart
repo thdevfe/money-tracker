@@ -923,4 +923,26 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get dailySpending => 'Chi tiêu theo ngày';
+
+  @override
+  String get addNotePlaceholder => 'Thêm ghi chú…';
+
+  @override
+  String get editDetails => 'Sửa chi tiết';
+
+  @override
+  String get moreActions => 'Thêm thao tác';
+
+  @override
+  String viewerPosition(int index, int count) {
+    return '$index / $count';
+  }
+
+  @override
+  String dateAtTime(String date, String time) {
+    return '$date lúc $time';
+  }
+
+  @override
+  String get close => 'Đóng';
 }
