@@ -11,6 +11,7 @@ import '../features/transactions/presentation/daily_transactions_screen.dart';
 import '../features/transactions/presentation/form/add_edit_transaction_screen.dart';
 import '../features/transactions/presentation/form/bulk_entry_screen.dart';
 import '../features/transactions/presentation/form/capture_photo_screen.dart';
+import '../features/transactions/presentation/transactions_screen.dart';
 import '../l10n/app_localizations.dart';
 
 /// Result returned by the Add/Edit screen when it closes after a change.
@@ -64,6 +65,15 @@ Future<void> openEditTransaction(
   MoneyTransaction transaction,
 ) async {
   await _openForm(context, AddEditTransactionScreen(existing: transaction));
+}
+
+/// Searches all transactions (Home's search button).
+Future<void> openSearch(BuildContext context) {
+  return Navigator.of(context).push(
+    MaterialPageRoute(
+      builder: (_) => const TransactionsScreen(startSearching: true),
+    ),
+  );
 }
 
 Future<void> openDailyTransactions(BuildContext context, DateTime date) {

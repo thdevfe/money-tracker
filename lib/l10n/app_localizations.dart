@@ -1735,6 +1735,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =1{Added 1 transaction} other{Added {count} transactions}}'**
   String bulkSaved(int count);
+
+  /// No description provided for @layoutGrid.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo grid'**
+  String get layoutGrid;
+
+  /// No description provided for @layoutList.
+  ///
+  /// In en, this message translates to:
+  /// **'List'**
+  String get layoutList;
+
+  /// No description provided for @layoutCalendar.
+  ///
+  /// In en, this message translates to:
+  /// **'Calendar'**
+  String get layoutCalendar;
+
+  /// No description provided for @layoutChart.
+  ///
+  /// In en, this message translates to:
+  /// **'Chart'**
+  String get layoutChart;
+
+  /// No description provided for @switchLayout.
+  ///
+  /// In en, this message translates to:
+  /// **'Change layout: {current}'**
+  String switchLayout(String current);
+
+  /// No description provided for @expenseShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Exp'**
+  String get expenseShort;
+
+  /// No description provided for @incomeShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Inc'**
+  String get incomeShort;
+
+  /// No description provided for @dailySpending.
+  ///
+  /// In en, this message translates to:
+  /// **'Spending by day'**
+  String get dailySpending;
 }
 
 class _AppLocalizationsDelegate

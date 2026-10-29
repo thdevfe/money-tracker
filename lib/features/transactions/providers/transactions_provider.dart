@@ -252,6 +252,17 @@ final homeViewModeProvider = StateProvider<HomeViewMode>(
   (ref) => HomeViewMode.month,
 );
 
+/// Tapping the selected Day / Month segment again cycles its layout.
+enum DayLayout { grid, list }
+
+enum MonthLayout { calendar, list, chart }
+
+final dayLayoutProvider = StateProvider<DayLayout>((ref) => DayLayout.grid);
+
+final monthLayoutProvider = StateProvider<MonthLayout>(
+  (ref) => MonthLayout.calendar,
+);
+
 /// [transactionsByDayProvider] narrowed to the Home account filter.
 final homeTransactionsByDayProvider =
     Provider<Map<DateTime, List<MoneyTransaction>>>((ref) {

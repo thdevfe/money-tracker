@@ -934,4 +934,30 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get layoutGrid => 'Photo grid';
+
+  @override
+  String get layoutList => 'List';
+
+  @override
+  String get layoutCalendar => 'Calendar';
+
+  @override
+  String get layoutChart => 'Chart';
+
+  @override
+  String switchLayout(String current) {
+    return 'Change layout: $current';
+  }
+
+  @override
+  String get expenseShort => 'Exp';
+
+  @override
+  String get incomeShort => 'Inc';
+
+  @override
+  String get dailySpending => 'Spending by day';
 }

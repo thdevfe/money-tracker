@@ -11,8 +11,12 @@ import '../../../settings/providers/settings_provider.dart';
 import '../../domain/ledger.dart';
 import '../../providers/transactions_provider.dart';
 import '../widgets/account_filter_chips.dart';
+import '../form/widgets/day_picker_sheet.dart';
 import 'widgets/day_photo_grid.dart';
 import 'widgets/day_preview_card.dart';
+import 'widgets/month_bar_chart.dart';
+import 'widgets/month_transaction_list.dart';
+import 'widgets/period_total_cards.dart';
 import 'widgets/period_bar.dart';
 import 'widgets/photo_calendar.dart';
 
@@ -47,14 +51,18 @@ class HomeScreen extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final fmt = Formatters.of(context);
     final mode = ref.watch(homeViewModeProvider);
+    final dayLayout = ref.watch(dayLayoutProvider);
+    final monthLayout = ref.watch(monthLayoutProvider);
     final month = ref.watch(selectedMonthProvider);
     final selected = ref.watch(selectedDateProvider);
     final today = dateOnly(ref.watch(clockProvider)());
     final byDay = ref.watch(homeTransactionsByDayProvider);
     final dayItems = byDay[selected] ?? const [];
-    final monthCount = byDay.entries
-        .where((e) => isSameMonth(e.key, month))
-        .fold<int>(0, (sum, e) => sum + e.value.length);
+    final monthItems = [
+      for (final e in byDay.entries)
+        if (isSameMonth(e.key, month)) ...e.value,
+    ];
+    final monthCount = monthItems.length;
 
     void shiftMonth(int delta) =>
         changeMonth(ref, DateTime(month.year, month.month + delta));
@@ -69,6 +77,24 @@ class HomeScreen extends ConsumerWidget {
     );
 
     final isMonth = mode == HomeViewMode.month;
+    final periodTotals = totalsOf(isMonth ? monthItems : dayItems);
+    // Grid settings only apply to the photo layouts.
+    final showsPhotoGrid = isMonth
+        ? monthLayout == MonthLayout.calendar
+        : dayLayout == DayLayout.grid;
+
+    void cycleLayout(HomeViewMode m) {
+      if (m == HomeViewMode.day) {
+        final next =
+            DayLayout.values[(dayLayout.index + 1) % DayLayout.values.length];
+        ref.read(dayLayoutProvider.notifier).state = next;
+      } else {
+        final next = MonthLayout
+            .values[(monthLayout.index + 1) % MonthLayout.values.length];
+        ref.read(monthLayoutProvider.notifier).state = next;
+      }
+    }
+
     return Scaffold(
       body: SafeArea(
         bottom: false,
@@ -98,22 +124,40 @@ class HomeScreen extends ConsumerWidget {
                       alignment: Alignment.centerLeft,
                       child: _ViewToggle(
                         mode: mode,
+                        dayLayout: dayLayout,
+                        monthLayout: monthLayout,
                         dayCount: dayItems.length,
                         monthCount: monthCount,
-                        onChanged: (m) =>
-                            ref.read(homeViewModeProvider.notifier).state = m,
+                        onChanged: (m) => m == mode
+                            ? cycleLayout(m)
+                            : ref.read(homeViewModeProvider.notifier).state = m,
                       ),
                     ),
                   ),
                   const SizedBox(width: AppSpacing.sm),
-                  _HideAmountsButton(),
-                  const SizedBox(width: AppSpacing.xs),
                   _HeaderIconButton(
-                    tooltip: l10n.customizeGrid,
-                    icon: Icons.auto_fix_high_rounded,
-                    onPressed: () => showCustomizeGridSheet(context),
+                    tooltip: l10n.search,
+                    icon: Icons.search_rounded,
+                    onPressed: () => openSearch(context),
                   ),
+                  const SizedBox(width: AppSpacing.xs),
+                  _HideAmountsButton(),
+                  if (showsPhotoGrid) ...[
+                    const SizedBox(width: AppSpacing.xs),
+                    _HeaderIconButton(
+                      tooltip: l10n.customizeGrid,
+                      icon: Icons.auto_fix_high_rounded,
+                      onPressed: () => showCustomizeGridSheet(context),
+                    ),
+                  ],
                 ],
+              ),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            padded(
+              PeriodTotalCards(
+                expenseMinor: periodTotals.expenseMinor,
+                incomeMinor: periodTotals.incomeMinor,
               ),
             ),
             const SizedBox(height: AppSpacing.md),
@@ -141,16 +185,18 @@ class HomeScreen extends ConsumerWidget {
                     )
                   : PeriodBar(
                       label: fmt.dayMonth(selected),
+                      badge: periodTotals.expenseMinor > 0
+                          ? fmt.compact(periodTotals.expenseMinor)
+                          : null,
                       previousTooltip: l10n.previousDay,
                       nextTooltip: l10n.nextDay,
                       onPrevious: () => shiftDay(-1),
                       onNext: () => shiftDay(1),
                       onPick: () async {
-                        final picked = await showDatePicker(
-                          context: context,
-                          initialDate: selected,
-                          firstDate: DateTime(2000),
-                          lastDate: DateTime(2100),
+                        final picked = await showDayPicker(
+                          context,
+                          initial: selected,
+                          today: today,
                         );
                         if (picked != null) selectDate(ref, picked);
                       },
@@ -161,34 +207,61 @@ class HomeScreen extends ConsumerWidget {
             ),
             const SizedBox(height: AppSpacing.md),
             if (isMonth) ...[
-              padded(
-                PhotoCalendar(
-                  month: month,
-                  selectedDate: selected,
-                  today: today,
-                  transactionsByDay: byDay,
-                  onMonthOffset: shiftMonth,
-                  onDateSelected: (date) => selectDate(ref, date),
-                  settings: ref.watch(calendarGridSettingsProvider),
-                ),
-              ),
-              const SizedBox(height: AppSpacing.md),
-              padded(
-                monthCount == 0
-                    ? Card(
-                        child: EmptyStateView(
-                          compact: true,
-                          icon: Icons.calendar_month_outlined,
-                          title: l10n.monthEmptyTitle,
-                          message: l10n.monthEmptyMessage,
+              if (monthLayout == MonthLayout.list)
+                padded(
+                  monthCount == 0
+                      ? Card(
+                          child: EmptyStateView(
+                            compact: true,
+                            icon: Icons.calendar_month_outlined,
+                            title: l10n.monthEmptyTitle,
+                            message: l10n.monthEmptyMessage,
+                          ),
+                        )
+                      : MonthTransactionList(
+                          month: month,
+                          today: today,
+                          transactionsByDay: byDay,
                         ),
-                      )
-                    : DayPreviewCard(
-                        date: selected,
-                        today: today,
-                        transactions: dayItems,
-                      ),
-              ),
+                )
+              else ...[
+                padded(
+                  monthLayout == MonthLayout.chart
+                      ? MonthBarChart(
+                          month: month,
+                          selectedDate: selected,
+                          today: today,
+                          transactionsByDay: byDay,
+                          onDateSelected: (date) => selectDate(ref, date),
+                        )
+                      : PhotoCalendar(
+                          month: month,
+                          selectedDate: selected,
+                          today: today,
+                          transactionsByDay: byDay,
+                          onMonthOffset: shiftMonth,
+                          onDateSelected: (date) => selectDate(ref, date),
+                          settings: ref.watch(calendarGridSettingsProvider),
+                        ),
+                ),
+                const SizedBox(height: AppSpacing.md),
+                padded(
+                  monthCount == 0
+                      ? Card(
+                          child: EmptyStateView(
+                            compact: true,
+                            icon: Icons.calendar_month_outlined,
+                            title: l10n.monthEmptyTitle,
+                            message: l10n.monthEmptyMessage,
+                          ),
+                        )
+                      : DayPreviewCard(
+                          date: selected,
+                          today: today,
+                          transactions: dayItems,
+                        ),
+                ),
+              ],
             ] else
               padded(
                 dayItems.isEmpty
@@ -199,6 +272,12 @@ class HomeScreen extends ConsumerWidget {
                         actionLabel: l10n.addTransaction,
                         onAction: () =>
                             openAddTransaction(context, date: selected),
+                      )
+                    : dayLayout == DayLayout.list
+                    ? DayTransactionsCard(
+                        date: selected,
+                        today: today,
+                        transactions: dayItems,
                       )
                     : DayPhotoGrid(
                         transactions: dayItems,
@@ -337,12 +416,18 @@ class _Header extends ConsumerWidget {
 /// "Day ⓝ | Month ⓝ" pill toggle with transaction counts.
 class _ViewToggle extends StatelessWidget {
   final HomeViewMode mode;
+  final DayLayout dayLayout;
+  final MonthLayout monthLayout;
   final int dayCount;
   final int monthCount;
+
+  /// Called with the tapped mode; the selected one cycles its layout.
   final ValueChanged<HomeViewMode> onChanged;
 
   const _ViewToggle({
     required this.mode,
+    required this.dayLayout,
+    required this.monthLayout,
     required this.dayCount,
     required this.monthCount,
     required this.onChanged,
@@ -354,11 +439,18 @@ class _ViewToggle extends StatelessWidget {
     final theme = Theme.of(context);
     final colors = AppColors.of(context);
 
-    Widget segment(HomeViewMode value, String label, IconData icon, int count) {
+    Widget segment(
+      HomeViewMode value,
+      String label,
+      IconData icon,
+      String layoutName,
+      int count,
+    ) {
       final selected = mode == value;
       return Semantics(
         button: true,
         selected: selected,
+        hint: selected ? l10n.switchLayout(layoutName) : null,
         child: GestureDetector(
           onTap: () => onChanged(value),
           child: AnimatedContainer(
@@ -382,7 +474,13 @@ class _ViewToggle extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: AppSpacing.xs),
-                Icon(icon, size: 14, color: colors.textSecondary),
+                Icon(
+                  icon,
+                  size: 14,
+                  color: selected
+                      ? theme.colorScheme.primary
+                      : colors.textSecondary,
+                ),
                 const SizedBox(width: AppSpacing.xs),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 6),
@@ -419,13 +517,29 @@ class _ViewToggle extends StatelessWidget {
           segment(
             HomeViewMode.day,
             l10n.viewDay,
-            Icons.grid_view_rounded,
+            switch (dayLayout) {
+              DayLayout.grid => Icons.grid_view_rounded,
+              DayLayout.list => Icons.view_list_rounded,
+            },
+            switch (dayLayout) {
+              DayLayout.grid => l10n.layoutGrid,
+              DayLayout.list => l10n.layoutList,
+            },
             dayCount,
           ),
           segment(
             HomeViewMode.month,
             l10n.viewMonth,
-            Icons.calendar_view_month_rounded,
+            switch (monthLayout) {
+              MonthLayout.calendar => Icons.calendar_view_month_rounded,
+              MonthLayout.list => Icons.view_list_rounded,
+              MonthLayout.chart => Icons.bar_chart_rounded,
+            },
+            switch (monthLayout) {
+              MonthLayout.calendar => l10n.layoutCalendar,
+              MonthLayout.list => l10n.layoutList,
+              MonthLayout.chart => l10n.layoutChart,
+            },
             monthCount,
           ),
         ],

@@ -1,3 +1,7 @@
+import 'package:expense_tracker/features/transactions/presentation/home/widgets/day_photo_grid.dart';
+import 'package:expense_tracker/features/transactions/presentation/home/widgets/month_bar_chart.dart';
+import 'package:expense_tracker/features/transactions/presentation/home/widgets/month_transaction_list.dart';
+import 'package:expense_tracker/features/transactions/presentation/home/widgets/photo_calendar.dart';
 import 'package:expense_tracker/app/app.dart';
 import 'package:expense_tracker/features/auth/providers/auth_provider.dart';
 import 'package:expense_tracker/features/settings/domain/calendar_grid_settings.dart';
@@ -98,6 +102,48 @@ void main() {
     );
     // Selected day (today) preview.
     expect(find.text('Hôm nay'), findsOneWidget);
+  });
+
+  testWidgets('Tapping the selected mode cycles its layout', (tester) async {
+    final container = await pumpApp(tester);
+    expect(find.byType(PhotoCalendar), findsOneWidget);
+    expect(find.byKey(const ValueKey('total_expense')), findsOneWidget);
+
+    // Month: calendar → list → chart → calendar.
+    await tester.tap(find.text('Tháng').first);
+    await tester.pumpAndSettle();
+    expect(find.byType(PhotoCalendar), findsNothing);
+    expect(find.byType(DayTransactionsCard), findsWidgets);
+
+    await tester.tap(find.text('Tháng').first);
+    await tester.pumpAndSettle();
+    expect(find.byType(MonthBarChart), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('bar_6')));
+    await tester.pumpAndSettle();
+    expect(container.read(selectedDateProvider), DateTime(2026, 10, 6));
+
+    await tester.tap(find.text('Tháng').first);
+    await tester.pumpAndSettle();
+    expect(find.byType(PhotoCalendar), findsOneWidget);
+
+    // Day: grid → list.
+    await tester.tap(find.text('Ngày').first);
+    await tester.pumpAndSettle();
+    expect(find.byType(DayPhotoGrid), findsOneWidget);
+    await tester.tap(find.text('Ngày').first);
+    await tester.pumpAndSettle();
+    expect(find.byType(DayPhotoGrid), findsNothing);
+    expect(find.byType(DayTransactionsCard), findsOneWidget);
+  });
+
+  testWidgets('Home search opens the transaction search', (tester) async {
+    await pumpApp(tester);
+    await tester.tap(find.byTooltip('Tìm kiếm'));
+    await tester.pumpAndSettle();
+    expect(find.byType(TextField), findsOneWidget);
+    await tester.tap(find.byType(BackButton));
+    await tester.pumpAndSettle();
+    expect(find.byType(PhotoCalendar), findsOneWidget);
   });
 
   testWidgets('Selecting a day updates the preview', (tester) async {

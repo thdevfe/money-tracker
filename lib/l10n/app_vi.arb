@@ -274,5 +274,14 @@
   "bulkSave": "{count, plural, =0{Chưa có khoản nào} other{Lưu {count} giao dịch}}",
   "@bulkSave": {"placeholders": {"count": {"type": "int"}}},
   "bulkSaved": "Đã thêm {count} giao dịch",
-  "@bulkSaved": {"placeholders": {"count": {"type": "int"}}}
+  "@bulkSaved": {"placeholders": {"count": {"type": "int"}}},
+  "layoutGrid": "Lưới ảnh",
+  "layoutList": "Danh sách",
+  "layoutCalendar": "Lịch",
+  "layoutChart": "Biểu đồ",
+  "switchLayout": "Đổi kiểu hiển thị: {current}",
+  "@switchLayout": {"placeholders": {"current": {"type": "String"}}},
+  "expenseShort": "Chi",
+  "incomeShort": "Thu",
+  "dailySpending": "Chi tiêu theo ngày"
 }

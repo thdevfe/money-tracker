@@ -897,4 +897,30 @@ class AppLocalizationsVi extends AppLocalizations {
   String bulkSaved(int count) {
     return 'Đã thêm $count giao dịch';
   }
+
+  @override
+  String get layoutGrid => 'Lưới ảnh';
+
+  @override
+  String get layoutList => 'Danh sách';
+
+  @override
+  String get layoutCalendar => 'Lịch';
+
+  @override
+  String get layoutChart => 'Biểu đồ';
+
+  @override
+  String switchLayout(String current) {
+    return 'Đổi kiểu hiển thị: $current';
+  }
+
+  @override
+  String get expenseShort => 'Chi';
+
+  @override
+  String get incomeShort => 'Thu';
+
+  @override
+  String get dailySpending => 'Chi tiêu theo ngày';
 }

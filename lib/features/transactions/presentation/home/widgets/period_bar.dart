@@ -18,6 +18,9 @@ class PeriodBar extends StatelessWidget {
   /// Shown when the period is not the current one.
   final VoidCallback? onToday;
 
+  /// Small pill after the label, e.g. the day's spending.
+  final String? badge;
+
   const PeriodBar({
     super.key,
     required this.label,
@@ -27,6 +30,7 @@ class PeriodBar extends StatelessWidget {
     required this.onNext,
     this.onPick,
     this.onToday,
+    this.badge,
   });
 
   @override
@@ -67,6 +71,22 @@ class PeriodBar extends StatelessWidget {
                       ),
                     ),
                   ),
+                  if (badge != null)
+                    Container(
+                      margin: const EdgeInsets.only(left: AppSpacing.xs),
+                      padding: const EdgeInsets.symmetric(horizontal: 6),
+                      decoration: BoxDecoration(
+                        color: colors.expense.withValues(alpha: 0.16),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        badge!,
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: colors.expense,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
                   if (onPick != null)
                     Icon(
                       Icons.expand_more_rounded,

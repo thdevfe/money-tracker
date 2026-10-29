@@ -17,7 +17,10 @@ import 'widgets/transaction_list_item.dart';
 /// All transactions grouped by day, newest first, with combinable filters
 /// (time, account, category, type) and text search.
 class TransactionsScreen extends ConsumerStatefulWidget {
-  const TransactionsScreen({super.key});
+  /// Opens with the search field focused (search from Home).
+  final bool startSearching;
+
+  const TransactionsScreen({super.key, this.startSearching = false});
 
   @override
   ConsumerState<TransactionsScreen> createState() => _TransactionsScreenState();
@@ -25,7 +28,7 @@ class TransactionsScreen extends ConsumerStatefulWidget {
 
 class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
   final _searchController = TextEditingController();
-  bool _searching = false;
+  late bool _searching = widget.startSearching;
 
   @override
   void dispose() {

@@ -405,5 +405,14 @@
   "bulkSave": "{count, plural, =0{Nothing to save yet} =1{Save 1 transaction} other{Save {count} transactions}}",
   "@bulkSave": {"placeholders": {"count": {"type": "int"}}},
   "bulkSaved": "{count, plural, =1{Added 1 transaction} other{Added {count} transactions}}",
-  "@bulkSaved": {"placeholders": {"count": {"type": "int"}}}
+  "@bulkSaved": {"placeholders": {"count": {"type": "int"}}},
+  "layoutGrid": "Photo grid",
+  "layoutList": "List",
+  "layoutCalendar": "Calendar",
+  "layoutChart": "Chart",
+  "switchLayout": "Change layout: {current}",
+  "@switchLayout": {"placeholders": {"current": {"type": "String"}}},
+  "expenseShort": "Exp",
+  "incomeShort": "Inc",
+  "dailySpending": "Spending by day"
 }
