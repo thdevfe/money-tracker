@@ -6,6 +6,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'app/app.dart';
 import 'core/config/backend_config.dart';
 import 'features/auth/providers/auth_provider.dart';
+import 'features/budgets/data/supabase_budget_repository.dart';
+import 'features/budgets/providers/budgets_provider.dart';
 import 'features/deposits/data/supabase_deposit_repository.dart';
 import 'features/deposits/providers/deposits_provider.dart';
 import 'features/settings/data/shared_preference_store.dart';
@@ -36,6 +38,9 @@ Future<void> main() async {
       ),
       depositRepositoryProvider.overrideWithValue(
         SupabaseDepositRepository(supabase.client),
+      ),
+      budgetRepositoryProvider.overrideWithValue(
+        SupabaseBudgetRepository(supabase.client),
       ),
     ]);
   }

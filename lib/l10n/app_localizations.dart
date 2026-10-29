@@ -1981,6 +1981,138 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{rate}%/year · {months} mo'**
   String depositRateTerm(String rate, int months);
+
+  /// No description provided for @navBudgets.
+  ///
+  /// In en, this message translates to:
+  /// **'Budgets'**
+  String get navBudgets;
+
+  /// No description provided for @budgetsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Budget management'**
+  String get budgetsTitle;
+
+  /// No description provided for @budgetsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create and track multiple budgets'**
+  String get budgetsSubtitle;
+
+  /// No description provided for @noBudgetsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No budgets yet'**
+  String get noBudgetsTitle;
+
+  /// No description provided for @noBudgetsMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a budget to track your spending'**
+  String get noBudgetsMessage;
+
+  /// No description provided for @startFromTemplate.
+  ///
+  /// In en, this message translates to:
+  /// **'Start from a template'**
+  String get startFromTemplate;
+
+  /// No description provided for @templateMonthlyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly spending'**
+  String get templateMonthlyTitle;
+
+  /// No description provided for @templateMonthlyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'One cap for all your spending · You set the amount'**
+  String get templateMonthlyBody;
+
+  /// No description provided for @templateTopTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Top categories'**
+  String get templateTopTitle;
+
+  /// No description provided for @templateTopBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Separate limits for {names} · You set the amount'**
+  String templateTopBody(String names);
+
+  /// No description provided for @addBudget.
+  ///
+  /// In en, this message translates to:
+  /// **'Create budget'**
+  String get addBudget;
+
+  /// No description provided for @editBudget.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit budget'**
+  String get editBudget;
+
+  /// No description provided for @budgetName.
+  ///
+  /// In en, this message translates to:
+  /// **'Budget name'**
+  String get budgetName;
+
+  /// No description provided for @budgetLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly limit'**
+  String get budgetLimit;
+
+  /// No description provided for @budgetCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'Counts these categories'**
+  String get budgetCategories;
+
+  /// No description provided for @budgetAllSpending.
+  ///
+  /// In en, this message translates to:
+  /// **'All spending'**
+  String get budgetAllSpending;
+
+  /// No description provided for @budgetSpentOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Spent {spent} of {limit}'**
+  String budgetSpentOf(String spent, String limit);
+
+  /// No description provided for @budgetLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} left'**
+  String budgetLeft(String amount);
+
+  /// No description provided for @budgetOver.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} over'**
+  String budgetOver(String amount);
+
+  /// No description provided for @budgetDaysLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{days, plural, =0{Last day} =1{1 day left} other{{days} days left}}'**
+  String budgetDaysLeft(int days);
+
+  /// No description provided for @deleteBudgetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this budget?'**
+  String get deleteBudgetTitle;
+
+  /// No description provided for @budgetsLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load budgets. Pull down to retry.'**
+  String get budgetsLoadFailed;
 }
 
 class _AppLocalizationsDelegate

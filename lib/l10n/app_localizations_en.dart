@@ -1077,4 +1077,88 @@ class AppLocalizationsEn extends AppLocalizations {
   String depositRateTerm(String rate, int months) {
     return '$rate%/year · $months mo';
   }
+
+  @override
+  String get navBudgets => 'Budgets';
+
+  @override
+  String get budgetsTitle => 'Budget management';
+
+  @override
+  String get budgetsSubtitle => 'Create and track multiple budgets';
+
+  @override
+  String get noBudgetsTitle => 'No budgets yet';
+
+  @override
+  String get noBudgetsMessage => 'Create a budget to track your spending';
+
+  @override
+  String get startFromTemplate => 'Start from a template';
+
+  @override
+  String get templateMonthlyTitle => 'Monthly spending';
+
+  @override
+  String get templateMonthlyBody =>
+      'One cap for all your spending · You set the amount';
+
+  @override
+  String get templateTopTitle => 'Top categories';
+
+  @override
+  String templateTopBody(String names) {
+    return 'Separate limits for $names · You set the amount';
+  }
+
+  @override
+  String get addBudget => 'Create budget';
+
+  @override
+  String get editBudget => 'Edit budget';
+
+  @override
+  String get budgetName => 'Budget name';
+
+  @override
+  String get budgetLimit => 'Monthly limit';
+
+  @override
+  String get budgetCategories => 'Counts these categories';
+
+  @override
+  String get budgetAllSpending => 'All spending';
+
+  @override
+  String budgetSpentOf(String spent, String limit) {
+    return 'Spent $spent of $limit';
+  }
+
+  @override
+  String budgetLeft(String amount) {
+    return '$amount left';
+  }
+
+  @override
+  String budgetOver(String amount) {
+    return '$amount over';
+  }
+
+  @override
+  String budgetDaysLeft(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days days left',
+      one: '1 day left',
+      zero: 'Last day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deleteBudgetTitle => 'Delete this budget?';
+
+  @override
+  String get budgetsLoadFailed => 'Couldn\'t load budgets. Pull down to retry.';
 }

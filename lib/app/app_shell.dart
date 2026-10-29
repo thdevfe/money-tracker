@@ -4,16 +4,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/theme/app_theme.dart';
 import '../core/widgets/empty_state_view.dart';
 import '../features/accounts/presentation/accounts_screen.dart';
+import '../features/budgets/presentation/budgets_screen.dart';
 import '../features/reports/presentation/reports_screen.dart';
 import '../features/settings/presentation/settings_screen.dart';
 import '../features/transactions/presentation/home/home_screen.dart';
-import '../features/transactions/presentation/transactions_screen.dart';
 import '../features/transactions/providers/transactions_provider.dart';
 import '../l10n/app_localizations.dart';
 import 'navigation.dart';
 
-/// Tabs: Home, Reports, Transactions, Accounts, Profile. A floating pill nav
-/// bar with the + button beside it sits over the content.
+/// Tabs: Home, Reports, Accounts, Budgets, Profile. The full transaction
+/// history opens from Home's search. A floating pill nav bar with the +
+/// button beside it sits over the content.
 class AppShell extends ConsumerStatefulWidget {
   const AppShell({super.key});
 
@@ -51,8 +52,8 @@ class _AppShellState extends ConsumerState<AppShell> {
               onOpenProfile: () => setState(() => _index = _profileTab),
             ),
             const ReportsScreen(),
-            const TransactionsScreen(),
             const AccountsScreen(),
+            const BudgetsScreen(),
             const SettingsScreen(),
           ],
         ),
@@ -94,15 +95,11 @@ class AppBottomNav extends StatelessWidget {
         l10n.navReports,
       ),
       (
-        Icons.receipt_long_outlined,
-        Icons.receipt_long_rounded,
-        l10n.navTransactions,
-      ),
-      (
         Icons.account_balance_wallet_outlined,
         Icons.account_balance_wallet_rounded,
         l10n.navAccounts,
       ),
+      (Icons.credit_card_outlined, Icons.credit_card_rounded, l10n.navBudgets),
       (Icons.person_outline_rounded, Icons.person_rounded, l10n.navProfile),
     ];
 

@@ -1034,4 +1034,88 @@ class AppLocalizationsVi extends AppLocalizations {
   String depositRateTerm(String rate, int months) {
     return '$rate%/năm · $months tháng';
   }
+
+  @override
+  String get navBudgets => 'Ngân sách';
+
+  @override
+  String get budgetsTitle => 'Quản lý ngân sách';
+
+  @override
+  String get budgetsSubtitle => 'Tạo và theo dõi nhiều ngân sách';
+
+  @override
+  String get noBudgetsTitle => 'Chưa có ngân sách';
+
+  @override
+  String get noBudgetsMessage => 'Tạo ngân sách để theo dõi chi tiêu';
+
+  @override
+  String get startFromTemplate => 'Bắt đầu từ mẫu';
+
+  @override
+  String get templateMonthlyTitle => 'Chi tiêu hàng tháng';
+
+  @override
+  String get templateMonthlyBody =>
+      'Một hạn mức cho mọi khoản chi · Bạn tự đặt số tiền';
+
+  @override
+  String get templateTopTitle => 'Danh mục chi nhiều nhất';
+
+  @override
+  String templateTopBody(String names) {
+    return 'Hạn mức riêng cho $names · Bạn tự đặt số tiền';
+  }
+
+  @override
+  String get addBudget => 'Tạo ngân sách';
+
+  @override
+  String get editBudget => 'Sửa ngân sách';
+
+  @override
+  String get budgetName => 'Tên ngân sách';
+
+  @override
+  String get budgetLimit => 'Hạn mức mỗi tháng';
+
+  @override
+  String get budgetCategories => 'Tính các danh mục';
+
+  @override
+  String get budgetAllSpending => 'Mọi khoản chi';
+
+  @override
+  String budgetSpentOf(String spent, String limit) {
+    return 'Đã chi $spent / $limit';
+  }
+
+  @override
+  String budgetLeft(String amount) {
+    return 'Còn $amount';
+  }
+
+  @override
+  String budgetOver(String amount) {
+    return 'Vượt $amount';
+  }
+
+  @override
+  String budgetDaysLeft(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'Còn $days ngày',
+      zero: 'Ngày cuối kỳ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deleteBudgetTitle => 'Xóa ngân sách này?';
+
+  @override
+  String get budgetsLoadFailed =>
+      'Không tải được ngân sách. Kéo xuống để thử lại.';
 }

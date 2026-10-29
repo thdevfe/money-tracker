@@ -410,7 +410,8 @@ void main() {
   ) async {
     await pumpApp(tester);
 
-    await tester.tap(find.byTooltip('Giao dịch'));
+    // The history opens from Home's search.
+    await tester.tap(find.byTooltip('Tìm kiếm'));
     await tester.pumpAndSettle();
     final transferChip = find.widgetWithText(ChoiceChip, 'Chuyển khoản');
     await tester.ensureVisible(transferChip);
@@ -420,8 +421,7 @@ void main() {
     expect(find.text('Rút tiền ATM'), findsWidgets);
     expect(find.text('Cà phê'), findsNothing);
 
-    await tester.tap(find.byTooltip('Tìm kiếm'));
-    await tester.pumpAndSettle();
+    // Search is already open when the history comes from Home.
     await tester.enterText(find.byType(TextField), 'zzz');
     await tester.pumpAndSettle();
     expect(find.text('Không có giao dịch phù hợp'), findsOneWidget);
@@ -628,6 +628,28 @@ void main() {
     expect(find.byKey(const ValueKey('from_account')), findsOneWidget);
   });
 
+  testWidgets('Budgets: create from a template and track spending', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    await tester.tap(find.byTooltip('Ngân sách'));
+    await tester.pumpAndSettle();
+    expect(find.text('Chưa có ngân sách'), findsOneWidget);
+
+    await tester.tap(find.byKey(const ValueKey('template_monthly')));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const ValueKey('budget_limit')),
+      '10000000',
+    );
+    await tester.tap(find.byKey(const ValueKey('budget_save')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Chi tiêu hàng tháng'), findsWidgets);
+    expect(find.textContaining('Đã chi'), findsOneWidget);
+    expect(find.textContaining('Còn '), findsWidgets);
+  });
+
   testWidgets('An account with transactions cannot be deleted', (tester) async {
     await pumpApp(tester);
 
@@ -690,7 +712,8 @@ void main() {
   testWidgets('History filters combine and reset', (tester) async {
     final container = await pumpApp(tester);
 
-    await tester.tap(find.byTooltip('Giao dịch'));
+    // The history opens from Home's search.
+    await tester.tap(find.byTooltip('Tìm kiếm'));
     await tester.pumpAndSettle();
 
     // Account: Vietcombank keeps salary and transfers, drops cash spending.
