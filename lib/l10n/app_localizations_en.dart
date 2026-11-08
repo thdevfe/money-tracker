@@ -1187,4 +1187,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get editName => 'Edit name';
+
+  @override
+  String get changeAvatar => 'Change profile photo';
+
+  @override
+  String get editProfile => 'Edit profile';
+
+  @override
+  String get avatarSaveFailed => 'Couldn\'t save the photo. Please try again.';
 }

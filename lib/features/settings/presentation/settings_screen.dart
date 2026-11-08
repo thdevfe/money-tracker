@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
 import '../../../app/navigation.dart';
@@ -7,6 +8,7 @@ import '../../../core/formatting/formatters.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../auth/providers/auth_provider.dart';
+import '../../profile/providers/profile_provider.dart';
 import '../../transactions/domain/ledger.dart';
 import '../../transactions/providers/transactions_provider.dart';
 import '../providers/settings_provider.dart';
@@ -185,11 +187,73 @@ class _ProfileCard extends ConsumerWidget {
   const _ProfileCard();
 
   Future<void> _editName(BuildContext context, WidgetRef ref) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = AppLocalizations.of(context);
     final name = await showDialog<String>(
       context: context,
       builder: (_) => _NameDialog(initial: ref.read(profileNameProvider)),
     );
-    if (name != null) ref.read(profileNameProvider.notifier).state = name;
+    if (name == null) return;
+    try {
+      await ref.read(profileProvider.notifier).setName(name);
+    } catch (_) {
+      messenger.showSnackBar(SnackBar(content: Text(l10n.saveFailed)));
+    }
+  }
+
+  Future<void> _changeAvatar(BuildContext context, WidgetRef ref) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = AppLocalizations.of(context);
+    try {
+      // Small and square-ish: it is only ever shown as a circle.
+      final file = await ImagePicker().pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 512,
+        maxHeight: 512,
+        imageQuality: 85,
+      );
+      if (file == null) return;
+      await ref
+          .read(profileProvider.notifier)
+          .setAvatar(await file.readAsBytes());
+    } catch (_) {
+      messenger.showSnackBar(SnackBar(content: Text(l10n.avatarSaveFailed)));
+    }
+  }
+
+  Future<void> _profileActions(BuildContext context, WidgetRef ref) async {
+    final l10n = AppLocalizations.of(context);
+    final action = await showModalBottomSheet<String>(
+      context: context,
+      showDragHandle: true,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              key: const ValueKey('change_avatar'),
+              leading: const Icon(Icons.photo_library_outlined),
+              title: Text(l10n.changeAvatar),
+              onTap: () => Navigator.of(context).pop('avatar'),
+            ),
+            ListTile(
+              key: const ValueKey('rename'),
+              leading: const Icon(Icons.edit_outlined),
+              title: Text(l10n.editName),
+              onTap: () => Navigator.of(context).pop('name'),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+          ],
+        ),
+      ),
+    );
+    if (!context.mounted) return;
+    switch (action) {
+      case 'avatar':
+        await _changeAvatar(context, ref);
+      case 'name':
+        await _editName(context, ref);
+    }
   }
 
   @override
@@ -202,6 +266,7 @@ class _ProfileCard extends ConsumerWidget {
     final totals = totalsOf(transactions);
     final savedName = ref.watch(profileNameProvider).trim();
     final name = savedName.isEmpty ? l10n.defaultUserName : savedName;
+    final avatar = ref.watch(profileProvider.select((p) => p.avatar));
     // Newest first, so the last one is the earliest record.
     final since = transactions.isEmpty
         ? ref.watch(clockProvider)()
@@ -244,11 +309,11 @@ class _ProfileCard extends ConsumerWidget {
         children: [
           Semantics(
             button: true,
-            label: l10n.editName,
+            label: l10n.editProfile,
             excludeSemantics: true,
             child: GestureDetector(
-              key: const ValueKey('edit_name'),
-              onTap: () => _editName(context, ref),
+              key: const ValueKey('edit_profile'),
+              onTap: () => _profileActions(context, ref),
               child: Stack(
                 clipBehavior: Clip.none,
                 children: [
@@ -269,13 +334,16 @@ class _ProfileCard extends ConsumerWidget {
                       radius: 40,
                       backgroundColor: theme.colorScheme.primaryContainer,
                       foregroundColor: theme.colorScheme.onPrimaryContainer,
-                      child: Text(
-                        name.characters.first.toUpperCase(),
-                        style: const TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
+                      backgroundImage: avatar,
+                      child: avatar != null
+                          ? null
+                          : Text(
+                              name.characters.first.toUpperCase(),
+                              style: const TextStyle(
+                                fontSize: 32,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
                     ),
                   ),
                   Positioned(
@@ -296,10 +364,14 @@ class _ProfileCard extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: AppSpacing.md),
-          Text(
-            name,
-            style: theme.textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.w800,
+          GestureDetector(
+            key: const ValueKey('edit_name'),
+            onTap: () => _editName(context, ref),
+            child: Text(
+              name,
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w800,
+              ),
             ),
           ),
           const SizedBox(height: AppSpacing.xs),

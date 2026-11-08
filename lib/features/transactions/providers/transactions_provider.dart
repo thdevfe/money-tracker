@@ -264,17 +264,35 @@ final monthLayoutProvider = StateProvider<MonthLayout>(
 );
 
 /// [transactionsByDayProvider] narrowed to the Home account filter.
-final homeTransactionsByDayProvider =
+/// Home's expense / income card filter; null shows everything.
+final homeTypeFilterProvider = StateProvider<TransactionType?>((ref) => null);
+
+/// [transactionsByDayProvider] narrowed to the Home account filter only
+/// (the expense and income cards total this).
+final homeAccountTransactionsByDayProvider =
     Provider<Map<DateTime, List<MoneyTransaction>>>((ref) {
       final accountId = ref.watch(homeAccountFilterProvider);
       final byDay = ref.watch(transactionsByDayProvider);
       if (accountId == null) return byDay;
-      return {
-        for (final e in byDay.entries)
-          if (e.value.any((t) => involvesAccount(t, accountId)))
-            e.key: e.value.where((t) => involvesAccount(t, accountId)).toList(),
-      };
+      return _narrow(byDay, (t) => involvesAccount(t, accountId));
     });
+
+/// What Home shows: the account filter plus the expense / income filter.
+final homeTransactionsByDayProvider =
+    Provider<Map<DateTime, List<MoneyTransaction>>>((ref) {
+      final type = ref.watch(homeTypeFilterProvider);
+      final byDay = ref.watch(homeAccountTransactionsByDayProvider);
+      if (type == null) return byDay;
+      return _narrow(byDay, (t) => t.type == type);
+    });
+
+Map<DateTime, List<MoneyTransaction>> _narrow(
+  Map<DateTime, List<MoneyTransaction>> byDay,
+  bool Function(MoneyTransaction) keep,
+) => {
+  for (final e in byDay.entries)
+    if (e.value.any(keep)) e.key: e.value.where(keep).toList(),
+};
 
 final dayTransactionsProvider =
     Provider.family<List<MoneyTransaction>, DateTime>((ref, day) {

@@ -357,5 +357,8 @@
   "sectionTools": "CÔNG CỤ",
   "sectionPreferences": "TÙY CHỌN",
   "sectionAccountData": "TÀI KHOẢN & DỮ LIỆU",
-  "editName": "Đổi tên"
+  "editName": "Đổi tên",
+  "changeAvatar": "Đổi ảnh đại diện",
+  "editProfile": "Sửa hồ sơ",
+  "avatarSaveFailed": "Không lưu được ảnh. Hãy thử lại."
 }

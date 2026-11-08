@@ -7,6 +7,7 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/empty_state_view.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../settings/presentation/customize_grid_sheet.dart';
+import '../../../profile/providers/profile_provider.dart';
 import '../../../settings/providers/settings_provider.dart';
 import '../../domain/ledger.dart';
 import '../../providers/transactions_provider.dart';
@@ -96,7 +97,16 @@ class HomeScreen extends ConsumerWidget {
     );
 
     final isMonth = mode == HomeViewMode.month;
-    final periodTotals = totalsOf(isMonth ? monthItems : dayItems);
+    // The cards total both types, whatever the card filter shows.
+    final accountByDay = ref.watch(homeAccountTransactionsByDayProvider);
+    final periodTotals = totalsOf(
+      isMonth
+          ? [
+              for (final e in accountByDay.entries)
+                if (isSameMonth(e.key, month)) ...e.value,
+            ]
+          : accountByDay[selected] ?? const [],
+    );
     // Grid settings only apply to the photo layouts.
     final showsPhotoGrid = isMonth
         ? monthLayout == MonthLayout.calendar
@@ -177,6 +187,9 @@ class HomeScreen extends ConsumerWidget {
               PeriodTotalCards(
                 expenseMinor: periodTotals.expenseMinor,
                 incomeMinor: periodTotals.incomeMinor,
+                selected: ref.watch(homeTypeFilterProvider),
+                onSelected: (type) =>
+                    ref.read(homeTypeFilterProvider.notifier).state = type,
               ),
             ),
             const SizedBox(height: AppSpacing.md),
@@ -363,6 +376,7 @@ class _Header extends ConsumerWidget {
         : Icons.wb_sunny_rounded;
     final savedName = ref.watch(profileNameProvider).trim();
     final name = savedName.isEmpty ? l10n.defaultUserName : savedName;
+    final avatar = ref.watch(profileProvider.select((p) => p.avatar));
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -439,13 +453,16 @@ class _Header extends ConsumerWidget {
               radius: 24,
               backgroundColor: theme.colorScheme.primaryContainer,
               foregroundColor: theme.colorScheme.onPrimaryContainer,
-              child: Text(
-                name.characters.first.toUpperCase(),
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
+              backgroundImage: avatar,
+              child: avatar != null
+                  ? null
+                  : Text(
+                      name.characters.first.toUpperCase(),
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
             ),
           ),
         ),

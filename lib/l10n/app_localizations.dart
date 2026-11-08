@@ -2161,6 +2161,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Edit name'**
   String get editName;
+
+  /// No description provided for @changeAvatar.
+  ///
+  /// In en, this message translates to:
+  /// **'Change profile photo'**
+  String get changeAvatar;
+
+  /// No description provided for @editProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit profile'**
+  String get editProfile;
+
+  /// No description provided for @avatarSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t save the photo. Please try again.'**
+  String get avatarSaveFailed;
 }
 
 class _AppLocalizationsDelegate

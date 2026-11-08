@@ -10,6 +10,8 @@ import 'features/budgets/data/supabase_budget_repository.dart';
 import 'features/budgets/providers/budgets_provider.dart';
 import 'features/deposits/data/supabase_deposit_repository.dart';
 import 'features/deposits/providers/deposits_provider.dart';
+import 'features/profile/data/supabase_profile_repository.dart';
+import 'features/profile/providers/profile_provider.dart';
 import 'features/settings/data/shared_preference_store.dart';
 import 'features/settings/providers/settings_provider.dart';
 import 'features/transactions/data/supabase_ledger_repository.dart';
@@ -41,6 +43,9 @@ Future<void> main() async {
       ),
       budgetRepositoryProvider.overrideWithValue(
         SupabaseBudgetRepository(supabase.client),
+      ),
+      profileRepositoryProvider.overrideWithValue(
+        SupabaseProfileRepository(supabase.client),
       ),
     ]);
   }

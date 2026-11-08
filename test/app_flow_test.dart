@@ -7,6 +7,7 @@ import 'package:expense_tracker/app/app.dart';
 import 'package:expense_tracker/features/auth/providers/auth_provider.dart';
 import 'package:expense_tracker/features/settings/domain/calendar_grid_settings.dart';
 import 'package:expense_tracker/features/settings/presentation/customize_grid_sheet.dart';
+import 'package:expense_tracker/features/profile/providers/profile_provider.dart';
 import 'package:expense_tracker/features/settings/providers/settings_provider.dart';
 import 'package:expense_tracker/features/transactions/data/in_memory_ledger_repository.dart';
 import 'package:expense_tracker/features/transactions/data/mock_data.dart';
@@ -699,6 +700,32 @@ void main() {
     await tester.pumpAndSettle();
     expect(container.read(profileNameProvider), 'Thiện');
     expect(find.text('Thiện'), findsOneWidget);
+  });
+
+  testWidgets('Expense and income cards filter Home', (tester) async {
+    final container = await pumpApp(tester);
+    bool hasType(TransactionType type) => container
+        .read(homeTransactionsByDayProvider)
+        .values
+        .expand((items) => items)
+        .any((t) => t.type == type);
+    expect(hasType(TransactionType.income), isTrue);
+
+    await tester.tap(find.byKey(const ValueKey('total_expense')));
+    await tester.pumpAndSettle();
+    expect(container.read(homeTypeFilterProvider), TransactionType.expense);
+    expect(hasType(TransactionType.income), isFalse);
+    expect(hasType(TransactionType.expense), isTrue);
+
+    await tester.tap(find.byKey(const ValueKey('total_income')));
+    await tester.pumpAndSettle();
+    expect(hasType(TransactionType.expense), isFalse);
+
+    // Tapping the active card again clears the filter.
+    await tester.tap(find.byKey(const ValueKey('total_income')));
+    await tester.pumpAndSettle();
+    expect(container.read(homeTypeFilterProvider), isNull);
+    expect(hasType(TransactionType.expense), isTrue);
   });
 
   testWidgets('An account with transactions cannot be deleted', (tester) async {

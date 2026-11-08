@@ -488,5 +488,8 @@
   "sectionTools": "TOOLS",
   "sectionPreferences": "PREFERENCES",
   "sectionAccountData": "ACCOUNT & DATA",
-  "editName": "Edit name"
+  "editName": "Edit name",
+  "changeAvatar": "Change profile photo",
+  "editProfile": "Edit profile",
+  "avatarSaveFailed": "Couldn't save the photo. Please try again."
 }

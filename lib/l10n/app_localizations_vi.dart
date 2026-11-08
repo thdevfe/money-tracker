@@ -1144,4 +1144,13 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get editName => 'Đổi tên';
+
+  @override
+  String get changeAvatar => 'Đổi ảnh đại diện';
+
+  @override
+  String get editProfile => 'Sửa hồ sơ';
+
+  @override
+  String get avatarSaveFailed => 'Không lưu được ảnh. Hãy thử lại.';
 }
