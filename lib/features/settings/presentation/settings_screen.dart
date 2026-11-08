@@ -9,6 +9,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../profile/providers/profile_provider.dart';
+import '../../reports/presentation/spending_map_view.dart';
 import '../../transactions/domain/ledger.dart';
 import '../../transactions/providers/transactions_provider.dart';
 import '../providers/settings_provider.dart';
@@ -111,6 +112,17 @@ class SettingsScreen extends ConsumerWidget {
                   color: const Color(0xFF22C55E),
                   title: l10n.settingsCurrency,
                   value: 'VND',
+                ),
+                _SettingTile(
+                  icon: Icons.my_location_rounded,
+                  color: const Color(0xFFF97316),
+                  title: l10n.saveLocation,
+                  subtitle: l10n.saveLocationHint,
+                  trailing: Switch(
+                    key: const ValueKey('settings_save_location'),
+                    value: ref.watch(saveLocationProvider),
+                    onChanged: (on) => setSaveLocation(context, ref, on),
+                  ),
                 ),
               ],
             ),
@@ -525,6 +537,9 @@ class _SettingTile extends StatelessWidget {
   final Color? titleColor;
   final VoidCallback? onTap;
 
+  /// Replaces the value and chevron, e.g. a switch.
+  final Widget? trailing;
+
   const _SettingTile({
     required this.icon,
     required this.color,
@@ -533,6 +548,7 @@ class _SettingTile extends StatelessWidget {
     this.value,
     this.titleColor,
     this.onTap,
+    this.trailing,
   });
 
   @override
@@ -554,15 +570,17 @@ class _SettingTile extends StatelessWidget {
         style: TextStyle(fontWeight: FontWeight.w600, color: titleColor),
       ),
       subtitle: subtitle == null ? null : Text(subtitle!),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (value != null)
-            Text(value!, style: TextStyle(color: colors.textSecondary)),
-          if (onTap != null && titleColor == null)
-            Icon(Icons.chevron_right_rounded, color: colors.textSecondary),
-        ],
-      ),
+      trailing:
+          trailing ??
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (value != null)
+                Text(value!, style: TextStyle(color: colors.textSecondary)),
+              if (onTap != null && titleColor == null)
+                Icon(Icons.chevron_right_rounded, color: colors.textSecondary),
+            ],
+          ),
       onTap: onTap,
     );
   }

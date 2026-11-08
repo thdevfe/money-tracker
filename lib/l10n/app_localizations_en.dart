@@ -1254,4 +1254,29 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noRepeats => 'No repeated spending in this period yet.';
+
+  @override
+  String get saveLocation => 'Save location when adding';
+
+  @override
+  String get saveLocationHint => 'So new transactions appear on the map';
+
+  @override
+  String get mapNoLocations => 'No transactions with a location yet';
+
+  @override
+  String get mapNoLocationsMessage =>
+      'Turn on “Save location when adding” so new transactions show on the map.';
+
+  @override
+  String mapLocatedCount(int located, int total) {
+    return '$located/$total transactions have a location';
+  }
+
+  @override
+  String get locationUnavailable =>
+      'Couldn\'t get your location. Allow location access for the app.';
+
+  @override
+  String get openTransaction => 'Open transaction';
 }

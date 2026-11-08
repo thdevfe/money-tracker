@@ -187,6 +187,10 @@ class MoneyTransaction {
   final String? note;
   final TransactionPhoto? photo;
 
+  /// Where it was added, when location saving is on (for the map).
+  final double? latitude;
+  final double? longitude;
+
   const MoneyTransaction({
     required this.id,
     required this.type,
@@ -198,9 +202,13 @@ class MoneyTransaction {
     this.destinationAccountId,
     this.note,
     this.photo,
+    this.latitude,
+    this.longitude,
   });
 
   bool get hasPhoto => photo != null;
+
+  bool get hasLocation => latitude != null && longitude != null;
 
   /// Same transaction showing an updated version of its category.
   MoneyTransaction withCategory(Category category) =>
@@ -227,5 +235,7 @@ class MoneyTransaction {
     destinationAccountId: destinationAccountId,
     note: note == null ? this.note : (note.trim().isEmpty ? null : note.trim()),
     photo: removePhoto ? null : (photo ?? this.photo),
+    latitude: latitude,
+    longitude: longitude,
   );
 }

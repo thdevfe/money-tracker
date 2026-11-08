@@ -179,6 +179,14 @@ List<MoneyTransaction> _monthTransactions(
           category: Category.system(t.category),
           note: t.note,
           photo: t.photo == null ? null : _photo(t.photo!),
+          // Spread around central Hà Nội for the map; every third one has
+          // no location, like entries made with location saving off.
+          latitude: (day + i) % 3 == 0
+              ? null
+              : 21.0285 + ((day * 37 + i * 53) % 61 - 30) / 1000,
+          longitude: (day + i) % 3 == 0
+              ? null
+              : 105.8542 + ((day * 41 + i * 29) % 67 - 33) / 1000,
         ),
       );
       hour = min(22, hour + 2 + random.nextInt(3));

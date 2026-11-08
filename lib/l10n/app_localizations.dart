@@ -2269,6 +2269,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No repeated spending in this period yet.'**
   String get noRepeats;
+
+  /// No description provided for @saveLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Save location when adding'**
+  String get saveLocation;
+
+  /// No description provided for @saveLocationHint.
+  ///
+  /// In en, this message translates to:
+  /// **'So new transactions appear on the map'**
+  String get saveLocationHint;
+
+  /// No description provided for @mapNoLocations.
+  ///
+  /// In en, this message translates to:
+  /// **'No transactions with a location yet'**
+  String get mapNoLocations;
+
+  /// No description provided for @mapNoLocationsMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on “Save location when adding” so new transactions show on the map.'**
+  String get mapNoLocationsMessage;
+
+  /// No description provided for @mapLocatedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{located}/{total} transactions have a location'**
+  String mapLocatedCount(int located, int total);
+
+  /// No description provided for @locationUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t get your location. Allow location access for the app.'**
+  String get locationUnavailable;
+
+  /// No description provided for @openTransaction.
+  ///
+  /// In en, this message translates to:
+  /// **'Open transaction'**
+  String get openTransaction;
 }
 
 class _AppLocalizationsDelegate

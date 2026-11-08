@@ -509,5 +509,13 @@
   "@repeatSummary": {"placeholders": {"count": {"type": "int"}, "average": {"type": "String"}}},
   "noPatterns": "Not enough data yet",
   "noPatternsMessage": "Add a few expenses in this period to see your spending habits.",
-  "noRepeats": "No repeated spending in this period yet."
+  "noRepeats": "No repeated spending in this period yet.",
+  "saveLocation": "Save location when adding",
+  "saveLocationHint": "So new transactions appear on the map",
+  "mapNoLocations": "No transactions with a location yet",
+  "mapNoLocationsMessage": "Turn on “Save location when adding” so new transactions show on the map.",
+  "mapLocatedCount": "{located}/{total} transactions have a location",
+  "@mapLocatedCount": {"placeholders": {"located": {"type": "int"}, "total": {"type": "int"}}},
+  "locationUnavailable": "Couldn't get your location. Allow location access for the app.",
+  "openTransaction": "Open transaction"
 }

@@ -1205,4 +1205,29 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get noRepeats => 'Chưa có khoản chi nào lặp lại trong kỳ này.';
+
+  @override
+  String get saveLocation => 'Lưu vị trí khi thêm';
+
+  @override
+  String get saveLocationHint => 'Để giao dịch mới hiện trên bản đồ';
+
+  @override
+  String get mapNoLocations => 'Chưa có giao dịch nào có vị trí';
+
+  @override
+  String get mapNoLocationsMessage =>
+      'Bật “Lưu vị trí khi thêm” để các giao dịch mới hiện trên bản đồ.';
+
+  @override
+  String mapLocatedCount(int located, int total) {
+    return '$located/$total giao dịch có vị trí';
+  }
+
+  @override
+  String get locationUnavailable =>
+      'Không lấy được vị trí. Hãy cho phép quyền vị trí cho app.';
+
+  @override
+  String get openTransaction => 'Mở giao dịch';
 }

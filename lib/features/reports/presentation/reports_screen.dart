@@ -13,14 +13,15 @@ import '../../transactions/presentation/home/widgets/period_bar.dart';
 import '../../transactions/presentation/widgets/account_filter_chips.dart';
 import '../../transactions/providers/transactions_provider.dart';
 import 'category_transactions_screen.dart';
+import 'spending_map_view.dart';
 import 'spending_patterns_view.dart';
 
 enum ReportPeriod { month, year, allTime }
 
 enum ReportTab { category, cluster, map }
 
-/// Income/expense overview for a month, a year or all time, with the expense
-/// breakdown by category. Cluster and Map are placeholders.
+/// Income/expense overview for a month, a year or all time, with the
+/// breakdown by category, spending habits (Cluster) and a map.
 class ReportsScreen extends ConsumerStatefulWidget {
   const ReportsScreen({super.key});
 
@@ -222,11 +223,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
             if (_tab == ReportTab.cluster)
               padded(SpendingPatternsView(transactions: items))
             else if (_tab == ReportTab.map)
-              EmptyStateView(
-                icon: Icons.map_outlined,
-                title: l10n.laterVersionTitle,
-                message: l10n.laterVersionMessage,
-              )
+              padded(SpendingMapView(transactions: items))
             else if (breakdown.isEmpty)
               EmptyStateView(
                 icon: Icons.pie_chart_outline_rounded,

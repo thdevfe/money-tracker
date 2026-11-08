@@ -1,3 +1,7 @@
+import 'package:expense_tracker/core/location/location_service.dart';
+import 'package:expense_tracker/features/reports/presentation/spending_map_view.dart';
+import 'package:expense_tracker/features/transactions/presentation/widgets/transaction_list_item.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:expense_tracker/features/reports/presentation/category_transactions_screen.dart';
 import 'package:expense_tracker/features/transactions/presentation/day_detail_screen.dart';
 import 'package:expense_tracker/features/transactions/presentation/home/widgets/day_photo_grid.dart';
@@ -36,6 +40,9 @@ Future<ProviderContainer> pumpApp(
     overrides: [
       clockProvider.overrideWithValue(() => _now),
       cameraListProvider.overrideWithValue(() async => const []),
+      // No network tiles or location plugin in tests.
+      mapTilesEnabledProvider.overrideWithValue(false),
+      locationServiceProvider.overrideWithValue(const _FixedLocation()),
       ...overrides,
     ],
   );
@@ -48,6 +55,13 @@ Future<ProviderContainer> pumpApp(
   );
   await tester.pumpAndSettle();
   return container;
+}
+
+class _FixedLocation implements LocationService {
+  const _FixedLocation();
+
+  @override
+  Future<(double, double)?> current() async => (10.7769, 106.7009);
 }
 
 Finder dayCell(int day) => find.byWidgetPredicate(
@@ -777,6 +791,51 @@ void main() {
       scrollable: find.byType(Scrollable).first,
     );
     expect(find.text('Khoản chi lặp lại'), findsOneWidget);
+  });
+
+  testWidgets('Reports map shows located transactions as pins', (tester) async {
+    final container = await pumpApp(tester);
+    await tester.tap(find.byTooltip('Báo cáo'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Bản đồ'));
+    await tester.pumpAndSettle();
+
+    final located = container
+        .read(transactionsProvider)
+        .where(
+          (t) =>
+              t.hasLocation &&
+              t.occurredAt.month == 10 &&
+              t.occurredAt.year == 2026,
+        )
+        .toList();
+    expect(located, isNotEmpty);
+    expect(find.byType(FlutterMap), findsOneWidget);
+    expect(find.textContaining('giao dịch có vị trí'), findsOneWidget);
+
+    await tester.tap(find.byKey(ValueKey('pin_${located.first.id}')).first);
+    await tester.pumpAndSettle();
+    expect(find.byType(TransactionListItem), findsOneWidget);
+  });
+
+  testWidgets('With location saving on, new entries keep where they were', (
+    tester,
+  ) async {
+    final container = await pumpApp(tester);
+    await tester.tap(find.byTooltip('Hồ sơ'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('settings_save_location')));
+    await tester.pumpAndSettle();
+    expect(container.read(saveLocationProvider), isTrue);
+
+    await openAddForm(tester);
+    await typeKeys(tester, ['7', '000']);
+    await tapDone(tester);
+    final added = container
+        .read(transactionsProvider)
+        .firstWhere((t) => t.amountMinor == 7000);
+    expect(added.latitude, 10.7769);
+    expect(added.longitude, 106.7009);
   });
 
   testWidgets('An account with transactions cannot be deleted', (tester) async {

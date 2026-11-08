@@ -6,8 +6,10 @@ import 'package:uuid/uuid.dart';
 
 import '../../../../app/navigation.dart';
 import '../../../../core/formatting/formatters.dart';
+import '../../../../core/location/location_service.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../settings/providers/settings_provider.dart';
 import '../../domain/ledger.dart';
 import '../../domain/ledger_repository.dart';
 import '../../domain/models.dart';
@@ -73,6 +75,10 @@ class _AddEditTransactionScreenState
   /// full and the bottom bar saves.
   late bool _keypadOpen;
 
+  /// Where a new entry is being added, fetched in the background when
+  /// location saving is on; an edit keeps its saved place.
+  (double, double)? _location;
+
   bool get _isEditing => widget.existing != null;
 
   @override
@@ -107,6 +113,13 @@ class _AddEditTransactionScreenState
         : KeypadExpression.fromAmount(e.amountMinor);
     // Without a photo there is nothing to look at: start typing right away.
     _keypadOpen = e == null && _photo == null;
+    if (e != null && e.hasLocation) {
+      _location = (e.latitude!, e.longitude!);
+    } else if (e == null && ref.read(saveLocationProvider)) {
+      ref.read(locationServiceProvider).current().then((place) {
+        if (mounted && place != null) _location = place;
+      });
+    }
     // Baseline for "unsaved changes"; a fresh photo counts as a change.
     _initialSnapshot = _snapshot(e?.amountMinor, photo: e?.photo);
   }
@@ -375,6 +388,8 @@ class _AddEditTransactionScreenState
       destinationAccountId: isTransfer ? _destinationAccountId : null,
       note: note.isEmpty ? null : note,
       photo: isTransfer ? null : _photo,
+      latitude: isTransfer ? null : _location?.$1,
+      longitude: isTransfer ? null : _location?.$2,
     );
     final messenger = ScaffoldMessenger.of(context);
     final l10n = AppLocalizations.of(context);

@@ -378,5 +378,13 @@
   "@repeatSummary": {"placeholders": {"count": {"type": "int"}, "average": {"type": "String"}}},
   "noPatterns": "Chưa đủ dữ liệu",
   "noPatternsMessage": "Thêm vài khoản chi trong kỳ này để thấy thói quen chi tiêu.",
-  "noRepeats": "Chưa có khoản chi nào lặp lại trong kỳ này."
+  "noRepeats": "Chưa có khoản chi nào lặp lại trong kỳ này.",
+  "saveLocation": "Lưu vị trí khi thêm",
+  "saveLocationHint": "Để giao dịch mới hiện trên bản đồ",
+  "mapNoLocations": "Chưa có giao dịch nào có vị trí",
+  "mapNoLocationsMessage": "Bật “Lưu vị trí khi thêm” để các giao dịch mới hiện trên bản đồ.",
+  "mapLocatedCount": "{located}/{total} giao dịch có vị trí",
+  "@mapLocatedCount": {"placeholders": {"located": {"type": "int"}, "total": {"type": "int"}}},
+  "locationUnavailable": "Không lấy được vị trí. Hãy cho phép quyền vị trí cho app.",
+  "openTransaction": "Mở giao dịch"
 }

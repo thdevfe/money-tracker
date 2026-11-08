@@ -58,3 +58,22 @@ final calendarGridSettingsProvider =
 final monthStartDayProvider = Provider<int>(
   (ref) => ref.watch(calendarGridSettingsProvider).monthStartDay,
 );
+
+/// Whether new transactions record where they were added (for the map).
+/// Off until the user turns it on; saved per device.
+class SaveLocationNotifier extends StateNotifier<bool> {
+  static const _key = 'save_location';
+
+  final PreferenceStore _store;
+
+  SaveLocationNotifier(this._store) : super(_store.read(_key) == 'true');
+
+  void set(bool value) {
+    state = value;
+    _store.write(_key, '$value').ignore();
+  }
+}
+
+final saveLocationProvider = StateNotifierProvider<SaveLocationNotifier, bool>(
+  (ref) => SaveLocationNotifier(ref.watch(preferenceStoreProvider)),
+);

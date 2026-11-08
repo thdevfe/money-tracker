@@ -277,6 +277,8 @@ class SupabaseLedgerRepository implements LedgerRepository {
       photo: path == null
           ? null
           : RemoteTransactionPhoto(path, urls[path] ?? ''),
+      latitude: (r['latitude'] as num?)?.toDouble(),
+      longitude: (r['longitude'] as num?)?.toDouble(),
     );
   }
 
@@ -314,5 +316,7 @@ class SupabaseLedgerRepository implements LedgerRepository {
     'destination_account_id': t.destinationAccountId,
     'note': t.note,
     'photo_path': photoPath,
+    // Only sent when known, so saving works without the location columns.
+    if (t.hasLocation) ...{'latitude': t.latitude, 'longitude': t.longitude},
   };
 }
