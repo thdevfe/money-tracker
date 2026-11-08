@@ -1196,4 +1196,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get avatarSaveFailed => 'Couldn\'t save the photo. Please try again.';
+
+  @override
+  String get reportsNoIncome => 'No income in this period';
 }

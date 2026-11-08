@@ -2179,6 +2179,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Couldn\'t save the photo. Please try again.'**
   String get avatarSaveFailed;
+
+  /// No description provided for @reportsNoIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'No income in this period'**
+  String get reportsNoIncome;
 }
 
 class _AppLocalizationsDelegate

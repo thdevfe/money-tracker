@@ -12,6 +12,7 @@ import '../../transactions/presentation/category_presentation.dart';
 import '../../transactions/presentation/home/widgets/period_bar.dart';
 import '../../transactions/presentation/widgets/account_filter_chips.dart';
 import '../../transactions/providers/transactions_provider.dart';
+import 'category_transactions_screen.dart';
 
 enum ReportPeriod { month, year, allTime }
 
@@ -29,6 +30,9 @@ class ReportsScreen extends ConsumerStatefulWidget {
 class _ReportsScreenState extends ConsumerState<ReportsScreen> {
   ReportPeriod _period = ReportPeriod.month;
   ReportTab _tab = ReportTab.category;
+
+  /// Which side the category breakdown shows; the cards switch it.
+  TransactionType _type = TransactionType.expense;
   String? _accountId;
   late DateTime _anchor = monthStart(ref.read(clockProvider)());
 
@@ -44,6 +48,36 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
         : DateTime(_anchor.year, _anchor.month + delta);
   });
 
+  /// The category's transactions in this report's period and account.
+  void _openCategory(Category category) {
+    final l10n = AppLocalizations.of(context);
+    final fmt = Formatters.of(context);
+    final accountId = _accountId;
+    final period = _period;
+    final anchor = _anchor;
+    bool inPeriod(DateTime d) => switch (period) {
+      ReportPeriod.month => isSameMonth(d, anchor),
+      ReportPeriod.year => d.year == anchor.year,
+      ReportPeriod.allTime => true,
+    };
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => CategoryTransactionsScreen(
+          category: category,
+          type: _type,
+          periodLabel: switch (period) {
+            ReportPeriod.month => fmt.monthYear(anchor),
+            ReportPeriod.year => '${anchor.year}',
+            ReportPeriod.allTime => l10n.allTimeTitle,
+          },
+          inReport: (t) =>
+              inPeriod(t.occurredAt) &&
+              (accountId == null || involvesAccount(t, accountId)),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -57,7 +91,10 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
         .where((t) => accountId == null || involvesAccount(t, accountId))
         .toList();
     final totals = totalsOf(items);
-    final breakdown = expenseByCategory(items);
+    final breakdown = totalsByCategory(items, _type);
+    final breakdownTotal = _type == TransactionType.expense
+        ? totals.expenseMinor
+        : totals.incomeMinor;
     final rate = savingsRate(totals);
     final percent = NumberFormat.percentPattern(fmt.locale);
 
@@ -128,20 +165,27 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                 children: [
                   Expanded(
                     child: _TotalCard(
+                      key: const ValueKey('report_income'),
                       icon: Icons.south_west_rounded,
                       label: l10n.summaryIncome,
                       value: fmt.money(totals.incomeMinor),
                       color: colors.income,
+                      highlighted: _type == TransactionType.income,
+                      onTap: () =>
+                          setState(() => _type = TransactionType.income),
                     ),
                   ),
                   const SizedBox(width: AppSpacing.md),
                   Expanded(
                     child: _TotalCard(
+                      key: const ValueKey('report_expense'),
                       icon: Icons.north_east_rounded,
                       label: l10n.summaryExpense,
                       value: fmt.money(totals.expenseMinor),
                       color: colors.expense,
-                      highlighted: true,
+                      highlighted: _type == TransactionType.expense,
+                      onTap: () =>
+                          setState(() => _type = TransactionType.expense),
                     ),
                   ),
                 ],
@@ -185,7 +229,9 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
             else if (breakdown.isEmpty)
               EmptyStateView(
                 icon: Icons.pie_chart_outline_rounded,
-                title: l10n.reportsNoExpenses,
+                title: _type == TransactionType.expense
+                    ? l10n.reportsNoExpenses
+                    : l10n.reportsNoIncome,
               )
             else
               padded(
@@ -200,8 +246,9 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                       for (final c in breakdown)
                         _CategoryRow(
                           total: c,
-                          share: c.amountMinor / totals.expenseMinor,
+                          share: c.amountMinor / breakdownTotal,
                           percent: percent,
+                          onTap: () => _openCategory(c.category),
                         ),
                     ],
                   ),
@@ -286,12 +333,15 @@ class _TotalCard extends StatelessWidget {
   final String value;
   final Color color;
   final bool highlighted;
+  final VoidCallback onTap;
 
   const _TotalCard({
+    super.key,
     required this.icon,
     required this.label,
     required this.value,
     required this.color,
+    required this.onTap,
     this.highlighted = false,
   });
 
@@ -299,58 +349,69 @@ class _TotalCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = AppColors.of(context);
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.md),
-      decoration: BoxDecoration(
-        color: highlighted
-            ? color.withValues(alpha: 0.10)
-            : colors.elevatedSurface,
-        borderRadius: BorderRadius.circular(AppRadii.card),
-        border: Border.all(
-          color: highlighted
-              ? color.withValues(alpha: 0.6)
-              : Colors.transparent,
-        ),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 34,
-            height: 34,
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.18),
-              shape: BoxShape.circle,
+    return Semantics(
+      button: true,
+      selected: highlighted,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          padding: const EdgeInsets.all(AppSpacing.md),
+          decoration: BoxDecoration(
+            color: highlighted
+                ? color.withValues(alpha: 0.10)
+                : colors.elevatedSurface,
+            borderRadius: BorderRadius.circular(AppRadii.card),
+            border: Border.all(
+              color: highlighted
+                  ? color.withValues(alpha: 0.6)
+                  : Colors.transparent,
             ),
-            child: Icon(icon, size: 18, color: color),
           ),
-          const SizedBox(width: AppSpacing.sm),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: theme.textTheme.labelMedium?.copyWith(
-                    color: highlighted ? color : colors.textSecondary,
-                  ),
+          child: Row(
+            children: [
+              Container(
+                width: 34,
+                height: 34,
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.18),
+                  shape: BoxShape.circle,
                 ),
-                FittedBox(
-                  fit: BoxFit.scaleDown,
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    value,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w800,
-                      color: highlighted ? color : theme.colorScheme.onSurface,
+                child: Icon(icon, size: 18, color: color),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.labelMedium?.copyWith(
+                        color: highlighted ? color : colors.textSecondary,
+                      ),
                     ),
-                  ),
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        value,
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w800,
+                          color: highlighted
+                              ? color
+                              : theme.colorScheme.onSurface,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -427,11 +488,13 @@ class _CategoryRow extends StatelessWidget {
   final CategoryTotal total;
   final double share;
   final NumberFormat percent;
+  final VoidCallback onTap;
 
   const _CategoryRow({
     required this.total,
     required this.share,
     required this.percent,
+    required this.onTap,
   });
 
   @override
@@ -441,68 +504,74 @@ class _CategoryRow extends StatelessWidget {
     final theme = Theme.of(context);
     final colors = AppColors.of(context);
     final c = total.category;
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.lg,
-        vertical: AppSpacing.sm,
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: c.tint,
-              borderRadius: BorderRadius.circular(AppRadii.listThumbnail),
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.lg,
+          vertical: AppSpacing.sm,
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: c.tint,
+                borderRadius: BorderRadius.circular(AppRadii.listThumbnail),
+              ),
+              child: Icon(c.icon, color: Colors.white, size: 22),
             ),
-            child: Icon(c.icon, color: Colors.white, size: 22),
-          ),
-          const SizedBox(width: AppSpacing.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        c.label(l10n),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: theme.textTheme.bodyLarge?.copyWith(
-                          fontWeight: FontWeight.w600,
+            const SizedBox(width: AppSpacing.md),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          c.label(l10n),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.bodyLarge?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
-                    ),
-                    Text(
-                      fmt.money(total.amountMinor),
-                      style: theme.textTheme.bodyLarge?.copyWith(
-                        fontWeight: FontWeight.w700,
+                      Text(
+                        fmt.money(total.amountMinor),
+                        style: theme.textTheme.bodyLarge?.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
+                    ],
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    l10n.categoryShareDetail(
+                      total.count,
+                      percent.format(share),
                     ),
-                  ],
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  l10n.categoryShareDetail(total.count, percent.format(share)),
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: colors.textSecondary,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: colors.textSecondary,
+                    ),
                   ),
-                ),
-                const SizedBox(height: AppSpacing.xs),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(3),
-                  child: LinearProgressIndicator(
-                    value: share,
-                    minHeight: 5,
-                    color: c.tint,
-                    backgroundColor: colors.border,
+                  const SizedBox(height: AppSpacing.xs),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(3),
+                    child: LinearProgressIndicator(
+                      value: share,
+                      minHeight: 5,
+                      color: c.tint,
+                      backgroundColor: colors.border,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

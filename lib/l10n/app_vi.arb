@@ -360,5 +360,6 @@
   "editName": "Đổi tên",
   "changeAvatar": "Đổi ảnh đại diện",
   "editProfile": "Sửa hồ sơ",
-  "avatarSaveFailed": "Không lưu được ảnh. Hãy thử lại."
+  "avatarSaveFailed": "Không lưu được ảnh. Hãy thử lại.",
+  "reportsNoIncome": "Không có khoản thu trong kỳ này"
 }

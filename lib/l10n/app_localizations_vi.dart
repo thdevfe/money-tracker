@@ -1153,4 +1153,7 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get avatarSaveFailed => 'Không lưu được ảnh. Hãy thử lại.';
+
+  @override
+  String get reportsNoIncome => 'Không có khoản thu trong kỳ này';
 }

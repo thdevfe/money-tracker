@@ -491,5 +491,6 @@
   "editName": "Edit name",
   "changeAvatar": "Change profile photo",
   "editProfile": "Edit profile",
-  "avatarSaveFailed": "Couldn't save the photo. Please try again."
+  "avatarSaveFailed": "Couldn't save the photo. Please try again.",
+  "reportsNoIncome": "No income in this period"
 }

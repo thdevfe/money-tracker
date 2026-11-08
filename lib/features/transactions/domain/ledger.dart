@@ -105,12 +105,20 @@ class CategoryTotal {
 
 /// Expense totals per category, largest first (ties by id). Income and
 /// transfers are excluded.
-List<CategoryTotal> expenseByCategory(Iterable<MoneyTransaction> transactions) {
+List<CategoryTotal> expenseByCategory(
+  Iterable<MoneyTransaction> transactions,
+) => totalsByCategory(transactions, TransactionType.expense);
+
+/// [type] totals per category, largest first (ties by id).
+List<CategoryTotal> totalsByCategory(
+  Iterable<MoneyTransaction> transactions,
+  TransactionType type,
+) {
   final amounts = <Category, int>{};
   final counts = <Category, int>{};
   for (final t in transactions) {
     final category = t.category;
-    if (t.type != TransactionType.expense || category == null) continue;
+    if (t.type != type || category == null) continue;
     amounts[category] = (amounts[category] ?? 0) + t.amountMinor;
     counts[category] = (counts[category] ?? 0) + 1;
   }

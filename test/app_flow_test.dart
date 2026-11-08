@@ -1,3 +1,4 @@
+import 'package:expense_tracker/features/reports/presentation/category_transactions_screen.dart';
 import 'package:expense_tracker/features/transactions/presentation/day_detail_screen.dart';
 import 'package:expense_tracker/features/transactions/presentation/home/widgets/day_photo_grid.dart';
 import 'package:expense_tracker/features/transactions/presentation/home/widgets/month_bar_chart.dart';
@@ -726,6 +727,34 @@ void main() {
     await tester.pumpAndSettle();
     expect(container.read(homeTypeFilterProvider), isNull);
     expect(hasType(TransactionType.expense), isTrue);
+  });
+
+  testWidgets('Reports switch the breakdown between expense and income', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    await tester.tap(find.byTooltip('Báo cáo'));
+    await tester.pumpAndSettle();
+    expect(find.text('Ăn uống'), findsWidgets);
+    expect(find.text('Lương'), findsNothing);
+
+    await tester.tap(find.byKey(const ValueKey('report_income')));
+    await tester.pumpAndSettle();
+    expect(find.text('Lương'), findsOneWidget);
+    expect(find.text('Ăn uống'), findsNothing);
+
+    // A category opens its transactions for the period.
+    await tester.tap(find.text('Lương'));
+    await tester.pumpAndSettle();
+    expect(find.byType(CategoryTransactionsScreen), findsOneWidget);
+    expect(find.byType(DayTransactionsCard), findsWidgets);
+    expect(find.textContaining('+'), findsWidgets);
+    await tester.tap(find.byType(BackButton));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const ValueKey('report_expense')));
+    await tester.pumpAndSettle();
+    expect(find.text('Ăn uống'), findsWidgets);
   });
 
   testWidgets('An account with transactions cannot be deleted', (tester) async {
