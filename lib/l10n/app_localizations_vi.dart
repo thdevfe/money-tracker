@@ -1156,4 +1156,53 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get reportsNoIncome => 'Không có khoản thu trong kỳ này';
+
+  @override
+  String get whenYouSpend => 'Bạn chi vào lúc nào';
+
+  @override
+  String get slotNight => 'Đêm';
+
+  @override
+  String get slotMorning => 'Sáng';
+
+  @override
+  String get slotNoon => 'Trưa';
+
+  @override
+  String get slotAfternoon => 'Chiều';
+
+  @override
+  String get slotEvening => 'Tối';
+
+  @override
+  String get slotLate => 'Khuya';
+
+  @override
+  String peakSpending(String slot, String weekday) {
+    return 'Chi nhiều nhất: $slot $weekday';
+  }
+
+  @override
+  String heatCell(String weekday, String slot, String amount, int count) {
+    return '$weekday · $slot: $amount ($count giao dịch)';
+  }
+
+  @override
+  String get repeatedSpending => 'Khoản chi lặp lại';
+
+  @override
+  String repeatSummary(int count, String average) {
+    return '$count lần · TB $average';
+  }
+
+  @override
+  String get noPatterns => 'Chưa đủ dữ liệu';
+
+  @override
+  String get noPatternsMessage =>
+      'Thêm vài khoản chi trong kỳ này để thấy thói quen chi tiêu.';
+
+  @override
+  String get noRepeats => 'Chưa có khoản chi nào lặp lại trong kỳ này.';
 }

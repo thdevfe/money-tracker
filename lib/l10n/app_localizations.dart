@@ -2185,6 +2185,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No income in this period'**
   String get reportsNoIncome;
+
+  /// No description provided for @whenYouSpend.
+  ///
+  /// In en, this message translates to:
+  /// **'When you spend'**
+  String get whenYouSpend;
+
+  /// No description provided for @slotNight.
+  ///
+  /// In en, this message translates to:
+  /// **'Night'**
+  String get slotNight;
+
+  /// No description provided for @slotMorning.
+  ///
+  /// In en, this message translates to:
+  /// **'Morning'**
+  String get slotMorning;
+
+  /// No description provided for @slotNoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Noon'**
+  String get slotNoon;
+
+  /// No description provided for @slotAfternoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Afternoon'**
+  String get slotAfternoon;
+
+  /// No description provided for @slotEvening.
+  ///
+  /// In en, this message translates to:
+  /// **'Evening'**
+  String get slotEvening;
+
+  /// No description provided for @slotLate.
+  ///
+  /// In en, this message translates to:
+  /// **'Late'**
+  String get slotLate;
+
+  /// No description provided for @peakSpending.
+  ///
+  /// In en, this message translates to:
+  /// **'You spend most: {weekday} {slot}'**
+  String peakSpending(String slot, String weekday);
+
+  /// No description provided for @heatCell.
+  ///
+  /// In en, this message translates to:
+  /// **'{weekday} · {slot}: {amount} ({count, plural, =1{1 transaction} other{{count} transactions}})'**
+  String heatCell(String weekday, String slot, String amount, int count);
+
+  /// No description provided for @repeatedSpending.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeated spending'**
+  String get repeatedSpending;
+
+  /// No description provided for @repeatSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}× · avg {average}'**
+  String repeatSummary(int count, String average);
+
+  /// No description provided for @noPatterns.
+  ///
+  /// In en, this message translates to:
+  /// **'Not enough data yet'**
+  String get noPatterns;
+
+  /// No description provided for @noPatternsMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a few expenses in this period to see your spending habits.'**
+  String get noPatternsMessage;
+
+  /// No description provided for @noRepeats.
+  ///
+  /// In en, this message translates to:
+  /// **'No repeated spending in this period yet.'**
+  String get noRepeats;
 }
 
 class _AppLocalizationsDelegate

@@ -523,7 +523,7 @@ void main() {
 
     await tester.tap(find.text('Cụm'));
     await tester.pumpAndSettle();
-    expect(find.text('Sẽ có ở phiên bản sau'), findsOneWidget);
+    expect(find.text('Bạn chi vào lúc nào'), findsOneWidget);
   });
 
   testWidgets('Add starts with the capture step, then the entry screen', (
@@ -755,6 +755,28 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('report_expense')));
     await tester.pumpAndSettle();
     expect(find.text('Ăn uống'), findsWidgets);
+  });
+
+  testWidgets('Reports cluster tab shows when spending happens', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    await tester.tap(find.byTooltip('Báo cáo'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Cụm'));
+    await tester.pumpAndSettle();
+    expect(find.text('Bạn chi vào lúc nào'), findsOneWidget);
+    expect(find.textContaining('Chi nhiều nhất'), findsOneWidget);
+
+    await tester.tap(find.byKey(const ValueKey('heat_0_morning')));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Th 2 · Sáng'), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.text('Khoản chi lặp lại'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(find.text('Khoản chi lặp lại'), findsOneWidget);
   });
 
   testWidgets('An account with transactions cannot be deleted', (tester) async {

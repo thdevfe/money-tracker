@@ -492,5 +492,22 @@
   "changeAvatar": "Change profile photo",
   "editProfile": "Edit profile",
   "avatarSaveFailed": "Couldn't save the photo. Please try again.",
-  "reportsNoIncome": "No income in this period"
+  "reportsNoIncome": "No income in this period",
+  "whenYouSpend": "When you spend",
+  "slotNight": "Night",
+  "slotMorning": "Morning",
+  "slotNoon": "Noon",
+  "slotAfternoon": "Afternoon",
+  "slotEvening": "Evening",
+  "slotLate": "Late",
+  "peakSpending": "You spend most: {weekday} {slot}",
+  "@peakSpending": {"placeholders": {"slot": {"type": "String"}, "weekday": {"type": "String"}}},
+  "heatCell": "{weekday} · {slot}: {amount} ({count, plural, =1{1 transaction} other{{count} transactions}})",
+  "@heatCell": {"placeholders": {"weekday": {"type": "String"}, "slot": {"type": "String"}, "amount": {"type": "String"}, "count": {"type": "int"}}},
+  "repeatedSpending": "Repeated spending",
+  "repeatSummary": "{count}× · avg {average}",
+  "@repeatSummary": {"placeholders": {"count": {"type": "int"}, "average": {"type": "String"}}},
+  "noPatterns": "Not enough data yet",
+  "noPatternsMessage": "Add a few expenses in this period to see your spending habits.",
+  "noRepeats": "No repeated spending in this period yet."
 }

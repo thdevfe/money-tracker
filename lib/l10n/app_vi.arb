@@ -361,5 +361,22 @@
   "changeAvatar": "Đổi ảnh đại diện",
   "editProfile": "Sửa hồ sơ",
   "avatarSaveFailed": "Không lưu được ảnh. Hãy thử lại.",
-  "reportsNoIncome": "Không có khoản thu trong kỳ này"
+  "reportsNoIncome": "Không có khoản thu trong kỳ này",
+  "whenYouSpend": "Bạn chi vào lúc nào",
+  "slotNight": "Đêm",
+  "slotMorning": "Sáng",
+  "slotNoon": "Trưa",
+  "slotAfternoon": "Chiều",
+  "slotEvening": "Tối",
+  "slotLate": "Khuya",
+  "peakSpending": "Chi nhiều nhất: {slot} {weekday}",
+  "@peakSpending": {"placeholders": {"slot": {"type": "String"}, "weekday": {"type": "String"}}},
+  "heatCell": "{weekday} · {slot}: {amount} ({count} giao dịch)",
+  "@heatCell": {"placeholders": {"weekday": {"type": "String"}, "slot": {"type": "String"}, "amount": {"type": "String"}, "count": {"type": "int"}}},
+  "repeatedSpending": "Khoản chi lặp lại",
+  "repeatSummary": "{count} lần · TB {average}",
+  "@repeatSummary": {"placeholders": {"count": {"type": "int"}, "average": {"type": "String"}}},
+  "noPatterns": "Chưa đủ dữ liệu",
+  "noPatternsMessage": "Thêm vài khoản chi trong kỳ này để thấy thói quen chi tiêu.",
+  "noRepeats": "Chưa có khoản chi nào lặp lại trong kỳ này."
 }

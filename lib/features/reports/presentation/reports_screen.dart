@@ -13,6 +13,7 @@ import '../../transactions/presentation/home/widgets/period_bar.dart';
 import '../../transactions/presentation/widgets/account_filter_chips.dart';
 import '../../transactions/providers/transactions_provider.dart';
 import 'category_transactions_screen.dart';
+import 'spending_patterns_view.dart';
 
 enum ReportPeriod { month, year, allTime }
 
@@ -218,11 +219,11 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
               ),
             ),
             const SizedBox(height: AppSpacing.md),
-            if (_tab != ReportTab.category)
+            if (_tab == ReportTab.cluster)
+              padded(SpendingPatternsView(transactions: items))
+            else if (_tab == ReportTab.map)
               EmptyStateView(
-                icon: _tab == ReportTab.map
-                    ? Icons.map_outlined
-                    : Icons.bubble_chart_outlined,
+                icon: Icons.map_outlined,
                 title: l10n.laterVersionTitle,
                 message: l10n.laterVersionMessage,
               )

@@ -1199,4 +1199,59 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reportsNoIncome => 'No income in this period';
+
+  @override
+  String get whenYouSpend => 'When you spend';
+
+  @override
+  String get slotNight => 'Night';
+
+  @override
+  String get slotMorning => 'Morning';
+
+  @override
+  String get slotNoon => 'Noon';
+
+  @override
+  String get slotAfternoon => 'Afternoon';
+
+  @override
+  String get slotEvening => 'Evening';
+
+  @override
+  String get slotLate => 'Late';
+
+  @override
+  String peakSpending(String slot, String weekday) {
+    return 'You spend most: $weekday $slot';
+  }
+
+  @override
+  String heatCell(String weekday, String slot, String amount, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count transactions',
+      one: '1 transaction',
+    );
+    return '$weekday · $slot: $amount ($_temp0)';
+  }
+
+  @override
+  String get repeatedSpending => 'Repeated spending';
+
+  @override
+  String repeatSummary(int count, String average) {
+    return '$count× · avg $average';
+  }
+
+  @override
+  String get noPatterns => 'Not enough data yet';
+
+  @override
+  String get noPatternsMessage =>
+      'Add a few expenses in this period to see your spending habits.';
+
+  @override
+  String get noRepeats => 'No repeated spending in this period yet.';
 }
